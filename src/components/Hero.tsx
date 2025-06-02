@@ -1,4 +1,4 @@
-const Hero = () => {
+export default function Hero() {
 	return (
 		<section className="bg-orange-500 text-white py-20 text-center">
 			<div className="container mx-auto">
@@ -10,6 +10,4 @@ const Hero = () => {
 			</div>
 		</section>
 	);
-};
-
-export default Hero;
+}

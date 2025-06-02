@@ -1,8 +1,8 @@
-import Header from '../Components/Header';
-import Footer from '../Components/Footer';
-import NewsList from '../Components/NewsList';
+import NewsList from '../components/NewsList';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const News = () => {
+export default function News() {
 	return (
 		<>
 			<Header />
@@ -16,6 +16,4 @@ const News = () => {
 			<Footer />
 		</>
 	);
-};
-
-export default News;
+}
