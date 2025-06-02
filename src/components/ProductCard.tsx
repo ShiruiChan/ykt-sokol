@@ -1,21 +1,19 @@
-import { Product } from '../types';
+import { Product } from "../types";
 
 interface Props {
 	product: Product;
 }
 
-const ProductCard = ({ product }: Props) => {
+export default function ProductCard({ product }: Props) {
 	return (
-		<div className="bg-white shadow-md rounded p-4 text-center">
-			<img src={product.image} alt={product.name} className="w-full h-48 object-cover mb-4 rounded" />
-			<h3 className="text-xl font-semibold">{product.name}</h3>
-			<p className="text-gray-600 my-2">{product.description}</p>
-			<p className="font-bold text-orange-600">{product.price}</p>
-			<a href={`/product/${product.id}`} className="block mt-4 text-white bg-orange-500 px-4 py-2 rounded hover:bg-orange-600">
-				Подробнее
-			</a>
+		<div className="bg-white shadow-lg rounded overflow-hidden transform hover:scale-105 transition duration-300">
+			<img src={product.image} alt={product.name} className="w-full h-56 object-cover" />
+			<div className="p-6">
+				<h3 className="text-xl font-bold mb-2">{product.name}</h3>
+				<p className="text-gray-600 mb-4">{product.description}</p>
+				<p className="font-bold text-primary text-xl mb-4">{product.price}</p>
+				<a href={`/product`} className="btn-primary">Подробнее</a>
+			</div>
 		</div>
 	);
-};
-
-export default ProductCard;
+}

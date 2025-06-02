@@ -3,7 +3,7 @@ import { Product } from '../types';
 export const products: Product[] = [
 	{
 		id: 1,
-		name: "X-100",
+		name: "X-1",
 		description: "Высокая проходимость и надежность",
 		price: "от 450 000 ₽",
 		image: "/images/quad-1.jpg",

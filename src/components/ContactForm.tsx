@@ -17,76 +17,62 @@ export default function ContactForm() {
 		}
 
 		try {
-			const response = await fetch('/api/contact', {
+			await fetch('/api/contact', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(formData),
 			});
 
-			if (response.ok) {
-				setSubmitted(true);
-				setFormData({ name: '', contact: '', message: '' });
-				setError('');
-			}
+			setSubmitted(true);
+			setFormData({ name: '', contact: '', message: '' });
+			setError('');
 		} catch (err) {
-			setError('Ошибка при отправке');
+			setError('Ошибка при отправке формы');
 		}
 	};
 
 	if (submitted) {
 		return (
-			<div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
-				<p>Спасибо! Мы свяжемся с вами.</p>
-				<button onClick={() => setSubmitted(false)} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded">
-					Написать еще
+			<div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4">
+				<p>Спасибо! Мы свяжемся с вами в ближайшее время.</p>
+				<button
+					onClick={() => setSubmitted(false)}
+					className="mt-2 btn-primary"
+				>
+					Написать ещё
 				</button>
 			</div>
 		);
 	}
 
 	return (
-		<form onSubmit={handleSubmit} className="mb-8">
-			<h2 className="text-xl font-semibold mb-4">Свяжитесь с нами</h2>
+		<form onSubmit={handleSubmit}>
 			{error && <p className="text-red-500 mb-4">{error}</p>}
-			<div className="mb-4">
-				<label className="block text-gray-700 mb-2" htmlFor="name">Имя</label>
-				<input
-					type="text"
-					id="name"
-					name="name"
-					value={formData.name}
-					onChange={handleChange}
-					className="w-full px-4 py-2 border rounded"
-				/>
-			</div>
-			<div className="mb-4">
-				<label className="block text-gray-700 mb-2" htmlFor="contact">Email или телефон</label>
-				<input
-					type="text"
-					id="contact"
-					name="contact"
-					value={formData.contact}
-					onChange={handleChange}
-					className="w-full px-4 py-2 border rounded"
-				/>
-			</div>
-			<div className="mb-4">
-				<label className="block text-gray-700 mb-2" htmlFor="message">Сообщение</label>
-				<textarea
-					id="message"
-					name="message"
-					value={formData.message}
-					onChange={handleChange}
-					rows={4}
-					className="w-full px-4 py-2 border rounded"
-				></textarea>
-			</div>
-			<button
-				type="submit"
-				className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-			>
-				Отправить
-			</button>
+			<input
+				type="text"
+				name="name"
+				placeholder="Ваше имя"
+				value={formData.name}
+				onChange={handleChange}
+				className="w-full px-4 py-3 mb-4 border rounded"
+			/>
+			<input
+				type="text"
+				name="contact"
+				placeholder="Email или телефон"
+				value={formData.contact}
+				onChange={handleChange}
+				className="w-full px-4 py-3 mb-4 border rounded"
+			/>
+			<textarea
+				name="message"
+				rows={4}
+				placeholder="Ваше сообщение"
+				value={formData.message}
+				onChange={handleChange}
+				className="w-full px-4 py-3 mb-4 border rounded"
+			></textarea>
+			<button type="submit" className="btn-primary">Отправить</button>
 		</form>
 	);
 }

@@ -1,12 +1,14 @@
 export default function Hero() {
 	return (
-		<section className="bg-orange-500 text-white py-20 text-center">
-			<div className="container mx-auto">
-				<h1 className="text-4xl font-bold mb-4">Мощь. Проходимость. Твой квадроцикл.</h1>
-				<p className="mb-6">Производим мощные внедорожные квадроциклы 3x2 метра и выше</p>
-				<a href="#catalog" className="inline-block bg-white text-gray-900 px-6 py-3 rounded hover:bg-gray-200">
-					Посмотреть каталог
-				</a>
+		<section className="relative bg-dark text-white py-32">
+			<div className="container mx-auto px-4 text-center">
+				<h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+					Квадрациклы нового поколения
+				</h1>
+				<p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+					Производим мощные внедорожники высотой более 2 метров для охоты, бизнеса и путешествий.
+				</p>
+				<a href="#catalog" className="btn-primary">Посмотреть каталог</a>
 			</div>
 		</section>
 	);
