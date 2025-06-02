@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { products } from '../data/products';
-import ContactForm from '../Components/ContactForm';
+import ContactForm from '../components/ContactForm';
 
 export default function ProductPage() {
 	const { id } = useParams<{ id: string }>();

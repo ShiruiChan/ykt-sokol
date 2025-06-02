@@ -1,5 +1,5 @@
 import NewsList from '../components/NewsList';
-import ContactForm from '../Components/ContactForm';
+import ContactForm from '../components/ContactForm';
 import Hero from '../components/Hero';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
