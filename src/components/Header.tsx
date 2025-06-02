@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function Header() {
 	return (
-		<header className="bg-gray-900 text-white p-4 shadow-md">
+		<header className="bg-dark text-white p-4 shadow-md">
 			<div className="container mx-auto flex justify-between items-center">
 				<h1 className="text-xl font-bold">YktSokol</h1>
 				<nav>

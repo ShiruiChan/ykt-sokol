@@ -1,30 +1,28 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-body {
-	@apply bg-dark text-white font-sans;
+.bg-dark {
+	background-color: #1A1A1A;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	@apply font-bold;
-}
-
-.text-primary {
-	@apply text-primary;
-}
-
-.bg-primary {
-	@apply bg-primary;
+.text-grayText {
+	color: #666;
 }
 
 .btn-primary {
-	@apply inline-block px-8 py-3 bg-primary text-white rounded-full hover:bg-secondary transition duration-300;
+	display: inline-block;
+	background-color: #E60012;
+	color: white;
+	padding: 0.75rem 1.5rem;
+	border-radius: 9999px;
+	font-weight: bold;
+	transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+	background-color: #FF5722;
 }
 
 .section {
-	@apply py-20;
+	padding-top: 5rem;
+	padding-bottom: 5rem;
 }
