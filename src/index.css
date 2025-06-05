@@ -1,28 +1,33 @@
 @import 'tailwindcss';
 
-.bg-dark {
-	background-color: #1A1A1A;
+/* Плавный скролл */
+html {
+  scroll-behavior: smooth;
 }
 
-.text-grayText {
-	color: #666;
-}
-
+/* Переиспользуемые классы */
 .btn-primary {
-	display: inline-block;
-	background-color: #E60012;
-	color: white;
-	padding: 0.75rem 1.5rem;
-	border-radius: 9999px;
-	font-weight: bold;
-	transition: background-color 0.3s ease;
+  @apply inline-block px-6 py-3 bg-[#E60012] text-white rounded-full hover:bg-[#FF5722] transition duration-300;
 }
 
-.btn-primary:hover {
-	background-color: #FF5722;
+.card {
+  @apply bg-white shadow-md rounded overflow-hidden transition-transform hover:scale-105;
 }
 
 .section {
-	padding-top: 5rem;
-	padding-bottom: 5rem;
+  @apply py-20;
+}
+
+/* Адаптивность текста */
+.text-lg-responsive {
+  @apply text-lg md:text-xl;
+}
+
+/* Цвета из tailwind.config.js */
+.bg-dark {
+  @apply bg-[#1A1A1A];
+}
+
+.text-grayText {
+  @apply text-[#666];
 }
