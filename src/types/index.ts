@@ -1,19 +1,20 @@
 export type Product = {
-	id: number;
-	name: string;
-	description: string;
-	price: string;
-	image: string;
-	specs: {
-		engine: string;
-		weight: string;
-		capacity: string;
-	};
-	accessories: Array<{
-		name: string;
-		price: string;
-		image: string;
-	}>;
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  specs: {
+    size: string;
+    height: string;
+    engine?: string;
+  };
+  accessories: Array<{
+    name: string;
+    description: string;
+    price: string;
+    image: string;
+  }>;
 };
 
 export type NewsItem = {

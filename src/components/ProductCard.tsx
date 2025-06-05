@@ -1,19 +1,20 @@
-import { Product } from "../types";
+// src/components/ProductCard.tsx
+import { Link } from 'react-router-dom';
+import type { Product } from '../types';
 
 interface Props {
-	product: Product;
+  product: Product;
 }
 
 export default function ProductCard({ product }: Props) {
-	return (
-		<div className="bg-white shadow-lg rounded overflow-hidden transform hover:scale-105 transition duration-300">
-			<img src={product.image} alt={product.name} className="w-full h-56 object-cover" />
-			<div className="p-6">
-				<h3 className="text-xl font-bold mb-2">{product.name}</h3>
-				<p className="text-gray-600 mb-4">{product.description}</p>
-				<p className="font-bold text-primary text-xl mb-4">{product.price}</p>
-				<a href={`/product`} className="btn-primary">Подробнее</a>
-			</div>
-		</div>
-	);
+  return (
+    <Link to={`/product/${product.id}`} className="card">
+      <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+      <div className="p-4">
+        <h3 className="text-xl font-semibold">{product.name}</h3>
+        <p className="text-grayText my-2">{product.description}</p>
+        <p className="font-bold text-primary">{product.price}</p>
+      </div>
+    </Link>
+  );
 }
