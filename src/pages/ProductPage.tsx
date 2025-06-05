@@ -2,6 +2,7 @@
 import { useParams } from 'react-router-dom';
 import { products } from '../data/products';
 import Breadcrumbs from '../components/Breadcrumbs';
+import Header from '../components/Header';
 
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ export default function ProductPage() {
 
   return (
     <div className="bg-light text-dark section">
+			<Header />
       <div className="container mx-auto px-4">
         <Breadcrumbs currentPage={product.name} />
 
