@@ -1,8 +1,9 @@
 // src/components/ProductCard.tsx
 import { useState } from 'react';
 import Modal from './Modal';
-import type { Product } from '../types';
+import ImageGallery from './ImageGallery';
 import { Link } from 'react-router-dom';
+import type { Product } from '../types';
 
 interface Props {
   product: Product;
@@ -15,7 +16,7 @@ export default function ProductCard({ product }: Props) {
     <>
       <div className="card">
         <img
-          src={product.image}
+          src={product.images[0]} // Первая картинка для карточки
           alt={product.name}
           className="w-full h-48 object-cover cursor-pointer"
           onClick={() => setIsModalOpen(true)}
@@ -27,19 +28,20 @@ export default function ProductCard({ product }: Props) {
         </div>
       </div>
 
-      {/* Модальное окно с изображением */}
+      {/* Модальное окно с галереей */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="text-center">
-          <img src={product.image} alt={product.name} className="w-full h-auto mb-4 rounded" />
-          <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-          <p className="mb-4">{product.description}</p>
-          <Link
-            to={`/product/${product.id}`}
-            className="btn-primary inline-block"
-            onClick={() => setIsModalOpen(false)}
-          >
-            Подробнее
-          </Link>
+          <h2 className="text-2xl font-bold mb-4">{product.name}</h2>
+          <ImageGallery images={product.images} />
+          <div className="mt-4">
+            <Link
+              to={`/product/${product.id}`}
+              className="btn-primary inline-block"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Подробнее
+            </Link>
+          </div>
         </div>
       </Modal>
     </>

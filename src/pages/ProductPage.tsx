@@ -20,7 +20,7 @@ export default function ProductPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div>
-            <img src={product.image} alt={product.name} className="w-full rounded" />
+            <img src={product.images[0]} alt={product.name} className="w-full rounded" />
           </div>
           <div>
             <h2 className="text-3xl font-bold mb-4">{product.name}</h2>
