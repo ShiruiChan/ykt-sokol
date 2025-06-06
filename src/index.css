@@ -7,7 +7,7 @@ html {
 
 /* Переиспользуемые классы */
 .btn-primary {
-  @apply inline-block px-6 py-3 bg-[#E60012] text-white rounded-full hover:bg-[#FF5722] transition duration-300;
+  @apply inline-block text-base md:text-lg px-6 py-3 bg-[#E60012] text-white rounded-full hover:bg-[#FF5722] transition duration-300 shadow-md hover:shadow-lg;
 }
 
 .card {
@@ -30,4 +30,11 @@ html {
 
 .text-grayText {
   @apply text-[#666];
+}
+
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }

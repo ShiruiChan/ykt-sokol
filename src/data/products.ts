@@ -34,7 +34,7 @@ export const products: Product[] = [
     images: [
       "/images/quad-2.jpg",
       "/images/quad-2-detail.jpg",
-      "/images/quad-2-side.jpg"
+      "/images/quad-2	-side.jpg"
     ],
     specs: {
       size: "3x2 м",
