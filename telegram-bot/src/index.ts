@@ -7,12 +7,10 @@ const bot = new TelegramBot(token, { polling: true });
 
 let currentNews: any = {};
 
-// Команда /start
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Привет! Напиши заголовок новости.');
 });
 
-// Обработка сообщений
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
 
@@ -35,18 +33,9 @@ bot.on('message', async (msg) => {
     currentNews.date = new Date().toLocaleDateString('ru-RU');
 
     try {
-      // Отправляем на наш собственный API
       await axios.post('http://localhost:3000/news', currentNews);
-
-      // Отправляем ответ в Telegram
-      bot.sendMessage(chatId, '✅ Новость успешно добавлена!', {
-        reply_markup: {
-          remove_keyboard: true,
-        },
-      });
-
-      // Сбрасываем текущую новость
-      currentNews = {};
+      bot.sendMessage(chatId, '✅ Новость успешно добавлена!');
+      currentNews = {}; // Сбрасываем текущую новость
     } catch (e) {
       console.error(e);
       bot.sendMessage(chatId, '❌ Ошибка при добавлении новости.');

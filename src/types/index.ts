@@ -18,9 +18,8 @@ export type Product = {
 };
 
 export type NewsItem = {
-	id: number;
-	title: string;
-	date: string;
-	image: string;
-	content: string;
+  title: string;
+  content: string;
+  image?: string;
+  date?: string;
 };
