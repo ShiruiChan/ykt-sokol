@@ -1,32 +1,31 @@
+// telegram-bot/src/index.ts
 import TelegramBot from 'node-telegram-bot-api';
 import axios from 'axios';
 
-// Получи токен из переменных окружения
 const token = process.env.BOT_TOKEN || '8134721380:AAGPqdtdIdh4AlkP28P8LG1CeNmJZua4mJI';
 const bot = new TelegramBot(token, { polling: true });
 
 let currentNews: any = {};
 
+// Команда /start
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Привет! Напиши заголовок новости.');
 });
 
+// Обработка сообщений
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
 
-  // Получаем заголовок
   if (!currentNews.title && msg.text) {
     currentNews.title = msg.text;
-    return bot.sendMessage(chatId, 'Напиши текст новости.');
+    return bot.sendMessage(chatId, 'Хорошо! Теперь напиши текст новости.');
   }
 
-  // Получаем текст
   if (!currentNews.content && msg.text) {
     currentNews.content = msg.text;
-    return bot.sendMessage(chatId, 'Теперь отправь изображение.');
+    return bot.sendMessage(chatId, 'Отправь изображение.');
   }
 
-  // Получаем изображение
   if (msg.photo) {
     const fileId = msg.photo[msg.photo.length - 1].file_id;
     const file = await bot.getFile(fileId);
@@ -36,12 +35,21 @@ bot.on('message', async (msg) => {
     currentNews.date = new Date().toLocaleDateString('ru-RU');
 
     try {
-      await axios.post('https://ykt-sokol.vercel.app/api/add-news',  currentNews);
-      bot.sendMessage(chatId, 'Новость успешно добавлена!');
+      // Отправляем на наш собственный API
+      await axios.post('http://localhost:3000/news', currentNews);
+
+      // Отправляем ответ в Telegram
+      bot.sendMessage(chatId, '✅ Новость успешно добавлена!', {
+        reply_markup: {
+          remove_keyboard: true,
+        },
+      });
+
+      // Сбрасываем текущую новость
       currentNews = {};
     } catch (e) {
       console.error(e);
-      bot.sendMessage(chatId, 'Ошибка при добавлении новости.');
+      bot.sendMessage(chatId, '❌ Ошибка при добавлении новости.');
     }
   }
 });
