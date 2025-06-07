@@ -6,7 +6,11 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"bot": "ts-node telegram-bot/src/bot.ts",
+		"api": "ts-node telegram-bot/src/server.ts",
+		"start:bot": "node dist/telegram-bot/src/bot.js",
+		"start:api": "node dist/telegram-bot/src/server.js"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.0.1",

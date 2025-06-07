@@ -1,22 +1,17 @@
-import type { Request, Response } from 'express';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: Request, res: Response) {
-  const method = req.method;
+let newsList: any[] = [];
 
-  if (!method || method !== 'POST') {
-    return res.status(405).end();
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const newPost = req.body;
+    newsList.unshift(newPost);
+    return res.status(200).json({ success: true });
   }
 
-  try {
-    // Получаем текущие новости из тела запроса
-    const newsItem = req.body;
-
-    // Здесь можно сохранить новость в JSON или отправить в базу данных
-    console.log('Получена новость:', newsItem);
-
-    res.status(200).json({ success: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Не удалось добавить новость' });
+  if (req.method === 'GET') {
+    return res.status(200).json(newsList.slice(0, 10));
   }
+
+  return res.status(405).end();
 }
