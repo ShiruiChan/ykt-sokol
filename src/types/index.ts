@@ -2,19 +2,22 @@ export type Product = {
   id: number;
   name: string;
   description: string;
-  price: string;
+  price: number; // важно: число, а не строка!
   images: string[];
   specs: {
     size: string;
     height: string;
     engine?: string;
   };
-  accessories: Array<{
-    name: string;
-    description: string;
-    price: string;
-    image: string;
-  }>;
+  accessories: Record<string, Accessory[]>; // объект с категориями
+};
+
+export type Accessory = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
 };
 
 export type NewsItem = {
