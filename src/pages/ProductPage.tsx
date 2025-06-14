@@ -13,6 +13,11 @@ export default function ProductPage() {
 	const [isCartOpen, setIsCartOpen] = useState(false);
 	const formRef = useRef<HTMLDivElement>(null);
 
+	// Прокрутка к началу страницы при загрузке
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [id]); // Зависимость от id, чтобы прокрутка срабатывала при смене продукта
+
 	if (!product) {
 		return <div className="section text-center text-gray-300">Товар не найден</div>;
 	}
@@ -60,12 +65,12 @@ export default function ProductPage() {
 		<div className="bg-gray-900 text-gray-200 section">
 			<Header />
 
-			<div className="top-20 z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl">
+			<div className="z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
 				<div className="container mx-auto px-4">
 					<Breadcrumbs currentPage={product.name} />
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 						<div>
-							<img src={product.images[0]} alt={product.name} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
+							<img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
 						</div>
 						<div>
 							<h2 className="text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
@@ -111,7 +116,7 @@ export default function ProductPage() {
 												<div className="relative w-full h-24 overflow-hidden rounded-md mb-3 flex items-center justify-center">
 													<img
 														src={acc.image}
-														alt={acc.name}
+														alt={`${acc.name} - аксессуар`}
 														className="max-w-full max-h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
 													/>
 												</div>
@@ -135,9 +140,9 @@ export default function ProductPage() {
 						<div ref={formRef} id="form-section" className="mt-16 mb-32">
 							<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
 							<div className="space-y-4">
-								<input type="text" placeholder="Имя" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:border-gray-400 focus:outline-none" />
-								<input type="tel" placeholder="Телефон" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:border-gray-400 focus:outline-none" />
-								<textarea placeholder="Комментарий" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:border-gray-400 focus:outline-none" rows={4}></textarea>
+								<input type="text" placeholder="Имя" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" />
+								<input type="tel" placeholder="Телефон" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" />
+								<textarea placeholder="Комментарий" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" rows={4}></textarea>
 								<button className="w-full bg-gray-500 text-gray-900 py-3 rounded font-bold hover:bg-gray-400 transition-colors">
 									Отправить заявку
 								</button>
@@ -176,7 +181,7 @@ export default function ProductPage() {
 								<div key={acc.id} className="flex justify-between text-sm">
 									<span className="text-gray-300">{acc.name}</span>
 									<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
-								</div>
+								)</div>
 							))
 						) : (
 							<div className="text-center text-gray-600 italic">Нет выбранных</div>

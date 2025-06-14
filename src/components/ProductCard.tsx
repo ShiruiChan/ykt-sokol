@@ -18,16 +18,17 @@ export default function ProductCard({ product }: Props) {
           src={product.images[0]}
           alt={`${product.name} - квадроцикл`}
           className="w-full h-64 object-cover cursor-pointer"
-					onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsModalOpen(true)}
         />
-        <div className="p-4">
-          <h3 className="text-xl font-semibold text-gray-100">{product.name}</h3>
-					<div className='flex justify-between'>
-						<p className="text-grayText text-sm w-1/2 my-1">{product.description}</p>
-          	<p className="font-bold text-orange-500 text-lg">{product.price.toLocaleString()} ₽</p>
-					</div>
-          
-        </div>
+        <Link to={`/product/${product.id}`}>
+          <div className="p-4">
+            <h3 className="text-xl font-semibold text-gray-100">{product.name}</h3>
+            <div className="flex justify-between">
+              <p className="text-grayText text-sm w-1/2 my-1">{product.description}</p>
+              <p className="font-bold text-orange-500 text-lg">{product.price.toLocaleString()} ₽</p>
+            </div>
+          </div>
+        </Link>
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
