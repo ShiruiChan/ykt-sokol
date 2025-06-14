@@ -17,15 +17,15 @@ export default function ProductCard({ product }: Props) {
         <img
           src={product.images[0]}
           alt={`${product.name} - квадроцикл`}
-          className="w-full h-64 object-cover cursor-pointer"
+          className="w-full h-72 object-cover cursor-pointer"
           onClick={() => setIsModalOpen(true)}
         />
         <Link to={`/product/${product.id}`}>
           <div className="p-4">
-            <h3 className="text-xl font-semibold text-gray-100">{product.name}</h3>
+            <h3 className="text-xl font-semibold text-gray-200">{product.name}</h3>
             <div className="flex justify-between">
               <p className="text-grayText text-sm w-1/2 my-1">{product.description}</p>
-              <p className="font-bold text-orange-500 text-lg">{product.price.toLocaleString()} ₽</p>
+              <p className="font-bold text-green-500 text-lg">{product.price.toLocaleString()} ₽</p>
             </div>
           </div>
         </Link>
@@ -33,7 +33,7 @@ export default function ProductCard({ product }: Props) {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4 text-gray-100">{product.name}</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-200">{product.name}</h2>
           <ImageGallery images={product.images} />
           <div className="mt-4">
             <Link

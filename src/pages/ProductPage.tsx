@@ -4,6 +4,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import { useState, useEffect, useRef } from 'react';
 import type { Accessory } from '../types';
+import { Link } from 'react-router-dom';
 
 export default function ProductPage() {
 	const { id } = useParams<{ id: string }>();
@@ -73,18 +74,44 @@ export default function ProductPage() {
 							<img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
 						</div>
 						<div>
-							<h2 className="text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
+							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
 							<p className="mb-4 text-gray-400">{product.description}</p>
 
-							<ul className="list-none mb-4 space-y-2">
-								<li><span className="font-semibold text-gray-300">Размер:</span> {product.specs.size}</li>
-								<li><span className="font-semibold text-gray-300">Высота:</span> {product.specs.height}</li>
-								<li><span className="font-semibold text-gray-300">Двигатель:</span> {product.specs.engine || 'Не указан'}</li>
-								<li><span className="font-semibold text-gray-300">Клиренс:</span> {product.specs.clearance || 'Не указан'}</li>
-								<li><span className="font-semibold text-gray-300">Трансмиссия:</span> {product.specs.transmission || 'Не указана'}</li>
-								<li><span className="font-semibold text-gray-300">Мест:</span> {product.specs.seats || 'Не указано'}</li>
-								<li><span className="font-semibold text-gray-300">Макс. скорость:</span> {product.specs.maxSpeed || 'Не указана'}</li>
-							</ul>
+							<div className="mt-4">
+							<h3 className="text-2xl font-semibold text-gray-100 mb-4">Характеристики</h3>
+							<table className="w-full border-collapse border border-gray-600">
+								<tbody>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Размер</td>
+										<td className="p-2 text-gray-400">{product.specs.size}</td>
+									</tr>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Высота</td>
+										<td className="p-2 text-gray-400">{product.specs.height}</td>
+									</tr>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Двигатель</td>
+										<td className="p-2 text-gray-400">{product.specs.engine || 'Не указан'}</td>
+									</tr>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Клиренс</td>
+										<td className="p-2 text-gray-400">{product.specs.clearance || 'Не указан'}</td>
+									</tr>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Трансмиссия</td>
+										<td className="p-2 text-gray-400">{product.specs.transmission || 'Не указана'}</td>
+									</tr>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Мест</td>
+										<td className="p-2 text-gray-400">{product.specs.seats || 'Не указано'}</td>
+									</tr>
+									<tr className="border-b border-gray-600">
+										<td className="p-2 font-semibold text-gray-300">Макс. скорость</td>
+										<td className="p-2 text-gray-400">{product.specs.maxSpeed || 'Не указана'}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 						</div>
 					</div>
 				</div>
@@ -149,6 +176,27 @@ export default function ProductPage() {
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			<div className="mt-12 container mx-auto">
+				<h3 className="text-2xl font-semibold text-gray-100 mb-4">Другие модели</h3>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					{products
+						.filter(p => p.id !== product.id)
+						.slice(0, 3)
+						.map(p => (
+							<div key={p.id} className="card">
+								<img src={p.images[0]} alt={`${p.name} - квадроцикл`} className="w-full h-64 object-cover" />
+								<div className="p-4">
+									<h4 className="text-lg font-semibold text-gray-100">{p.name}</h4>
+									<p className="text-gray-400 text-sm">{p.price.toLocaleString()} ₽</p>
+									<Link to={`/product/${p.id}`} className="mt-2 btn-primary inline-block">
+										Подробнее
+									</Link>
+								</div>
+							</div>
+						))}
 				</div>
 			</div>
 

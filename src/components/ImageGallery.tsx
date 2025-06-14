@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
 
 interface ImageGalleryProps {
   images: string[];
@@ -15,8 +16,13 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+	const handlers = useSwipeable({
+		onSwipedLeft: next,
+		onSwipedRight: prev,
+	});
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" {...handlers}>
       <img
         src={images[currentIndex]}
         alt={`Квадрацикл ${currentIndex + 1}`}

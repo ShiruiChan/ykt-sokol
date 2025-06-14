@@ -15,11 +15,11 @@ html {
 }
 
 .btn-primary {
-  @apply inline-block text-base md:text-lg px-6 py-3 bg-orange-600 text-white rounded-full hover:bg-blue-500 transition duration-300 shadow-md hover:shadow-lg;
+  @apply inline-block text-base md:text-lg px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-500 transition duration-300 shadow-md hover:shadow-lg;
 }
 
 .card {
-  @apply bg-gray-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-105 border border-gray-600;
+  @apply bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-transform hover:scale-105 border border-gray-500;
 }
 
 .section {
@@ -27,7 +27,7 @@ html {
 }
 
 .text-lg-responsive {
-  @apply text-lg md:text-xl;
+  @apply text-base md:text-xl;
 }
 
 .bg-dark {
@@ -40,7 +40,7 @@ html {
 
 @media (max-width: 640px) {
   .mobile-padding {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
