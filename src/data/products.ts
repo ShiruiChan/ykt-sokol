@@ -104,7 +104,7 @@ export const products: Product[] = [
 		description: "Мощный пикап для перевозки грузов",
 		price: 680000,
 		images: [
-			"/images/pickup-1_5-1.jpg",
+			"/images/sokol-1.jpg",
 			"/images/pickup-1_5-detail.jpg",
 			"/images/pickup-1_5-side.jpg"
 		],
@@ -201,7 +201,7 @@ export const products: Product[] = [
 		description: "Расширенная версия с увеличенным объёмом двигателя",
 		price: 700000,
 		images: [
-			"/images/pickup-1_8-1.jpg",
+			"/images/sokol-1.jpg",
 			"/images/pickup-1_8-detail.jpg",
 			"/images/pickup-1_8-side.jpg"
 		],
@@ -298,7 +298,7 @@ export const products: Product[] = [
 		description: "Версия с увеличенным клиренсом и мощностью",
 		price: 850000,
 		images: [
-			"/images/pro-1.jpg",
+			"/images/sokol-1.jpg",
 			"/images/pro-detail.jpg",
 			"/images/pro-side.jpg"
 		],
