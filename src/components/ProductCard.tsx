@@ -24,7 +24,7 @@ export default function ProductCard({ product }: Props) {
           <h3 className="text-xl font-semibold text-gray-100">{product.name}</h3>
 					<div className='flex justify-between'>
 						<p className="text-grayText text-sm w-1/2 my-1">{product.description}</p>
-          	<p className="font-bold text-orange-500">{product.price.toLocaleString()} ₽</p>
+          	<p className="font-bold text-orange-500 text-lg">{product.price.toLocaleString()} ₽</p>
 					</div>
           
         </div>
