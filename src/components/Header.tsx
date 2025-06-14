@@ -6,20 +6,17 @@ export default function Header() {
 
   return (
     <>
-      {/* Desktop header */}
-      <header className="bg-dark text-white p-4 shadow-md fixed top-0 left-0 right-0 z-50">
+      <header className="bg-gray-900 text-gray-100 p-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-700">
         <div className="container mx-auto flex justify-between items-center">
-          <a href="/"><h1 className="text-xl font-bold">YktSokol</h1></a>
+          <a href="/"><h1 className="text-2xl font-extrabold tracking-tight text-gray-100 hover:text-gray-300 transition">YktSokol</h1></a>
 
-          {/* Desktop nav */}
           <nav className="hidden md:block">
-            <ul className="flex gap-6">
-              <li><Link to="/" className="hover:text-orange-500 transition">Главная</Link></li>
-              <li><Link to="/news" className="hover:text-orange-500 transition">Новости</Link></li>
+            <ul className="flex gap-8">
+              <li><Link to="/" className="text-lg font-semibold hover:text-gray-300 transition">Главная</Link></li>
+              <li><Link to="/news" className="text-lg font-semibold hover:text-gray-300 transition">Новости</Link></li>
             </ul>
           </nav>
 
-          {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden focus:outline-none"
@@ -27,8 +24,8 @@ export default function Header() {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="28"
+              height="28"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -37,20 +34,17 @@ export default function Header() {
               strokeLinejoin="round"
             >
               {isMenuOpen ? (
-                // Close icon
                 <path d="M18 6L6 18M6 6l12 12" />
               ) : (
-                // Menu icon
                 <path d="M3 12h18M3 6h18M3 18h18" />
               )}
             </svg>
           </button>
         </div>
 
-        {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 z-40">
-            <div className="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-95 z-40">
+            <div className="flex flex-col items-center justify-center h-full space-y-10 text-3xl font-bold">
               <button
                 onClick={() => setIsMenuOpen(false)}
                 className="absolute top-4 right-4"
@@ -58,8 +52,8 @@ export default function Header() {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
+                  width="36"
+                  height="36"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="white"
@@ -73,14 +67,14 @@ export default function Header() {
 
               <Link
                 to="/"
-                className="hover:text-orange-500 transition"
+                className="hover:text-gray-300 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Главная
               </Link>
               <Link
                 to="/news"
-                className="hover:text-orange-500 transition"
+                className="hover:text-gray-300 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Новости
@@ -90,10 +84,9 @@ export default function Header() {
         )}
       </header>
 
-      {/* Overlay for mobile menu */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-60 z-30 md:hidden"
           onClick={() => setIsMenuOpen(false)}
         ></div>
       )}

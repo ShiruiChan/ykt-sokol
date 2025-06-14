@@ -6,10 +6,10 @@ export default function News() {
 	return (
 		<>
 			<Header />
-			<section className="py-12 mt-20 bg-gray-100">
+			<section className="py-12 mt-16 bg-gray-900">
 				<div className="container mx-auto">
-					<h1 className="text-4xl font-bold mb-6 text-center">Новости компании</h1>
-					<p className="text-center max-w-2xl mx-auto">Следите за нашими новостями и акциями</p>
+					<h1 className="text-4xl font-bold mb-6 text-center text-gray-200">Новости компании</h1>
+					<p className="text-center max-w-2xl mx-auto text-gray-400">Следите за нашими новостями и акциями</p>
 				</div>
 			</section>
 			<NewsList />

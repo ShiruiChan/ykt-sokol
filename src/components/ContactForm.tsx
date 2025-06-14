@@ -37,7 +37,7 @@ export default function ContactForm() {
         <p>Спасибо! Мы свяжемся с вами в ближайшее время.</p>
         <button
           onClick={() => setSubmitted(false)}
-          className="mt-2 btn-primary"
+          className="mt-2 bg-gray-500 text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-400 transition-colors"
         >
           Написать ещё
         </button>
@@ -54,7 +54,7 @@ export default function ContactForm() {
         placeholder="Ваше имя"
         value={formData.name}
         onChange={handleChange}
-        className="w-full px-4 py-3 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
       />
       <input
         type="text"
@@ -62,7 +62,7 @@ export default function ContactForm() {
         placeholder="Email или телефон"
         value={formData.contact}
         onChange={handleChange}
-        className="w-full px-4 py-3 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
       />
       <textarea
         name="message"
@@ -70,9 +70,9 @@ export default function ContactForm() {
         placeholder="Ваше сообщение"
         value={formData.message}
         onChange={handleChange}
-        className="w-full px-4 py-3 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
       ></textarea>
-      <button type="submit" className="btn-primary">Отправить</button>
+      <button type="submit" className="bg-gray-500 text-gray-900 px-6 py-3 rounded-full font-semibold hover:bg-gray-400 transition-colors">Отправить</button>
     </form>
   );
 }
