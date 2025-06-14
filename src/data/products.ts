@@ -295,7 +295,7 @@ export const products: Product[] = [
 	{
 		id: 4,
 		name: "СОКОЛ-ПРО",
-		description: "Профессиональная версия с увеличенным клиренсом и мощностью",
+		description: "Версия с увеличенным клиренсом и мощностью",
 		price: 850000,
 		images: [
 			"/images/pro-1.jpg",

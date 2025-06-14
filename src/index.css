@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 
-/* Плавный скролл */
 html {
   scroll-behavior: smooth;
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
 @keyframes fadeIn {
@@ -14,31 +14,28 @@ html {
   animation: fadeIn 0.2s ease-out forwards;
 }
 
-/* Переиспользуемые классы */
 .btn-primary {
-  @apply inline-block text-base md:text-lg px-6 py-3 bg-[#E60012] text-white rounded-full hover:bg-[#FF5722] transition duration-300 shadow-md hover:shadow-lg;
+  @apply inline-block text-base md:text-lg px-6 py-3 bg-orange-600 text-white rounded-full hover:bg-blue-500 transition duration-300 shadow-md hover:shadow-lg;
 }
 
 .card {
-  @apply bg-white shadow-md rounded overflow-hidden transition-transform hover:scale-105;
+  @apply bg-gray-800 shadow-lg rounded-lg overflow-hidden transition-transform hover:scale-105 border border-gray-600;
 }
 
 .section {
   @apply py-20;
 }
 
-/* Адаптивность текста */
 .text-lg-responsive {
   @apply text-lg md:text-xl;
 }
 
-/* Цвета из tailwind.config.js */
 .bg-dark {
-  @apply bg-[#1A1A1A];
+  @apply bg-gray-900;
 }
 
 .text-grayText {
-  @apply text-[#666];
+  @apply text-gray-400;
 }
 
 @media (max-width: 640px) {
