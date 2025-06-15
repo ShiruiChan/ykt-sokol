@@ -152,6 +152,7 @@ export default function ProductPage() {
 													<p className="text-sm text-gray-500 mt-1">{acc.description}</p>
 													<p className="mt-2 font-bold text-gray-300">{acc.price.toLocaleString()} ₽</p>
 												</div>
+												<div className="absolute top-2 right-2 border border-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"></div>
 												{isSelected && (
 													<div className="absolute top-2 right-2 bg-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
 														✓
