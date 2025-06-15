@@ -60,7 +60,7 @@ export default function Features() {
         </div>
         <div className="text-center mt-12 sm:mt-16">
           <a
-            href="#contact"
+            href="#catalog"
             className="inline-block bg-teal-500 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-teal-400 transition-colors duration-300 text-base sm:text-lg"
           >
             Закажите сейчас и ощутите разницу!

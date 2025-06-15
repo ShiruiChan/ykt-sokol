@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import { useState, useEffect, useRef } from 'react';
 import type { Accessory } from '../types';
 import { Link } from 'react-router-dom';
+import Footer from '../components/Footer';
 
 export default function ProductPage() {
 	const { id } = useParams<{ id: string }>();
@@ -63,7 +64,7 @@ export default function ProductPage() {
 	}, [isCartOpen]);
 
 	return (
-		<div className="bg-gray-900 text-gray-200 section">
+		<div className="bg-gray-900 text-gray-200 mt-16">
 			<Header />
 
 			<div className="z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
@@ -304,6 +305,8 @@ export default function ProductPage() {
 					</div>
 				)}
 			</div>
+
+			<Footer/>
 		</div>
 	);
 }
