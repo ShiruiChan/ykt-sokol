@@ -1,7 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Features() {
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // Tailwind's 'sm' breakpoint
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <section className="bg-gradient-to-b from-gray-900 to-gray-800 text-white py-16 sm:py-24">
@@ -17,33 +27,33 @@ export default function Features() {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="relative bg-gray-800 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-800 transform hover:-translate-y-1 overflow-hidden">
+          <div className="relative bg-gray-800 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
             <div className="text-5xl sm:text-6xl mb-4 animate-pulse">🛞</div>
             <h3 className="text-xl sm:text-2xl font-bold mb-3 text-teal-400">Непревзойденная проходимость</h3>
             <p className="text-gray-300 text-sm sm:text-base">
               Уникальная усиленная рама и колеса с экстремальной проходимостью справятся с любыми условиями, где другие сдаются.
             </p>
-            <div className={`mt-4 text-gray-400 text-sm transition-all duration-300 ${isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={`mt-4 text-gray-400 text-sm transition-all duration-300 ${isMobile || isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
               <p>Наша запатентованная технология подвески и сверхпрочные материалы обеспечивают стабильность на любых поверхностях, от грязи до скал.</p>
             </div>
           </div>
-          <div className="relative bg-gray-800 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-800 transform hover:-translate-y-1 overflow-hidden">
+          <div className="relative bg-gray-800 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
             <div className="text-5xl sm:text-6xl mb-4 animate-pulse">🔩</div>
             <h3 className="text-xl sm:text-2xl font-bold mb-3 text-teal-400">Абсолютная надежность</h3>
             <p className="text-gray-300 text-sm sm:text-base">
               Только премиальные комплектующие, протестированные в самых суровых условиях. Забудьте о поломках!
             </p>
-            <div className={`mt-4 text-gray-400 text-sm transition-all duration-300 ${isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={`mt-4 text-gray-400 text-sm transition-all duration-300 ${isMobile || isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
               <p>Каждая деталь проходит 1000+ часов стресс-тестов, чтобы гарантировать бесперебойную работу даже в экстремальных условиях.</p>
             </div>
           </div>
-          <div className="relative bg-gray-800 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-800 transform hover:-translate-y-1 overflow-hidden">
+          <div className="relative bg-gray-800 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
             <div className="text-5xl sm:text-6xl mb-4 animate-pulse">🛠️</div>
             <h3 className="text-xl sm:text-2xl font-bold mb-3 text-teal-400">Элитный сервис</h3>
             <p className="text-gray-300 text-sm sm:text-base">
               Полный цикл поддержки: гарантия, обслуживание и оригинальные запчасти. Мы всегда на шаг впереди конкурентов.
             </p>
-            <div className={`mt-4 text-gray-400 text-sm transition-all duration-300 ${isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={`mt-4 text-gray-400 text-sm transition-all duration-300 ${isMobile || isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
               <p>Мгновенный доступ к поддержке 24/7 и эксклюзивным запчастям, которые продлевают срок службы вашего оборудования.</p>
             </div>
           </div>
