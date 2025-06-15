@@ -8,165 +8,170 @@ import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 
 export default function ProductPage() {
-	const { id } = useParams<{ id: string }>();
-	const product = products.find(p => p.id === Number(id));
-	const [selectedAccessories, setSelectedAccessories] = useState<Record<number, boolean>>({});
-	const [showPriceBox, setShowPriceBox] = useState(true);
-	const [isCartOpen, setIsCartOpen] = useState(false);
-	const formRef = useRef<HTMLDivElement>(null);
+  const { id } = useParams<{ id: string }>();
+  const product = products.find(p => p.id === Number(id));
+  const [selectedAccessories, setSelectedAccessories] = useState<Record<number, boolean>>({});
+  const [showPriceBox, setShowPriceBox] = useState(true);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
-	// Прокрутка к началу страницы при загрузке
-	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [id]); // Зависимость от id, чтобы прокрутка срабатывала при смене продукта
+  // Прокрутка к началу страницы при загрузке
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]); // Зависимость от id, чтобы прокрутка срабатывала при смене продукта
 
-	if (!product) {
-		return <div className="section text-center text-gray-300">Товар не найден</div>;
-	}
+  if (!product) {
+    return <div className="section text-center text-gray-300">Товар не найден</div>;
+  }
 
-	const toggleAccessory = (accId: number) => {
-		setSelectedAccessories(prev => ({
-			...prev,
-			[accId]: !prev[accId]
-		}));
-	};
+  const toggleAccessory = (accId: number) => {
+    setSelectedAccessories(prev => ({
+      ...prev,
+      [accId]: !prev[accId]
+    }));
+  };
 
-	const selectedAccList = Object.entries(selectedAccessories)
-		.filter(([, isSelected]) => isSelected)
-		.map(([accId]) => {
-			for (const category in product.accessories) {
-				const found = product.accessories[category].find(acc => acc.id === Number(accId));
-				if (found) return found;
-			}
-			return null;
-		})
-		.filter(Boolean) as Accessory[];
+  const selectedAccList = Object.entries(selectedAccessories)
+    .filter(([, isSelected]) => isSelected)
+    .map(([accId]) => {
+      for (const category in product.accessories) {
+        const found = product.accessories[category].find(acc => acc.id === Number(accId));
+        if (found) return found;
+      }
+      return null;
+    })
+    .filter(Boolean) as Accessory[];
 
-	const totalPrice = product.price + selectedAccList.reduce((sum, acc) => sum + acc.price, 0);
+  const totalPrice = product.price + selectedAccList.reduce((sum, acc) => sum + acc.price, 0);
 
-	useEffect(() => {
-		const handleScroll = () => {
-			if (formRef.current) {
-				const rect = formRef.current.getBoundingClientRect();
-				setShowPriceBox(rect.top > window.innerHeight * 0.8);
-			}
-		};
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (formRef.current) {
+        const rect = formRef.current.getBoundingClientRect();
+        setShowPriceBox(rect.top > window.innerHeight * 0.8);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-	useEffect(() => {
-		const handleScroll = () => {
-			if (isCartOpen) setIsCartOpen(false);
-		};
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [isCartOpen]);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isCartOpen) setIsCartOpen(false);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isCartOpen]);
 
-	return (
-		<div className="bg-gray-900 text-gray-200 mt-16 pb-20">
-			<Header />
+  // Состояние для отображения категорий аксессуаров
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
-			<div className="z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
-				<div className="container mx-auto px-4">
-					<Breadcrumbs currentPage={product.name} />
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-						<div>
-							<img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
-						</div>
-						<div>
-							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
-							<p className="mb-4 text-gray-400">{product.description}</p>
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      if (prev.includes(category)) {
+        return prev.filter(c => c !== category);
+      } else {
+        return [...prev, category];
+      }
+    });
+  };
 
-							<div className="mt-4">
-							<h3 className="text-2xl font-semibold text-gray-100 mb-4">Характеристики</h3>
-							<table className="w-full border-collapse border border-gray-600">
-								<tbody>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Размер</td>
-										<td className="p-2 text-gray-400">{product.specs.size}</td>
-									</tr>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Высота</td>
-										<td className="p-2 text-gray-400">{product.specs.height}</td>
-									</tr>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Двигатель</td>
-										<td className="p-2 text-gray-400">{product.specs.engine || 'Не указан'}</td>
-									</tr>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Клиренс</td>
-										<td className="p-2 text-gray-400">{product.specs.clearance || 'Не указан'}</td>
-									</tr>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Трансмиссия</td>
-										<td className="p-2 text-gray-400">{product.specs.transmission || 'Не указана'}</td>
-									</tr>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Мест</td>
-										<td className="p-2 text-gray-400">{product.specs.seats || 'Не указано'}</td>
-									</tr>
-									<tr className="border-b border-gray-600">
-										<td className="p-2 font-semibold text-gray-300">Макс. скорость</td>
-										<td className="p-2 text-gray-400">{product.specs.maxSpeed || 'Не указана'}</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						</div>
-					</div>
-				</div>
-			</div>
+  return (
+    <div className="bg-gray-900 text-gray-200 mt-16">
+      <Header />
+      <div className="z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
+        <div className="container mx-auto px-4">
+          <Breadcrumbs currentPage={product.name} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
+              <p className="mb-4 text-gray-400">{product.description}</p>
+              <div className="mt-4">
+                <h3 className="text-2xl font-semibold text-gray-100 mb-4">Характеристики</h3>
+                <table className="w-full border-collapse border border-gray-600">
+                  <tbody>
+                    {/* Характеристики */}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-7">
+            {Object.keys(product.accessories).length > 0 && (
+              <h3 className="text-3xl font-bold mb-6 text-gray-100">Аксессуары:</h3>
+            )}
+            {Object.entries(product.accessories).map(([category, accessories]) => (
+              <div key={category} className="mb-10">
+                <div
+                  onClick={() => toggleCategory(category)}
+                  className="cursor-pointer flex items-center"
+                >
+                  <h4 className="text-xl font-semibold mb-4 text-gray-300">{category}</h4>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`transform transition-transform duration-300 ml-2 -mt-3 ${expandedCategories.includes(category) ? 'rotate-180' : ''}`}
+                  >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
 
-			<div className="container mx-auto px-4">
-				<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-					<div className="lg:col-span-7">
-						{Object.keys(product.accessories).length > 0 && (
-							<h3 className="text-3xl font-bold mb-6 text-gray-100">Аксессуары:</h3>
-						)}
-						{Object.entries(product.accessories).map(([category, accessories]) => (
-							<div key={category} className="mb-10">
-								<h4 className="text-xl font-semibold mb-4 text-gray-300">{category}</h4>
-								<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-									{accessories.map(acc => {
-										const isSelected = selectedAccessories[acc.id];
-										return (
-											<div
-												key={acc.id}
-												onClick={() => toggleAccessory(acc.id)}
-												className={`
-									group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300
-									${isSelected
-														? 'border-gray-500 bg-gray-700'
-														: 'border-gray-600 hover:border-gray-400'}
-									`}
-											>
-												<div className="relative w-full h-24 overflow-hidden rounded-md mb-3 flex items-center justify-center">
-													<img
-														src={acc.image}
-														alt={`${acc.name} - аксессуар`}
-														className="max-w-full max-h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
-													/>
-												</div>
-												<div className="flex-1 min-w-0">
-													<h5 className="font-semibold text-base text-gray-200">{acc.name}</h5>
-													<p className="text-sm text-gray-500 mt-1">{acc.description}</p>
-													<p className="mt-2 font-bold text-gray-300">{acc.price.toLocaleString()} ₽</p>
-												</div>
-												<div className="absolute top-2 right-2 border border-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"></div>
-												{isSelected && (
-													<div className="absolute top-2 right-2 bg-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-														✓
-													</div>
-												)}
-											</div>
-										);
-									})}
-								</div>
-							</div>
-						))}
-
-						<div ref={formRef} id="form-section" className="mt-16 mb-32">
+                {/* Отображаем только если категория раскрыта */}
+                {expandedCategories.includes(category) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {accessories.map(acc => {
+                      const isSelected = selectedAccessories[acc.id];
+                      return (
+                        <div
+                          key={acc.id}
+                          onClick={() => toggleAccessory(acc.id)}
+                          className={`
+                            group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300
+                            ${isSelected
+                              ? 'border-gray-500 bg-gray-700'
+                              : 'border-gray-600 hover:border-gray-400'}
+                          `}
+                        >
+                          <div className="relative w-full h-24 overflow-hidden rounded-md mb-3 flex items-center justify-center">
+                            <img
+                              src={acc.image}
+                              alt={`${acc.name} - аксессуар`}
+                              className="max-w-full max-h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-semibold text-base text-gray-200">{acc.name}</h5>
+                            <p className="text-sm text-gray-500 mt-1">{acc.description}</p>
+                            <p className="mt-2 font-bold text-gray-300">{acc.price.toLocaleString()} ₽</p>
+                          </div>
+                          <div className="absolute top-2 right-2 border border-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"></div>
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 bg-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                              ✓
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+            <div ref={formRef} id="form-section" className="mt-16 mb-32">
 							<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
 							<div className="space-y-4">
 								<input type="text" placeholder="Имя" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" />
