@@ -52,6 +52,26 @@ export default function ProductPage() {
 		);
 	};
 
+	// Отслеживаем положение формы
+	useEffect(() => {
+		const handleScroll = () => {
+			if (formRef.current) {
+				const rect = formRef.current.getBoundingClientRect();
+				
+				// Показываем боковую панель, если пользователь почти добрался до формы
+				setShowPriceBox(rect.top < window.innerHeight * 0.9);
+
+				// На больших экранах — автоматически открываем корзину
+				if (!isCartOpen && window.innerWidth >= 768 && rect.top < window.innerHeight * 0.8) {
+					setIsCartOpen(true);
+				}
+			}
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
+
   const totalPrice = product.price + selectedAccList.reduce((sum, acc) => sum + acc.price, 0);
 
   useEffect(() => {
@@ -240,16 +260,90 @@ export default function ProductPage() {
 				))}
 
 				{/* Форма заявки */}
-				<div ref={formRef} id="form-section" className="mt-16 mb-32">
-					<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
-					<div className="space-y-4">
-						<input type="text" placeholder="Имя" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" />
-						<input type="tel" placeholder="Телефон" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" />
-						<textarea placeholder="Комментарий" className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400" rows={4}></textarea>
-						<button className="w-full bg-gray-500 text-gray-900 py-3 rounded font-bold hover:bg-gray-400 transition-colors">
-							Отправить заявку
-						</button>
+				<div className="flex flex-col md:flex-row gap-8 pt-10">
+					{/* Левая часть — форма */}
+					<div ref={formRef} id="form-section" className="w-full md:w-2/3">
+						<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
+						{/* верхняя часть — корзина с ценой для мобилок*/}
+						{!showPriceBox && (
+							<div className="w-full z-50 md:hidden">
+								<div className="sticky top-24 bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
+									<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
+									{selectedAccList.length > 0 ? (
+										selectedAccList.map(acc => (
+											<div key={acc.id} className="flex justify-between text-sm py-1">
+												<span className="text-gray-300">{acc.name}</span>
+												<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+											</div>
+										))
+									) : (
+										<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+									)}
+									<hr className="my-4 border-t border-gray-600" />
+									<div className="font-bold text-lg text-right text-teal-500">
+										Итого: {totalPrice.toLocaleString()} ₽
+									</div>
+								</div>
+							</div>
+						)}
+						<div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 mt-4 md:mt-0">
+							<div className="space-y-5">
+								<div>
+									<label className="block text-gray-300 font-medium mb-2">Имя</label>
+									<input
+										type="text"
+										placeholder="Ваше имя"
+										className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+									/>
+								</div>
+
+								<div>
+									<label className="block text-gray-300 font-medium mb-2">Телефон или Email</label>
+									<input
+										type="tel"
+										placeholder="+7 (999) 999-99-99"
+										className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+									/>
+								</div>
+
+								<div>
+									<label className="block text-gray-300 font-medium mb-2">Комментарий</label>
+									<textarea
+										placeholder="Дополнительные пожелания"
+										rows={4}
+										className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+									></textarea>
+								</div>
+
+								<button className="w-full bg-teal-500 hover:bg-teal-400 text-white py-3 px-6 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+									Отправить заявку
+								</button>
+							</div>
+						</div>
 					</div>
+
+					{/* Правая часть — корзина с ценой для пк*/}
+					{!showPriceBox && (
+						<div className="w-full md:w-1/3 z-2 hidden md:block pt-12">
+							<div className="sticky top-24 bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
+								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
+								{selectedAccList.length > 0 ? (
+									selectedAccList.map(acc => (
+										<div key={acc.id} className="flex justify-between text-sm py-1">
+											<span className="text-gray-300">{acc.name}</span>
+											<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+										</div>
+									))
+								) : (
+									<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+								)}
+								<hr className="my-4 border-t border-gray-600" />
+								<div className="font-bold text-lg text-right text-gray-300">
+									Итого: {totalPrice.toLocaleString()} ₽
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 
@@ -275,87 +369,90 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Цена в боковой панели */}
-      {showPriceBox && (
-        <div className="fixed bottom-8 right-8 z-50 hidden md:block animate-pulse-slow">
-          <div className="bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs">
-            <div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-            {selectedAccList.length > 0 ? (
-              selectedAccList.map(acc => (
-                <div key={acc.id} className="flex justify-between text-sm">
-                  <span className="text-gray-300">{acc.name}</span>
-                  <span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
-                </div>
-              ))
-            ) : (
-              <div className="text-center text-gray-600 italic">Нет выбранных</div>
-            )}
-            <hr className="my-2 border-t border-gray-600" />
-            <div className="font-bold text-lg text-right text-gray-300">Итого: {totalPrice.toLocaleString()} ₽</div>
-          </div>
-        </div>
-      )}
+      {/* Корзина с ценой (для десктопа) */}
+			{showPriceBox && (
+				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs transition-transform duration-300 animate-fadeIn">
+					<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
+					{selectedAccList.length > 0 ? (
+						selectedAccList.map(acc => (
+							<div key={acc.id} className="flex justify-between text-sm py-1">
+								<span className="text-gray-300">{acc.name}</span>
+								<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+							</div>
+						))
+					) : (
+						<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+					)}
+					<hr className="my-2 border-t border-gray-600" />
+					<div className="font-bold text-lg text-right text-gray-300">
+						Итого: {totalPrice.toLocaleString()} ₽
+					</div>
+				</div>
+			)}
 
-      {showPriceBox && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg border-t border-gray-600 z-50">
-          <div
-            className="flex justify-between items-center p-3"
-            onClick={() => selectedAccList.length > 0 && setIsCartOpen(!isCartOpen)}
-          >
-            <div className="flex items-center space-x-2">
-              <button
-                className="text-gray-400 bg-gray-700 p-2 rounded-full relative"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsCartOpen(!isCartOpen);
-                }}
-                aria-label="Показать выбранные аксессуары"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 22H15a2 2 0 0 0 2-2H7a2 2 0 0 0 2 2z" />
-                  <path d="M8 12h.01M12 12h.01M16 12h.01M21 8l-5-5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z" />
-                </svg>
-                {selectedAccList.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gray-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                    {selectedAccList.length}
-                  </span>
-                )}
-              </button>
-              <div>
-                <div className="text-xs text-gray-500">Итого:</div>
-                <div className="font-bold text-gray-300">{totalPrice.toLocaleString()} ₽</div>
-              </div>
-            </div>
-            <button
-              className={`px-6 py-2 rounded-full font-semibold ${selectedAccList.length === 0 ? 'opacity-50' : ''}`}
-              disabled={selectedAccList.length === 0}
-              onClick={() => document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              Оформить
-            </button>
-          </div>
-          {isCartOpen && (
-            <div className="bg-gray-700 border-t border-gray-600 p-3 animate-fadeIn">
-              <div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-              {selectedAccList.length > 0 ? (
-                selectedAccList.map(acc => (
-                  <div key={acc.id} className="flex justify-between text-sm py-1">
-                    <span className="text-gray-300">{acc.name}</span>
-                    <span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
-              )}
-              <hr className="my-2 border-t border-gray-600" />
-              <div className="flex justify-between font-bold text-base">
-                <span className="text-gray-300">Общая цена:</span>
-                <span className="text-gray-300">{totalPrice.toLocaleString()} ₽</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Мобильная корзина (внизу) */}
+			{showPriceBox && (
+				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg border-t border-gray-600 z-50">
+					<div
+						className="flex justify-between items-center p-3"
+						onClick={() => selectedAccList.length > 0 && setIsCartOpen(!isCartOpen)}
+					>
+						<div className="flex items-center space-x-2">
+							<button
+								className="text-gray-400 bg-gray-700 p-2 rounded-full relative"
+								onClick={(e) => {
+									e.stopPropagation();
+									setIsCartOpen(!isCartOpen);
+								}}
+								aria-label="Показать выбранные аксессуары"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+									<path d="M9 22H15a2 2 0 0 0 2-2H7a2 2 0 0 0 2 2z" />
+									<path d="M8 12h.01M12 12h.01M16 12h.01M21 8l-5-5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z" />
+								</svg>
+								{selectedAccList.length > 0 && (
+									<span className="absolute -top-1 -right-1 bg-gray-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+										{selectedAccList.length}
+									</span>
+								)}
+							</button>
+							<div>
+								<div className="text-xs text-gray-500">Итого:</div>
+								<div className="font-bold text-gray-300">{totalPrice.toLocaleString()} ₽</div>
+							</div>
+						</div>
+						<button
+							className={`px-6 py-2 rounded-full font-semibold ${selectedAccList.length === 0 ? 'opacity-50' : ''}`}
+							disabled={selectedAccList.length === 0}
+							onClick={() => document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' })}
+						>
+							Оформить
+						</button>
+					</div>
+
+					{/* Раскрывающийся список аксессуаров на мобильных устройствах */}
+					{isCartOpen && (
+						<div className="bg-gray-700 border-t border-gray-600 p-3 animate-fadeIn">
+							<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
+							{selectedAccList.length > 0 ? (
+								selectedAccList.map(acc => (
+									<div key={acc.id} className="flex justify-between text-sm py-1">
+										<span className="text-gray-300">{acc.name}</span>
+										<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+									</div>
+								))
+							) : (
+								<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+							)}
+							<hr className="my-2 border-t border-gray-600" />
+							<div className="flex justify-between font-bold text-base">
+								<span className="text-gray-300">Общая цена:</span>
+								<span className="text-gray-300">{totalPrice.toLocaleString()} ₽</span>
+							</div>
+						</div>
+					)}
+				</div>
+			)}
 
       <Footer />
     </div>
