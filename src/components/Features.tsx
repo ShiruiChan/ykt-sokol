@@ -16,7 +16,7 @@ export default function Features() {
   return (
     <section className="bg-gradient-to-b from-gray-900 to-gray-800 text-white py-16 sm:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-12 sm:mb-16 text-center leading-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-12 sm:mb-16 text-center leading-tight text-orange-500">
           Почему мы лучшие на рынке?
         </h2>
         <p className="text-center text-lg sm:text-xl text-gray-300 mb-12 max-w-3xl mx-auto">

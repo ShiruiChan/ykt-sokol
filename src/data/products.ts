@@ -3,7 +3,7 @@ import type { Product } from '../types';
 export const products: Product[] = [
 	{
 		id: 1,
-		name: "СОКОЛ",
+		name: "СОКОЛ ПИКАК 1.5",
 		description: "Классический внедорожник с высокой проходимостью",
 		price: 650000,
 		images: [
@@ -100,7 +100,7 @@ export const products: Product[] = [
 	},
 	{
 		id: 2,
-		name: "СОКОЛ-ПИКАП-1.5",
+		name: "СОКОЛ ПИКАП 1.8",
 		description: "Мощный пикап для перевозки грузов",
 		price: 680000,
 		images: [
@@ -197,7 +197,7 @@ export const products: Product[] = [
 	},
 	{
 		id: 3,
-		name: "СОКОЛ-ПИКАП-1.8",
+		name: "СОКОЛ ПРО",
 		description: "Расширенная версия с увеличенным объёмом двигателя",
 		price: 700000,
 		images: [
@@ -294,7 +294,7 @@ export const products: Product[] = [
 	},
 	{
 		id: 4,
-		name: "СОКОЛ-ПРО",
+		name: "СОКОЛ +",
 		description: "Версия с увеличенным клиренсом и мощностью",
 		price: 850000,
 		images: [

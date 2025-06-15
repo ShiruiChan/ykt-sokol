@@ -64,7 +64,7 @@ export default function ProductPage() {
 	}, [isCartOpen]);
 
 	return (
-		<div className="bg-gray-900 text-gray-200 mt-16">
+		<div className="bg-gray-900 text-gray-200 mt-16 pb-20">
 			<Header />
 
 			<div className="z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
@@ -181,7 +181,7 @@ export default function ProductPage() {
 				</div>
 			</div>
 
-			<div className="mt-12 container mx-auto">
+			<div className="mt-12 container mx-auto px-4">
 				<h3 className="text-2xl font-semibold text-gray-100 mb-4">Другие модели</h3>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{products
@@ -202,6 +202,7 @@ export default function ProductPage() {
 				</div>
 			</div>
 
+			{/* Открыть */}
 			{showPriceBox && (
 				<div className="fixed bottom-8 right-8 z-50 hidden md:block animate-pulse-slow">
 					<div className="bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs">
@@ -222,6 +223,7 @@ export default function ProductPage() {
 				</div>
 			)}
 
+			{/* Скрыть */}
 			{!showPriceBox && (
 				<div className="fixed right-8 top-[calc(100vh-200px)] z-50 hidden md:block animate-fade-in">
 					<div className="bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs">
