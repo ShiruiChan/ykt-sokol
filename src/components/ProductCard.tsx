@@ -24,11 +24,11 @@ export default function ProductCard({ product }: Props) {
           <div className="p-4">
 						<div className="flex justify-between">
 							<h3 className="text-xl font-semibold text-gray-200">{product.name}</h3>
-							<button className='text-gray-400 underline'>Подробнее</button>
+							<p className="font-bold text-green-500 text-lg">{product.price.toLocaleString()} ₽</p>
 						</div>
             <div className="flex justify-between">
               <p className="text-grayText text-sm w-1/2 my-1">{product.description}</p>
-              <p className="font-bold text-green-500 text-lg">{product.price.toLocaleString()} ₽</p>
+							<button className='text-gray-400 underline text-sm'>Подробнее</button>
             </div>
           </div>
         </Link>
