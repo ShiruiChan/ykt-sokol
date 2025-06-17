@@ -8,7 +8,7 @@ export default function Hero() {
         <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 opacity-90">
           Созданы для работы в сложных условиях и бездорожья. Подходят для перевозки грузов, охоты, патрулирования и путешествий.
         </p>
-        <a href="#catalog" className="sm:px-8 sm:py-4 bg-green-600 border-b-4 border-green-700 px-6 py-3 rounded-3xl font-semibold hover:bg-green-500 transition-colors">Посмотреть каталог</a>
+        <a href="#catalog" className="sm:px-8 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-500 border-b-4 border-green-700 px-6 py-3 rounded-3xl font-semibold hover:bg-green-500 transition-colors">Посмотреть каталог</a>
       </div>
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/40 to-transparent pointer-events-none"></div>
     </section>

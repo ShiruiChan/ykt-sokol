@@ -29,7 +29,7 @@ export default function Features() {
 				>
 					<div className="relative bg-neutral-900/40 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
 						<div className="text-5xl sm:text-6xl mb-4 animate-pulse">🛞</div>
-						<h3 className="text-xl sm:text-2xl font-bold mb-3 text-teal-400">Непревзойденная проходимость</h3>
+						<h3 className="text-xl sm:text-2xl font-bold mb-3">Непревзойденная проходимость</h3>
 						<p className="text-gray-300 text-sm sm:text-base">
 							Уникальная усиленная рама и колеса с экстремальной проходимостью справятся с любыми условиями, где другие сдаются.
 						</p>
@@ -39,7 +39,7 @@ export default function Features() {
 					</div>
 					<div className="relative bg-neutral-900/40 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
 						<div className="text-5xl sm:text-6xl mb-4 animate-pulse">🔩</div>
-						<h3 className="text-xl sm:text-2xl font-bold mb-3 text-teal-400">Абсолютная надежность</h3>
+						<h3 className="text-xl sm:text-2xl font-bold mb-3">Абсолютная надежность</h3>
 						<p className="text-gray-300 text-sm sm:text-base">
 							Только премиальные комплектующие, протестированные в самых суровых условиях. Забудьте о поломках!
 						</p>
@@ -49,7 +49,7 @@ export default function Features() {
 					</div>
 					<div className="relative bg-neutral-900/40 rounded-xl p-6 sm:p-8 text-center shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
 						<div className="text-5xl sm:text-6xl mb-4 animate-pulse">🛠️</div>
-						<h3 className="text-xl sm:text-2xl font-bold mb-3 text-teal-400">Элитный сервис</h3>
+						<h3 className="text-xl sm:text-2xl font-bold mb-3">Элитный сервис</h3>
 						<p className="text-gray-300 text-sm sm:text-base">
 							Полный цикл поддержки: гарантия, обслуживание и оригинальные запчасти. Мы всегда на шаг впереди конкурентов.
 						</p>
@@ -61,7 +61,7 @@ export default function Features() {
 				<div className="text-center mt-12 sm:mt-16">
 					<a
 						href="#catalog"
-						className="inline-block bg-green-600 border-b-4 border-green-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-green-500 transition-colors duration-300 text-base sm:text-lg"
+						className="inline-block bg-gradient-to-r from-emerald-500 to-green-600 border-b-4 border-green-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-green-500 transition-colors duration-300 text-base sm:text-lg"
 					>
 						Закажите сейчас и ощутите разницу!
 					</a>

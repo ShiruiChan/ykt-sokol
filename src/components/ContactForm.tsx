@@ -33,11 +33,11 @@ export default function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
-        <p>Спасибо! Мы свяжемся с вами в ближайшее время.</p>
+      <div className="bg-green-100 dark:bg-green-900 border-l-4 border-green-500 text-green-800 dark:text-green-200 p-6 mb-6 rounded-lg shadow-md animate-fadeIn">
+        <p className="text-lg">Спасибо! Мы свяжемся с вами в ближайшее время.</p>
         <button
           onClick={() => setSubmitted(false)}
-          className="mt-2 bg-gray-500 text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-gray-400 transition-colors"
+          className="mt-4 inline-block bg-gray-600 hover:bg-gray-500 text-white px-6 py-2 rounded-full font-semibold transition-colors duration-300"
         >
           Написать ещё
         </button>
@@ -46,35 +46,60 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      <input
-        type="text"
-        name="name"
-        placeholder="Ваше имя"
-        value={formData.name}
-        onChange={handleChange}
-        className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
-      />
-      <input
-        type="text"
-        name="contact"
-        placeholder="Email или телефон"
-        value={formData.contact}
-        onChange={handleChange}
-        className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
-      />
-      <textarea
-        name="message"
-        rows={4}
-        placeholder="Ваше сообщение"
-        value={formData.message}
-        onChange={handleChange}
-        className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
-      ></textarea>
-			<div className='w-full text-center'>
-				<button type="submit" className="sm:px-8 sm:py-4 bg-green-600 border-b-4 border-green-700 px-6 py-3 rounded-3xl font-semibold hover:bg-green-500 transition-colors">Отправить</button>
-    	</div>
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 rounded-lg shadow-sm">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label htmlFor="name" className="block text-gray-300 mb-2 font-medium">Ваше имя</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Иван Иванов"
+          value={formData.name}
+          onChange={handleChange}
+          className="w-full px-5 py-3 border border-gray-600 bg-zinc-300 text-gray-200 placeholder-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="contact" className="block text-gray-300 mb-2 font-medium">Email или телефон</label>
+        <input
+          type="text"
+          id="contact"
+          name="contact"
+          placeholder="example@email.com или +7 (999) 999-99-99"
+          value={formData.contact}
+          onChange={handleChange}
+          className="w-full px-5 py-3 border border-gray-600 bg-zinc-300 text-gray-200 placeholder-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="message" className="block text-gray-300 mb-2 font-medium">Ваше сообщение</label>
+        <textarea
+          id="message"
+          name="message"
+          rows={4}
+          placeholder="Напишите ваш вопрос или предложение..."
+          value={formData.message}
+          onChange={handleChange}
+          className="w-full px-5 py-3 border border-gray-600 bg-zinc-300 text-gray-200 placeholder-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none"
+        ></textarea>
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <button
+          type="submit"
+          className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-500 border-b-4 border-green-700 text-white font-semibold rounded-full shadow-md hover:shadow-lg hover:from-green-500 hover:to-emerald-400 transform hover:-translate-y-0.5 transition-all duration-300"
+        >
+          Отправить
+        </button>
+      </div>
     </form>
   );
 }
