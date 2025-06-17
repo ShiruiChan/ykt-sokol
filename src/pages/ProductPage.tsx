@@ -94,9 +94,9 @@ export default function ProductPage() {
   }, [isCartOpen]);
 
   return (
-    <div className="bg-gray-900 text-gray-200 mt-16">
+    <div className="bg-neutral-900/40 text-gray-200 mt-16">
       <Header />
-      <div className="z-30 bg-gray-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
+      <div className="z-30 bg-neutral-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
         <div className="container mx-auto px-4">
           <Breadcrumbs currentPage={product.name} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -287,7 +287,7 @@ export default function ProductPage() {
 											onClick={() => toggleAccessory(acc.id)}
 											className={`
 												group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300
-												${isSelected ? "border-gray-500 bg-gray-700" : "border-gray-600 hover:border-gray-400"}
+												${isSelected ? "border-gray-500 bg-neutral-700/60" : "border-gray-600 hover:border-gray-400"}
 											`}
 										>
 											<div className="relative w-full h-24 overflow-hidden rounded-md mb-3 flex items-center justify-center">
@@ -304,7 +304,7 @@ export default function ProductPage() {
 											</div>
 											<div className="absolute top-2 right-2 border border-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"></div>
 											{isSelected && (
-												<div className="absolute top-2 right-2 bg-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+												<div className="absolute top-2 right-2 bg-gradient-to-r from-emerald-500 to-green-600 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
 													✓
 												</div>
 											)}
@@ -324,7 +324,7 @@ export default function ProductPage() {
 						{/* верхняя часть — корзина с ценой для мобилок*/}
 						{!showPriceBox && (
 							<div className="w-full z-50 md:hidden">
-								<div className="sticky top-24 bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
+								<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 									<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 									{selectedAccList.length > 0 ? (
 										selectedAccList.map(acc => (
@@ -337,20 +337,20 @@ export default function ProductPage() {
 										<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
 									)}
 									<hr className="my-4 border-t border-gray-600" />
-									<div className="font-bold text-lg text-right text-teal-500">
+									<div className="font-bold text-lg text-right text-green-400">
 										Итого: {totalPrice.toLocaleString()} ₽
 									</div>
 								</div>
 							</div>
 						)}
-						<div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 mt-4 md:mt-0">
+						<div className="bg-neutral-800 p-6 rounded-lg shadow-lg border border-gray-700 mt-4 md:mt-0">
 							<div className="space-y-5">
 								<div>
 									<label className="block text-gray-300 font-medium mb-2">Имя</label>
 									<input
 										type="text"
 										placeholder="Ваше имя"
-										className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 									/>
 								</div>
 
@@ -359,7 +359,7 @@ export default function ProductPage() {
 									<input
 										type="tel"
 										placeholder="+7 (999) 999-99-99"
-										className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 									/>
 								</div>
 
@@ -368,11 +368,11 @@ export default function ProductPage() {
 									<textarea
 										placeholder="Дополнительные пожелания"
 										rows={4}
-										className="w-full p-3 border border-gray-600 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 									></textarea>
 								</div>
 
-								<button className="w-full bg-teal-500 hover:bg-teal-400 text-white py-3 px-6 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+								<button className="w-full bg-gradient-to-r from-green-600 to-emerald-500 hover:bg-teal-400 text-white py-3 px-6 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
 									Отправить заявку
 								</button>
 							</div>
@@ -382,7 +382,7 @@ export default function ProductPage() {
 					{/* Правая часть — корзина с ценой для пк*/}
 					{!showPriceBox && (
 						<div className="w-full md:w-1/3 z-2 hidden md:block pt-12">
-							<div className="sticky top-24 bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
+							<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 								{selectedAccList.length > 0 ? (
 									selectedAccList.map(acc => (
@@ -395,7 +395,7 @@ export default function ProductPage() {
 									<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
 								)}
 								<hr className="my-4 border-t border-gray-600" />
-								<div className="font-bold text-lg text-right text-gray-300">
+								<div className="font-bold text-lg text-right text-green-400">
 									Итого: {totalPrice.toLocaleString()} ₽
 								</div>
 							</div>
@@ -405,8 +405,8 @@ export default function ProductPage() {
 			</div>
 
       {/* Блок "Другие модели" всегда виден внизу */}
-      <div className="mt-12 container mx-auto px-4">
-        <h3 className="text-2xl font-semibold text-gray-100 mb-4">Другие модели</h3>
+      <div className="mt-12 container mx-auto px-4 mb-20">
+        <h3 className="text-2xl font-semibold mb-4">Другие модели</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products
             .filter(p => p.id !== product.id)
@@ -414,10 +414,12 @@ export default function ProductPage() {
             .map(p => (
               <div key={p.id} className="card">
                 <img src={p.images[0]} alt={`${p.name} - квадроцикл`} className="w-full h-64 object-cover" />
-                <div className="p-4">
-                  <h4 className="text-lg font-semibold text-gray-100">{p.name}</h4>
-                  <p className="text-gray-400 text-sm">{p.price.toLocaleString()} ₽</p>
-                  <Link to={`/product/${p.id}`} className="mt-2 btn-primary inline-block">
+                <div className="p-4 flex justify-between">
+									<div className=''>
+										<h4 className="text-lg font-semibold text-black">{p.name}</h4>
+                 		<p className="text-black text-sm">{p.price.toLocaleString()} ₽</p>
+									</div>
+                  <Link to={`/product/${p.id}`} className="btn-primary inline-block">
                     Подробнее
                   </Link>
                 </div>
@@ -428,7 +430,7 @@ export default function ProductPage() {
 
       {/* Корзина с ценой (для десктопа) */}
 			{showPriceBox && (
-				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-gray-800 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs transition-transform duration-300 animate-fadeIn">
+				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-700/60 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs transition-transform duration-300 animate-fadeIn">
 					<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 					{selectedAccList.length > 0 ? (
 						selectedAccList.map(acc => (
@@ -441,7 +443,7 @@ export default function ProductPage() {
 						<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
 					)}
 					<hr className="my-2 border-t border-gray-600" />
-					<div className="font-bold text-lg text-right text-gray-300">
+					<div className="font-bold text-lg text-right text-green-400">
 						Итого: {totalPrice.toLocaleString()} ₽
 					</div>
 				</div>
@@ -449,7 +451,7 @@ export default function ProductPage() {
 
       {/* Мобильная корзина (внизу) */}
 			{showPriceBox && (
-				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-800 shadow-lg border-t border-gray-600 z-50">
+				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-lg border-t z-50">
 					<div
 						className="flex justify-between items-center p-3"
 						onClick={() => selectedAccList.length > 0 && setIsCartOpen(!isCartOpen)}
@@ -474,7 +476,7 @@ export default function ProductPage() {
 								)}
 							</button>
 							<div>
-								<div className="text-xs text-gray-500">Итого:</div>
+								<div className="text-xs">Итого:</div>
 								<div className="font-bold text-gray-300">{totalPrice.toLocaleString()} ₽</div>
 							</div>
 						</div>
@@ -489,7 +491,7 @@ export default function ProductPage() {
 
 					{/* Раскрывающийся список аксессуаров на мобильных устройствах */}
 					{isCartOpen && (
-						<div className="bg-gray-700 border-t border-gray-600 p-3 animate-fadeIn">
+						<div className="bg-neutral-800 border-t border-gray-600 p-3 animate-fadeIn">
 							<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 							{selectedAccList.length > 0 ? (
 								selectedAccList.map(acc => (
