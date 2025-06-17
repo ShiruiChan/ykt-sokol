@@ -6,7 +6,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-gray-900 text-gray-100 p-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-700">
+      <header className="bg-slate-950 text-gray-100 p-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-700">
         <div className="container mx-auto flex justify-between items-center">
           <a href="/"><h1 className="text-2xl font-extrabold tracking-tight text-gray-100 hover:text-gray-300 transition">YktSokol</h1></a>
 

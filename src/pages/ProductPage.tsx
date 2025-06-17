@@ -105,62 +105,118 @@ export default function ProductPage() {
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
-              <p className="mb-4 text-gray-400">{product.description}</p>
+              <p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
 
               {/* Характеристики */}
 							<div className="mt-6">
 								<div
-									onClick={() => toggleSection('specs')}
+									onClick={() => toggleSection("specs")}
 									className="flex justify-between items-center cursor-pointer"
 								>
 									<h3 className="text-2xl font-semibold text-gray-100">Характеристики</h3>
-									<h3 className='text-gray-300 underline'>Показать всё</h3>
+									<h3 className="text-gray-300 underline">
+										{expandedSections.includes("specs") ? "Скрыть" : "Показать всё"}
+									</h3>
 								</div>
-								<table className="w-full border-collapse border border-gray-600 mt-4">
-									<tbody>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Размер</td>
-											<td className="p-2 text-gray-400">{product.specs.size}</td>
-										</tr>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Высота</td>
-											<td className="p-2 text-gray-400">{product.specs.height}</td>
-										</tr>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Двигатель</td>
-											<td className="p-2 text-gray-400">{product.specs.engine || 'Не указан'}</td>
-										</tr>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Клиренс</td>
-											<td className="p-2 text-gray-400">{product.specs.clearance || 'Не указан'}</td>
-										</tr>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Трансмиссия</td>
-											<td className="p-2 text-gray-400">{product.specs.transmission || 'Не указана'}</td>
-										</tr>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Мест</td>
-											<td className="p-2 text-gray-400">{product.specs.seats || 'Не указано'}</td>
-										</tr>
-										<tr className="border-b border-gray-600">
-											<td className="p-2 font-semibold text-gray-300">Макс. скорость</td>
-											<td className="p-2 text-gray-400">{product.specs.maxSpeed || 'Не указана'}</td>
-										</tr>
-										{expandedSections.includes('specs') && (
-											<tr className="border-b border-gray-600">
-												<td className="p-2 font-semibold text-gray-300">Макс. скорость</td>
-												<td className="p-2 text-gray-400">{product.specs.maxSpeed || 'Не указана'}</td>
-											</tr>
+
+								{/* Адаптивная сетка вместо таблицы */}
+									<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+										{/* Основные характеристики */}
+										{product.specs.size && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
+												<div className="text-gray-400">{product.specs.size}</div>
+											</>
 										)}
-									</tbody>
-									
-								</table>
+
+										{product.specs.height && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
+												<div className="text-gray-400">{product.specs.height}</div>
+											</>
+										)}
+
+										{product.specs.engine && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
+												<div className="text-gray-400">{product.specs.engine}</div>
+											</>
+										)}
+
+										{product.specs.clearance && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
+												<div className="text-gray-400">{product.specs.clearance}</div>
+											</>
+										)}
+
+										{product.specs.transmission && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
+												<div className="text-gray-400">{product.specs.transmission}</div>
+											</>
+										)}
+
+										{product.specs.seats && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
+												<div className="text-gray-400">{product.specs.seats}</div>
+											</>
+										)}
+
+										{product.specs.maxSpeed && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
+												<div className="text-gray-400">{product.specs.maxSpeed}</div>
+											</>
+										)}
+
+										{product.specs.fuelConsumption && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Расход топлива</div>
+												<div className="text-gray-400">{product.specs.fuelConsumption}</div>
+											</>
+										)}
+
+										{/* Расширенные характеристики — только если пользователь нажал "Показать всё" */}
+										{expandedSections.includes("specs") && product.specs.extendedSpecs && (
+											<>
+												{Object.entries(product.specs.extendedSpecs).map(([key, value]) => {
+													const specLabels: Record<string, string> = {
+														wheelFormula: "Колёсная формула",
+														weight: "Масса снаряжённого ТС",
+														fullWeight: "Полная масса ТС",
+														enginePower: "Мощность двигателя",
+														torque: "Максимальный крутящий момент",
+														slope: "Максимально преодолеваемый уклон",
+														lateralStability: "Угол поперечной устойчивости",
+														suspension: "Подвеска",
+														steering: "Рулевое управление",
+														brakeSystem: "Тормозная система",
+														parkingBrake: "Стояночная тормозная система",
+														tires: "Шины",
+														tirePressure: "Давление воздуха в шинах",
+														waterSpeed: "Скорость на плаву"
+													};
+													const label = specLabels[key] || key;
+													return (
+														value && (
+															<>
+																<div className="font-semibold text-gray-300 border-b border-gray-600">{label}</div>
+																<div className="text-gray-400">{value}</div>
+															</>
+														)
+													);
+												})}
+											</>
+										)}
+									</div>
 							</div>
 
 							{/* Комплектация по умолчанию */}
 							<div className="mt-6">
 								<div
-									onClick={() => toggleSection('kit')}
+									onClick={() => toggleSection("kit")}
 									className="flex justify-between items-center cursor-pointer"
 								>
 									<h3 className="text-2xl font-semibold text-gray-100">Комплектация по умолчанию</h3>
@@ -172,16 +228,19 @@ export default function ProductPage() {
 										fill="none"
 										stroke="currentColor"
 										strokeWidth="2"
-										className={`transition-transform duration-300 ${expandedSections.includes('kit') ? 'rotate-180' : ''}`}
+										className={`transition-transform duration-300 ${
+											expandedSections.includes("kit") ? "rotate-180" : ""
+										}`}
 									>
 										<polyline points="6 9 12 15 18 9"></polyline>
 									</svg>
 								</div>
-
-								{expandedSections.includes('kit') && (
-									<ul className="list-disc pl-6 mt-4">
+								{expandedSections.includes("kit") && (
+									<ul className="list-disc pl-6 mt-4 space-y-1">
 										{product.defaultKit.map((item, index) => (
-											<li key={index} className="text-gray-400">{item.name} — {item.quantity}</li>
+											<li key={index} className="text-gray-400">
+												<span className="font-medium">{item.name}</span> — {item.quantity}
+											</li>
 										))}
 									</ul>
 								)}
@@ -211,7 +270,7 @@ export default function ProductPage() {
 								stroke="currentColor"
 								strokeWidth="2"
 								className={`transition-transform duration-300 -mt-3 ml-2 ${
-									expandedSections.includes(`accessory-${category}`) ? 'rotate-180' : ''
+									expandedSections.includes(`accessory-${category}`) ? "rotate-180" : ""
 								}`}
 							>
 								<polyline points="6 9 12 15 18 9"></polyline>
@@ -220,7 +279,7 @@ export default function ProductPage() {
 
 						{expandedSections.includes(`accessory-${category}`) && (
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
-								{accessories.map(acc => {
+								{accessories.map((acc) => {
 									const isSelected = selectedAccessories[acc.id];
 									return (
 										<div
@@ -228,9 +287,7 @@ export default function ProductPage() {
 											onClick={() => toggleAccessory(acc.id)}
 											className={`
 												group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300
-												${isSelected
-													? 'border-gray-500 bg-gray-700'
-													: 'border-gray-600 hover:border-gray-400'}
+												${isSelected ? "border-gray-500 bg-gray-700" : "border-gray-600 hover:border-gray-400"}
 											`}
 										>
 											<div className="relative w-full h-24 overflow-hidden rounded-md mb-3 flex items-center justify-center">
