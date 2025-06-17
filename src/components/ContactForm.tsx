@@ -72,7 +72,9 @@ export default function ContactForm() {
         onChange={handleChange}
         className="w-full px-4 py-3 mb-4 border border-gray-600 rounded bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-400"
       ></textarea>
-      <button type="submit" className="bg-gray-500 text-gray-900 px-6 py-3 rounded-full font-semibold hover:bg-gray-400 transition-colors">Отправить</button>
+			<div className='w-full text-center'>
+				<button type="submit" className="sm:px-8 sm:py-4 bg-green-600 border-b-4 border-green-700 px-6 py-3 rounded-3xl font-semibold hover:bg-green-500 transition-colors">Отправить</button>
+    	</div>
     </form>
   );
 }

@@ -1,19 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Отслеживаем скролл
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
-      <header className="bg-slate-950 text-gray-100 p-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-gray-700">
+      <header
+        className={`${
+          scrolled
+            ? 'bg-neutral-900/70 backdrop-blur-md border-gray-700/50'
+            : 'bg-neutral-950 border-gray-800'
+        } text-gray-100 p-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300`}
+      >
         <div className="container mx-auto flex justify-between items-center">
-          <a href="/"><h1 className="text-2xl font-extrabold tracking-tight text-gray-100 hover:text-gray-300 transition">YktSokol</h1></a>
+          <a href="/">
+            <h1 className="text-2xl font-extrabold tracking-tight text-gray-100 hover:text-gray-300 transition">
+              YktSokol
+            </h1>
+          </a>
 
           <nav className="hidden md:block">
             <ul className="flex gap-8">
-              <li><Link to="/" className="text-lg font-semibold hover:text-gray-300 transition">Главная</Link></li>
-              <li><Link to="/news" className="text-lg font-semibold hover:text-gray-300 transition">Новости</Link></li>
+              <li>
+                <Link
+                  to="/"
+                  className="text-lg font-semibold hover:text-gray-300 transition"
+                >
+                  Главная
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/news"
+                  className="text-lg font-semibold hover:text-gray-300 transition"
+                >
+                  Новости
+                </Link>
+              </li>
             </ul>
           </nav>
 
@@ -42,8 +81,9 @@ export default function Header() {
           </button>
         </div>
 
+        {/* Мобильное меню */}
         {isMenuOpen && (
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-95 z-40">
+          <div className="fixed inset-0 bg-gray-900/90 z-40 backdrop-blur-sm">
             <div className="flex flex-col items-center justify-center h-full space-y-10 text-3xl font-bold">
               <button
                 onClick={() => setIsMenuOpen(false)}
@@ -84,9 +124,10 @@ export default function Header() {
         )}
       </header>
 
+      {/* Overlay для закрытия меню на мобильных устройствах */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 z-30 md:hidden"
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
           onClick={() => setIsMenuOpen(false)}
         ></div>
       )}

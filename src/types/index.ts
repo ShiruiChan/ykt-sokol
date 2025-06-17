@@ -47,6 +47,7 @@ export type Product = {
   id: number;
   name: string;
   description: string;
+	deskSmall: string;
   price: number;
   images: string[];
   specs: Spec;

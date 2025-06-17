@@ -24,11 +24,11 @@ html {
 }
 
 .btn-primary {
-  @apply inline-block text-base md:text-lg px-6 py-3 bg-teal-500 text-white rounded-full hover:bg-teal-400 transition duration-300 shadow-md hover:shadow-lg;
+  @apply inline-block text-base md:text-lg px-6 py-3 bg-green-600 text-white rounded-full hover:bg-teal-400 transition duration-300 shadow-md hover:shadow-lg;
 }
 
 .card {
-  @apply bg-gray-800 shadow-xl rounded-lg overflow-hidden transition-transform hover:scale-105 border border-gray-500;
+  @apply bg-zinc-300 shadow-xl rounded-lg overflow-hidden transition-transform hover:scale-105 border-2 border-stone-700;
 }
 
 .section {

@@ -12,7 +12,7 @@ export default function Home() {
 			<Hero />
 			<Features />
 			<Catalog />
-			<section className="bg-gray-900 text-gray-200">
+			<section className="bg-neutral-800 text-gray-200">
 				<div className="container mx-auto section">
 					<h2 className="text-4xl text-center mb-12">Свяжитесь с нами</h2>
 					<div className="max-w-3xl mx-auto">
