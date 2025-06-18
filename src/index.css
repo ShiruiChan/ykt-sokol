@@ -5,6 +5,19 @@ html {
   font-family: 'Inter', 'Roboto', sans-serif;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .animate-pulse-slow {
   animation: pulse 2s infinite;
 }
