@@ -392,7 +392,7 @@ export default function ProductPage() {
 
 					{/* Правая часть — корзина с ценой для пк*/}
 					{!showPriceBox && (
-						<div className="w-full md:w-1/3 z-2 pt-12">
+						<div className="w-full md:w-1/3 z-2 pt-12 hidden md:block">
 							<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 								{/* Основной товар */}
