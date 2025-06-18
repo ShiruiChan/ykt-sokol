@@ -8,41 +8,40 @@ import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 
 export default function ProductPage() {
-  const { id } = useParams<{ id: string }>();
-  const product = products.find(p => p.id === Number(id));
-  const [selectedAccessories, setSelectedAccessories] = useState<Record<number, boolean>>({});
-  const [showPriceBox, setShowPriceBox] = useState(true);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [showFullInfo, setShowFullInfo] = useState(false); // <- новое состояние
+	const { id } = useParams<{ id: string }>();
+	const product = products.find(p => p.id === Number(id));
+	const [selectedAccessories, setSelectedAccessories] = useState<Record<number, boolean>>({});
+	const [showPriceBox, setShowPriceBox] = useState(true);
+	const [isCartOpen, setIsCartOpen] = useState(false);
 	const [expandedSections, setExpandedSections] = useState<string[]>(['']); // по умолчанию показаны характеристики
 
-  const formRef = useRef<HTMLDivElement>(null);
+	const formRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [id]);
 
-  if (!product) {
-    return <div className="section text-center text-gray-300">Товар не найден</div>;
-  }
+	if (!product) {
+		return <div className="section text-center text-gray-300">Товар не найден</div>;
+	}
 
-  const toggleAccessory = (accId: number) => {
-    setSelectedAccessories(prev => ({
-      ...prev,
-      [accId]: !prev[accId]
-    }));
-  };
+	const toggleAccessory = (accId: number) => {
+		setSelectedAccessories(prev => ({
+			...prev,
+			[accId]: !prev[accId]
+		}));
+	};
 
-  const selectedAccList = Object.entries(selectedAccessories)
-    .filter(([, isSelected]) => isSelected)
-    .map(([accId]) => {
-      for (const category in product.accessories) {
-        const found = product.accessories[category].find(acc => acc.id === Number(accId));
-        if (found) return found;
-      }
-      return null;
-    })
-    .filter(Boolean) as Accessory[];
+	const selectedAccList = Object.entries(selectedAccessories)
+		.filter(([, isSelected]) => isSelected)
+		.map(([accId]) => {
+			for (const category in product.accessories) {
+				const found = product.accessories[category].find(acc => acc.id === Number(accId));
+				if (found) return found;
+			}
+			return null;
+		})
+		.filter(Boolean) as Accessory[];
 
 	const toggleSection = (section: string) => {
 		setExpandedSections(prev =>
@@ -57,7 +56,7 @@ export default function ProductPage() {
 		const handleScroll = () => {
 			if (formRef.current) {
 				const rect = formRef.current.getBoundingClientRect();
-				
+
 				// Показываем боковую панель, если пользователь почти добрался до формы
 				setShowPriceBox(rect.top < window.innerHeight * 0.9);
 
@@ -72,42 +71,42 @@ export default function ProductPage() {
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
-  const totalPrice = product.price + selectedAccList.reduce((sum, acc) => sum + acc.price, 0);
+	const totalPrice = product.price + selectedAccList.reduce((sum, acc) => sum + acc.price, 0);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (formRef.current) {
-        const rect = formRef.current.getBoundingClientRect();
-        setShowPriceBox(rect.top > window.innerHeight * 0.8);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+	useEffect(() => {
+		const handleScroll = () => {
+			if (formRef.current) {
+				const rect = formRef.current.getBoundingClientRect();
+				setShowPriceBox(rect.top > window.innerHeight * 0.8);
+			}
+		};
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (isCartOpen) setIsCartOpen(false);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isCartOpen]);
+	useEffect(() => {
+		const handleScroll = () => {
+			if (isCartOpen) setIsCartOpen(false);
+		};
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, [isCartOpen]);
 
-  return (
-    <div className="bg-neutral-900/40 text-gray-200 mt-16">
-      <Header />
-      <div className="z-30 bg-neutral-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
-        <div className="container mx-auto px-4">
-          <Breadcrumbs currentPage={product.name} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
-            </div>
-            <div>
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
-              <p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
+	return (
+		<div className="bg-neutral-900/40 text-gray-200 mt-16">
+			<Header />
+			<div className="z-30 bg-neutral-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
+				<div className="container mx-auto px-4">
+					<Breadcrumbs currentPage={product.name} />
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<div>
+							<img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
+						</div>
+						<div>
+							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
+							<p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
 
-              {/* Характеристики */}
+							{/* Характеристики */}
 							<div className="mt-6">
 								<div
 									onClick={() => toggleSection("specs")}
@@ -120,97 +119,97 @@ export default function ProductPage() {
 								</div>
 
 								{/* Адаптивная сетка вместо таблицы */}
-									<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-										{/* Основные характеристики */}
-										{product.specs.size && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
-												<div className="text-gray-400">{product.specs.size}</div>
-											</>
-										)}
+								<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+									{/* Основные характеристики */}
+									{product.specs.size && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
+											<div className="text-gray-400">{product.specs.size}</div>
+										</>
+									)}
 
-										{product.specs.height && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
-												<div className="text-gray-400">{product.specs.height}</div>
-											</>
-										)}
+									{product.specs.height && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
+											<div className="text-gray-400">{product.specs.height}</div>
+										</>
+									)}
 
-										{product.specs.engine && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
-												<div className="text-gray-400">{product.specs.engine}</div>
-											</>
-										)}
+									{product.specs.engine && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
+											<div className="text-gray-400">{product.specs.engine}</div>
+										</>
+									)}
 
-										{product.specs.clearance && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
-												<div className="text-gray-400">{product.specs.clearance}</div>
-											</>
-										)}
+									{product.specs.clearance && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
+											<div className="text-gray-400">{product.specs.clearance}</div>
+										</>
+									)}
 
-										{product.specs.transmission && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
-												<div className="text-gray-400">{product.specs.transmission}</div>
-											</>
-										)}
+									{product.specs.transmission && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
+											<div className="text-gray-400">{product.specs.transmission}</div>
+										</>
+									)}
 
-										{product.specs.seats && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
-												<div className="text-gray-400">{product.specs.seats}</div>
-											</>
-										)}
+									{product.specs.seats && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
+											<div className="text-gray-400">{product.specs.seats}</div>
+										</>
+									)}
 
-										{product.specs.maxSpeed && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
-												<div className="text-gray-400">{product.specs.maxSpeed}</div>
-											</>
-										)}
+									{product.specs.maxSpeed && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
+											<div className="text-gray-400">{product.specs.maxSpeed}</div>
+										</>
+									)}
 
-										{product.specs.fuelConsumption && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Расход топлива</div>
-												<div className="text-gray-400">{product.specs.fuelConsumption}</div>
-											</>
-										)}
+									{product.specs.fuelConsumption && (
+										<>
+											<div className="font-semibold text-gray-300 border-b border-gray-600">Расход топлива</div>
+											<div className="text-gray-400">{product.specs.fuelConsumption}</div>
+										</>
+									)}
 
-										{/* Расширенные характеристики — только если пользователь нажал "Показать всё" */}
-										{expandedSections.includes("specs") && product.specs.extendedSpecs && (
-											<>
-												{Object.entries(product.specs.extendedSpecs).map(([key, value]) => {
-													const specLabels: Record<string, string> = {
-														wheelFormula: "Колёсная формула",
-														weight: "Масса снаряжённого ТС",
-														fullWeight: "Полная масса ТС",
-														enginePower: "Мощность двигателя",
-														torque: "Максимальный крутящий момент",
-														slope: "Максимально преодолеваемый уклон",
-														lateralStability: "Угол поперечной устойчивости",
-														suspension: "Подвеска",
-														steering: "Рулевое управление",
-														brakeSystem: "Тормозная система",
-														parkingBrake: "Стояночная тормозная система",
-														tires: "Шины",
-														tirePressure: "Давление воздуха в шинах",
-														waterSpeed: "Скорость на плаву"
-													};
-													const label = specLabels[key] || key;
-													return (
-														value && (
-															<>
-																<div className="font-semibold text-gray-300 border-b border-gray-600">{label}</div>
-																<div className="text-gray-400">{value}</div>
-															</>
-														)
-													);
-												})}
-											</>
-										)}
-									</div>
+									{/* Расширенные характеристики — только если пользователь нажал "Показать всё" */}
+									{expandedSections.includes("specs") && product.specs.extendedSpecs && (
+										<>
+											{Object.entries(product.specs.extendedSpecs).map(([key, value]) => {
+												const specLabels: Record<string, string> = {
+													wheelFormula: "Колёсная формула",
+													weight: "Масса снаряжённого ТС",
+													fullWeight: "Полная масса ТС",
+													enginePower: "Мощность двигателя",
+													torque: "Максимальный крутящий момент",
+													slope: "Максимально преодолеваемый уклон",
+													lateralStability: "Угол поперечной устойчивости",
+													suspension: "Подвеска",
+													steering: "Рулевое управление",
+													brakeSystem: "Тормозная система",
+													parkingBrake: "Стояночная тормозная система",
+													tires: "Шины",
+													tirePressure: "Давление воздуха в шинах",
+													waterSpeed: "Скорость на плаву"
+												};
+												const label = specLabels[key] || key;
+												return (
+													value && (
+														<>
+															<div className="font-semibold text-gray-300 border-b border-gray-600">{label}</div>
+															<div className="text-gray-400">{value}</div>
+														</>
+													)
+												);
+											})}
+										</>
+									)}
+								</div>
 							</div>
 
 							{/* Комплектация по умолчанию */}
@@ -228,9 +227,8 @@ export default function ProductPage() {
 										fill="none"
 										stroke="currentColor"
 										strokeWidth="2"
-										className={`transition-transform duration-300 ${
-											expandedSections.includes("kit") ? "rotate-180" : ""
-										}`}
+										className={`transition-transform duration-300 ${expandedSections.includes("kit") ? "rotate-180" : ""
+											}`}
 									>
 										<polyline points="6 9 12 15 18 9"></polyline>
 									</svg>
@@ -245,10 +243,10 @@ export default function ProductPage() {
 									</ul>
 								)}
 							</div>
-            </div>
-          </div>
-        </div>
-      </div>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			{/* Аксессуары */}
 			<div className="container mx-auto px-4 mt-8">
@@ -269,9 +267,8 @@ export default function ProductPage() {
 								fill="none"
 								stroke="currentColor"
 								strokeWidth="2"
-								className={`transition-transform duration-300 -mt-3 ml-2 ${
-									expandedSections.includes(`accessory-${category}`) ? "rotate-180" : ""
-								}`}
+								className={`transition-transform duration-300 -mt-3 ml-2 ${expandedSections.includes(`accessory-${category}`) ? "rotate-180" : ""
+									}`}
 							>
 								<polyline points="6 9 12 15 18 9"></polyline>
 							</svg>
@@ -326,6 +323,19 @@ export default function ProductPage() {
 							<div className="w-full z-50 md:hidden">
 								<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 									<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
+
+									{/* Основной товар */}
+									<div className="mb-3">
+										<div className="flex items-center gap-2">
+											<img src={product.images[0]} alt={product.name} className="w-10 h-10 object-cover rounded" />
+											<div>
+												<div className="font-medium text-gray-200">{product.name}</div>
+												<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
+											</div>
+										</div>
+									</div>
+
+									{/* Аксессуары */}
 									{selectedAccList.length > 0 ? (
 										selectedAccList.map(acc => (
 											<div key={acc.id} className="flex justify-between text-sm py-1">
@@ -336,6 +346,7 @@ export default function ProductPage() {
 									) : (
 										<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
 									)}
+
 									<hr className="my-4 border-t border-gray-600" />
 									<div className="font-bold text-lg text-right text-green-400">
 										Итого: {totalPrice.toLocaleString()} ₽
@@ -381,18 +392,34 @@ export default function ProductPage() {
 
 					{/* Правая часть — корзина с ценой для пк*/}
 					{!showPriceBox && (
-						<div className="w-full md:w-1/3 z-2 hidden md:block pt-12">
+						<div className="w-full md:w-1/3 z-2 pt-12">
 							<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-								{selectedAccList.length > 0 ? (
-									selectedAccList.map(acc => (
-										<div key={acc.id} className="flex justify-between text-sm py-1">
-											<span className="text-gray-300">{acc.name}</span>
-											<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+								{/* Основной товар */}
+								<div className="mb-4">
+									<div className="text-sm text-gray-500 mb-2">Основное:</div>
+									<div className="flex items-center gap-2">
+										<img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover rounded" />
+										<div>
+											<div className="font-medium text-gray-200">{product.name}</div>
+											<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
 										</div>
-									))
+									</div>
+								</div>
+
+								{/* Аксессуары */}
+								{selectedAccList.length > 0 ? (
+									<>
+										<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
+										{selectedAccList.map(acc => (
+											<div key={acc.id} className="flex justify-between text-sm py-1">
+												<span className="text-gray-300">{acc.name}</span>
+												<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+											</div>
+										))}
+									</>
 								) : (
-									<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+									<div className="text-center text-gray-500 italic">Нет выбранных аксессуаров</div>
 								)}
 								<hr className="my-4 border-t border-gray-600" />
 								<div className="font-bold text-lg text-right text-green-400">
@@ -404,44 +431,60 @@ export default function ProductPage() {
 				</div>
 			</div>
 
-      {/* Блок "Другие модели" всегда виден внизу */}
-      <div className="mt-12 container mx-auto px-4 mb-20">
-        <h3 className="text-2xl font-semibold mb-4">Другие модели</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products
-            .filter(p => p.id !== product.id)
-            .slice(0, 3)
-            .map(p => (
-              <div key={p.id} className="card">
-                <img src={p.images[0]} alt={`${p.name} - квадроцикл`} className="w-full h-64 object-cover" />
-                <div className="p-4 flex justify-between">
+			{/* Блок "Другие модели" всегда виден внизу */}
+			<div className="mt-12 container mx-auto px-4 mb-20">
+				<h3 className="text-2xl font-semibold mb-4">Другие модели</h3>
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					{products
+						.filter(p => p.id !== product.id)
+						.slice(0, 3)
+						.map(p => (
+							<div key={p.id} className="card">
+								<img src={p.images[0]} alt={`${p.name} - квадроцикл`} className="w-full h-64 object-cover" />
+								<div className="p-4 flex justify-between">
 									<div className=''>
 										<h4 className="text-lg font-semibold text-black">{p.name}</h4>
-                 		<p className="text-black text-sm">{p.price.toLocaleString()} ₽</p>
+										<p className="text-black text-sm">{p.price.toLocaleString()} ₽</p>
 									</div>
-                  <Link to={`/product/${p.id}`} className="btn-primary inline-block">
-                    Подробнее
-                  </Link>
-                </div>
-              </div>
-            ))}
-        </div>
-      </div>
+									<Link to={`/product/${p.id}`} className="btn-primary inline-block">
+										Подробнее
+									</Link>
+								</div>
+							</div>
+						))}
+				</div>
+			</div>
 
-      {/* Корзина с ценой (для десктопа) */}
+			{/* Корзина с ценой (для десктопа) */}
 			{showPriceBox && (
 				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-700/60 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs transition-transform duration-300 animate-fadeIn">
-					<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-					{selectedAccList.length > 0 ? (
-						selectedAccList.map(acc => (
-							<div key={acc.id} className="flex justify-between text-sm py-1">
-								<span className="text-gray-300">{acc.name}</span>
-								<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+					{/* Основной товар */}
+					<div className="mb-4">
+						<div className="text-sm text-gray-500 mb-2">Основное:</div>
+						<div className="flex items-center gap-2">
+							<img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover rounded" />
+							<div>
+								<div className="font-medium text-gray-200">{product.name}</div>
+								<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
 							</div>
-						))
+						</div>
+					</div>
+
+					{/* Аксессуары */}
+					{selectedAccList.length > 0 ? (
+						<>
+							<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
+							{selectedAccList.map(acc => (
+								<div key={acc.id} className="flex justify-between text-sm py-1">
+									<span className="text-gray-300">{acc.name}</span>
+									<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+								</div>
+							))}
+						</>
 					) : (
-						<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+						<div className="text-center text-gray-500 italic">Нет выбранных аксессуаров</div>
 					)}
+
 					<hr className="my-2 border-t border-gray-600" />
 					<div className="font-bold text-lg text-right text-green-400">
 						Итого: {totalPrice.toLocaleString()} ₽
@@ -449,7 +492,7 @@ export default function ProductPage() {
 				</div>
 			)}
 
-      {/* Мобильная корзина (внизу) */}
+			{/* Мобильная корзина (внизу) */}
 			{showPriceBox && (
 				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-lg border-t z-50">
 					<div
@@ -492,17 +535,31 @@ export default function ProductPage() {
 					{/* Раскрывающийся список аксессуаров на мобильных устройствах */}
 					{isCartOpen && (
 						<div className="bg-neutral-800 border-t border-gray-600 p-3 animate-fadeIn">
-							<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-							{selectedAccList.length > 0 ? (
-								selectedAccList.map(acc => (
-									<div key={acc.id} className="flex justify-between text-sm py-1">
-										<span className="text-gray-300">{acc.name}</span>
-										<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+							{/* Основной товар */}
+							<div className="mb-4">
+								<div className="text-sm text-gray-500 mb-2">Основное:</div>
+								<div className="flex items-center gap-2">
+									<img src={product.images[0]} alt={product.name} className="w-10 h-10 object-cover rounded" />
+									<div>
+										<div className="font-medium text-gray-200">{product.name}</div>
+										<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
 									</div>
-								))
-							) : (
-								<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
+								</div>
+							</div>
+
+							{/* Аксессуары */}
+							{selectedAccList.length > 0 && (
+								<>
+									<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
+									{selectedAccList.map(acc => (
+										<div key={acc.id} className="flex justify-between text-sm py-1">
+											<span className="text-gray-300">{acc.name}</span>
+											<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+										</div>
+									))}
+								</>
 							)}
+
 							<hr className="my-2 border-t border-gray-600" />
 							<div className="flex justify-between font-bold text-base">
 								<span className="text-gray-300">Общая цена:</span>
@@ -513,7 +570,7 @@ export default function ProductPage() {
 				</div>
 			)}
 
-      <Footer />
-    </div>
-  );
+			<Footer />
+		</div>
+	);
 }
