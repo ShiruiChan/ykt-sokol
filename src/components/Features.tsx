@@ -13,6 +13,13 @@ export default function Features() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+	const scrollToCatalog = () => {
+    const catalogSection = document.getElementById('catalog');
+    if (catalogSection) {
+      catalogSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="bg-neutral-800 text-white py-16 sm:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,12 +66,12 @@ export default function Features() {
 					</div>
 				</div>
 				<div className="text-center mt-12 sm:mt-16">
-					<a
-						href="#catalog"
-						className="inline-block bg-gradient-to-r from-emerald-500 to-green-600 border-b-4 border-green-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-green-500 transition-colors duration-300 text-base sm:text-lg"
+					<button
+						onClick={scrollToCatalog}
+						className="sm:px-8 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-500 border-b-4 border-green-700 px-6 py-3 rounded-3xl font-semibold hover:bg-green-500 transition-colors"
 					>
 						Закажите сейчас и ощутите разницу!
-					</a>
+					</button>
 				</div>
 			</div>
     </section>

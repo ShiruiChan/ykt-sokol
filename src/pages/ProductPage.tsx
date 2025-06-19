@@ -102,7 +102,7 @@ export default function ProductPage() {
 						<div>
 							<img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
 						</div>
-						<div>
+						<div className=''>
 							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
 							<p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
 
@@ -113,72 +113,76 @@ export default function ProductPage() {
 									className="flex justify-between items-center cursor-pointer"
 								>
 									<h3 className="text-2xl font-semibold text-gray-100">Характеристики</h3>
-									<h3 className="text-gray-300 underline">
+									{/* <h3 className="text-gray-300 underline">
 										{expandedSections.includes("specs") ? "Скрыть" : "Показать всё"}
-									</h3>
+									</h3> */}
 								</div>
 
 								{/* Адаптивная сетка вместо таблицы */}
-								<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-									{/* Основные характеристики */}
-									{product.specs.size && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
-											<div className="text-gray-400">{product.specs.size}</div>
-										</>
-									)}
+  							<div className="mt-4 max-h-[400px] overflow-y-auto rounded-lg p-2 bg-neutral-900/30 relative">
+									<div className='grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2'>
+										{/* Основные характеристики */}
+										{product.specs.size && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
+												<div className="text-gray-400">{product.specs.size}</div>
+											</>
+										)}
 
-									{product.specs.height && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
-											<div className="text-gray-400">{product.specs.height}</div>
-										</>
-									)}
+										{product.specs.height && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
+												<div className="text-gray-400">{product.specs.height}</div>
+											</>
+										)}
 
-									{product.specs.engine && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
-											<div className="text-gray-400">{product.specs.engine}</div>
-										</>
-									)}
+										{product.specs.engine && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
+												<div className="text-gray-400">{product.specs.engine}</div>
+											</>
+										)}
 
-									{product.specs.clearance && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
-											<div className="text-gray-400">{product.specs.clearance}</div>
-										</>
-									)}
+										{product.specs.clearance && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
+												<div className="text-gray-400">{product.specs.clearance}</div>
+											</>
+										)}
 
-									{product.specs.transmission && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
-											<div className="text-gray-400">{product.specs.transmission}</div>
-										</>
-									)}
+										{product.specs.transmission && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
+												<div className="text-gray-400">{product.specs.transmission}</div>
+											</>
+										)}
 
-									{product.specs.seats && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
-											<div className="text-gray-400">{product.specs.seats}</div>
-										</>
-									)}
+										{product.specs.seats && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
+												<div className="text-gray-400">{product.specs.seats}</div>
+											</>
+										)}
 
-									{product.specs.maxSpeed && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
-											<div className="text-gray-400">{product.specs.maxSpeed}</div>
-										</>
-									)}
+										{product.specs.maxSpeed && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
+												<div className="text-gray-400">{product.specs.maxSpeed}</div>
+											</>
+										)}
 
-									{product.specs.fuelConsumption && (
-										<>
-											<div className="font-semibold text-gray-300 border-b border-gray-600">Расход топлива</div>
-											<div className="text-gray-400">{product.specs.fuelConsumption}</div>
-										</>
-									)}
+										{product.specs.fuelConsumption && (
+											<>
+												<div className="font-semibold text-gray-300 border-b border-gray-600">Расход топлива</div>
+												<div className="text-gray-400">{product.specs.fuelConsumption}</div>
+											</>
+										)}
+									</div>
+									
 
-									{/* Расширенные характеристики — только если пользователь нажал "Показать всё" */}
-									{expandedSections.includes("specs") && product.specs.extendedSpecs && (
+									{/* expandedSections.includes("specs") && */}
+									{/* Расширенные характеристики */}
+									{product.specs.extendedSpecs && (
 										<>
 											{Object.entries(product.specs.extendedSpecs).map(([key, value]) => {
 												const specLabels: Record<string, string> = {
@@ -209,6 +213,19 @@ export default function ProductPage() {
 											})}
 										</>
 									)}
+									{/* Прилипающая кнопка внутри блока */}
+									{/* {expandedSections.includes("specs") && (
+										<div className="sticky bottom-1 right-4 h-12">
+											<div className="w-full flex justify-end">
+												<button
+													onClick={() => toggleSection("specs")}
+													className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 border border-neutral-600 rounded-3xl text-gray-300 transition-colors shadow-lg z-10"
+												>
+													Скрыть
+												</button>
+											</div>
+										</div>
+									)} */}
 								</div>
 							</div>
 
@@ -499,13 +516,13 @@ export default function ProductPage() {
 						className="flex justify-between items-center p-3"
 						onClick={() => selectedAccList.length > 0 && setIsCartOpen(!isCartOpen)}
 					>
-						<div className="flex items-center space-x-2">
+						<div	onClick={(e) => {
+										e.stopPropagation();
+										setIsCartOpen(!isCartOpen);
+									}} 
+									className="flex items-center space-x-2">
 							<button
 								className="text-gray-400 bg-gray-700 p-2 rounded-full relative"
-								onClick={(e) => {
-									e.stopPropagation();
-									setIsCartOpen(!isCartOpen);
-								}}
 								aria-label="Показать выбранные аксессуары"
 							>
 								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
