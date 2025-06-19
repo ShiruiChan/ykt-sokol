@@ -120,6 +120,7 @@ export default function ProductPage() {
 
 								{/* Адаптивная сетка вместо таблицы */}
   							<div className="mt-4 max-h-[400px] overflow-y-auto rounded-lg p-2 bg-neutral-900/30 relative">
+									<div className="font-semibold text-green-400 mb-3">Основная характеристика</div>
 									<div className='grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2'>
 										{/* Основные характеристики */}
 										{product.specs.size && (
@@ -173,12 +174,12 @@ export default function ProductPage() {
 
 										{product.specs.fuelConsumption && (
 											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Расход топлива</div>
+												<div className="font-semibold text-gray-300 mb-4 border-b border-gray-600">Расход топлива</div>
 												<div className="text-gray-400">{product.specs.fuelConsumption}</div>
 											</>
 										)}
 									</div>
-									
+									<div className="font-semibold text-green-400 mb-3">Расширенная характеристика</div>
 
 									{/* expandedSections.includes("specs") && */}
 									{/* Расширенные характеристики */}
@@ -410,7 +411,7 @@ export default function ProductPage() {
 					{/* Правая часть — корзина с ценой для пк*/}
 					{!showPriceBox && (
 						<div className="w-full md:w-1/3 z-2 pt-12 hidden md:block">
-							<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
+							<div className="sticky top-24 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border max-h-[340px] overflow-y-auto animate-fadeIn">
 								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 								{/* Основной товар */}
 								<div className="mb-4">
@@ -474,7 +475,7 @@ export default function ProductPage() {
 
 			{/* Корзина с ценой (для десктопа) */}
 			{showPriceBox && (
-				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-700/60 shadow-xl rounded-lg p-4 border border-gray-600 max-w-xs transition-transform duration-300 animate-fadeIn">
+				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border max-w-xs transition-transform duration-300 animate-fadeIn">
 					{/* Основной товар */}
 					<div className="mb-4">
 						<div className="text-sm text-gray-500 mb-2">Основное:</div>
@@ -492,7 +493,7 @@ export default function ProductPage() {
 						<>
 							<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
 							{selectedAccList.map(acc => (
-								<div key={acc.id} className="flex justify-between text-sm py-1">
+								<div key={acc.id} className="flex justify-between text-sm py-1 gap-x-4">
 									<span className="text-gray-300">{acc.name}</span>
 									<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
 								</div>
