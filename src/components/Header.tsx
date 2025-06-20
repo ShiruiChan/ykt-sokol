@@ -28,14 +28,21 @@ export default function Header() {
             : 'bg-neutral-950 border-gray-800'
         } text-gray-100 p-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300`}
       >
-        <div className="container mx-auto flex justify-between items-center">
-          <a href="/">
+        <div className="container mx-auto flex items-center relative py-2 md:py-0">
+          <a href="/" className='left-0 absolute'>
             <h1 className="text-2xl font-extrabold tracking-tight text-gray-100 hover:text-gray-300 transition">
               YktSokol
             </h1>
           </a>
+					{/* Телефон по центру */}
+					<a
+						href="tel:+79149941414"
+						className="hidden md:block transition text-xl font-bold mx-auto px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-500 rounded-3xl border-b-4 border-green-700"
+						onClick={() => setIsMenuOpen(false)}
+					>+7 (914) 994-14-14
+					</a>
 
-          <nav className="hidden md:block">
+          <nav className="hidden md:block right-0 absolute">
             <ul className="flex gap-8">
               <li>
                 <Link
@@ -58,7 +65,7 @@ export default function Header() {
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden focus:outline-none"
+            className="md:hidden focus:outline-none right-0 absolute"
             aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
           >
             <svg
@@ -119,6 +126,15 @@ export default function Header() {
               >
                 Новости
               </Link>
+
+              {/* Телефон по центру */}
+              <a
+                href="tel:+79149941414"
+                className="text-green-400 hover:text-green-300 transition text-xl font-bold mt-8"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                +7 (914) 994-14-14
+              </a>
             </div>
           </div>
         )}
