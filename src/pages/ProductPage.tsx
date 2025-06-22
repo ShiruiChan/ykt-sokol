@@ -223,7 +223,7 @@ export default function ProductPage() {
 								</div>
 
 								{/* Компактный слайдер на мобильных устройствах */}
-								<div className="block md:hidden w-full h-64 bg-gradient-to-br from-gray-300 to-gray-400 relative">
+								<div className="block md:hidden rounded-xl w-full h-64 bg-gradient-to-br from-gray-300 to-gray-400 relative">
 									{hasImages ? (
 										<AnimatePresence mode="wait">
 											<motion.img
@@ -234,7 +234,7 @@ export default function ProductPage() {
 												animate={{ opacity: 1 }}
 												exit={{ opacity: 0 }}
 												transition={{ duration: 0.5 }}
-												className="object-cover w-full h-full"
+												className="object-cover w-full h-full rounded-xl"
 											/>
 										</AnimatePresence>
 									) : (
