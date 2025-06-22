@@ -2,18 +2,52 @@ import { useParams } from 'react-router-dom';
 import { products } from '../data/products';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import { useState, useEffect, useRef } from 'react';
 import type { Accessory } from '../types';
 import { Link } from 'react-router-dom';
-import Footer from '../components/Footer';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductPage() {
 	const { id } = useParams<{ id: string }>();
-	const product = products.find(p => p.id === Number(id));
+	const product = products.find((p) => p.id === Number(id));
 	const [selectedAccessories, setSelectedAccessories] = useState<Record<number, boolean>>({});
 	const [showPriceBox, setShowPriceBox] = useState(true);
 	const [isCartOpen, setIsCartOpen] = useState(false);
-	const [expandedSections, setExpandedSections] = useState<string[]>(['']); // по умолчанию показаны характеристики
+	const [expandedSections, setExpandedSections] = useState<string[]>(['']);
+	const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+	// Проверяем наличие изображений
+	const hasImages = product?.images && product.images.length > 0;
+
+	// Обработчики скролла
+	useEffect(() => {
+		const handleScroll = () => {
+			if (!formRef.current) return;
+			const rect = formRef.current.getBoundingClientRect();
+			setShowPriceBox(rect.top < window.innerHeight * 0.9);
+
+			if (!isCartOpen && window.innerWidth >= 768 && rect.top < window.innerHeight * 0.8) {
+				setIsCartOpen(true);
+			}
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, [isCartOpen]);
+
+	// Прокрутка к верху при смене товара
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [id]);
+
+	if (!product) {
+		return (
+			<div className="section text-center text-gray-300">
+				Товар не найден
+			</div>
+		);
+	}
 
 	const formRef = useRef<HTMLDivElement>(null);
 
@@ -93,15 +127,209 @@ export default function ProductPage() {
 	}, [isCartOpen]);
 
 	return (
-		<div className="bg-neutral-900/40 text-gray-200 mt-16">
+		<div className="bg-neutral-900/40 text-gray-200 mt-20">
 			<Header />
 			<div className="z-30 bg-neutral-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
 				<div className="container mx-auto px-4">
 					<Breadcrumbs currentPage={product.name} />
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+						{/* Слайдер */}
 						<div>
-							<img src={product.images[0]} alt={`${product.name} - квадроцикл`} className="w-full rounded-lg shadow-md border-2 border-gray-500" />
+							<div className="w-full rounded-xl relative overflow-hidden">
+								{/* Большое изображение на десктопе */}
+								<div className="hidden md:block rounded-xl w-full h-[500px] bg-gradient-to-br from-gray-300 to-gray-400 relative">
+									{hasImages ? (
+										<AnimatePresence mode="wait">
+											<motion.img
+												key={currentSlideIndex}
+												src={product.images[currentSlideIndex]}
+												alt={`${product.name} - фото ${currentSlideIndex + 1}`}
+												initial={{ opacity: 0 }}
+												animate={{ opacity: 1 }}
+												exit={{ opacity: 0 }}
+												transition={{ duration: 0.5 }}
+												className="object-cover rounded-xl w-full h-full"
+											/>
+										</AnimatePresence>
+									) : (
+										<div className="text-center p-8 text-gray-700 flex flex-col items-center justify-center h-full">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												className="h-20 w-20 mb-4 opacity-70"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={1.5}
+													d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+												/>
+											</svg>
+											<p className="text-lg font-medium">Фото пока нет</p>
+										</div>
+									)}
+
+									{/* Кнопки навигации на десктопе */}
+									{hasImages && (
+										<>
+											<button
+												onClick={() =>
+													setCurrentSlideIndex(
+														(prev) => (prev - 1 + product.images.length) % product.images.length
+													)
+												}
+												className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-20"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													className="h-6 w-6"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M15 19l-7-7 7-7"
+													/>
+												</svg>
+											</button>
+											<button
+												onClick={() =>
+													setCurrentSlideIndex((prev) => (prev + 1) % product.images.length)
+												}
+												className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-20"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													className="h-6 w-6"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M9 5l7 7-7 7"
+													/>
+												</svg>
+											</button>
+										</>
+									)}
+								</div>
+
+								{/* Компактный слайдер на мобильных устройствах */}
+								<div className="block md:hidden w-full h-64 bg-gradient-to-br from-gray-300 to-gray-400 relative">
+									{hasImages ? (
+										<AnimatePresence mode="wait">
+											<motion.img
+												key={currentSlideIndex}
+												src={product.images[currentSlideIndex]}
+												alt={`${product.name} - фото ${currentSlideIndex + 1}`}
+												initial={{ opacity: 0 }}
+												animate={{ opacity: 1 }}
+												exit={{ opacity: 0 }}
+												transition={{ duration: 0.5 }}
+												className="object-cover w-full h-full"
+											/>
+										</AnimatePresence>
+									) : (
+										<div className="text-center p-4 text-gray-700 flex flex-col items-center justify-center h-full">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												className="h-16 w-16 mx-auto mb-2 opacity-70"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={1.5}
+													d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+												/>
+											</svg>
+											<p className="text-sm font-medium">Фото пока нет</p>
+										</div>
+									)}
+
+									{/* Кнопки навигации на мобильных */}
+									{hasImages && (
+										<>
+											<button
+												onClick={() =>
+													setCurrentSlideIndex(
+														(prev) => (prev - 1 + product.images.length) % product.images.length
+													)
+												}
+												className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-20"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													className="h-5 w-5"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M15 19l-7-7 7-7"
+													/>
+												</svg>
+											</button>
+											<button
+												onClick={() =>
+													setCurrentSlideIndex((prev) => (prev + 1) % product.images.length)
+												}
+												className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-20"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													className="h-5 w-5"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M9 5l7 7-7 7"
+													/>
+												</svg>
+											</button>
+										</>
+									)}
+								</div>
+
+								{/* Миниатюры под слайдером (всегда видны) */}
+								{hasImages && (
+									<div className="flex justify-center mt-3 space-x-2 overflow-x-auto pb-2">
+										{product.images.map((_, index) => (
+											<button
+												key={index}
+												onClick={() => setCurrentSlideIndex(index)}
+												className={`w-12 h-12 rounded-md border-2 ${currentSlideIndex === index ? 'border-green-500' : 'border-transparent'
+													}`}
+											>
+												<img
+													src={_}
+													alt={`Миниатюра ${index + 1}`}
+													className="w-full h-full object-cover rounded-md"
+												/>
+											</button>
+										))}
+									</div>
+								)}
+							</div>
 						</div>
+
 						<div className=''>
 							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
 							<p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
@@ -119,7 +347,7 @@ export default function ProductPage() {
 								</div>
 
 								{/* Адаптивная сетка вместо таблицы */}
-  							<div className="mt-4 max-h-[400px] overflow-y-auto rounded-lg p-2 bg-neutral-900/30 relative">
+								<div className="mt-4 max-h-[400px] overflow-y-auto rounded-lg p-2 bg-neutral-900/30 relative">
 									<div className="font-semibold text-green-400 mb-3">Основная характеристика</div>
 									<div className='grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2'>
 										{/* Основные характеристики */}
@@ -517,11 +745,11 @@ export default function ProductPage() {
 						className="flex justify-between items-center p-3"
 						onClick={() => selectedAccList.length > 0 && setIsCartOpen(!isCartOpen)}
 					>
-						<div	onClick={(e) => {
-										e.stopPropagation();
-										setIsCartOpen(!isCartOpen);
-									}} 
-									className="flex items-center space-x-2">
+						<div onClick={(e) => {
+							e.stopPropagation();
+							setIsCartOpen(!isCartOpen);
+						}}
+							className="flex items-center space-x-2">
 							<button
 								className="text-gray-400 bg-gray-700 p-2 rounded-full relative"
 								aria-label="Показать выбранные аксессуары"
