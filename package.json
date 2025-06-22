@@ -4,7 +4,10 @@
 	"version": "0.0.0",
 	"type": "module",
 	"compilerOptions": {
-		"typeRoots": ["./node_modules/@types", "./src/types"]
+		"typeRoots": [
+			"./node_modules/@types",
+			"./src/types"
+		]
 	},
 	"scripts": {
 		"dev": "vite",
