@@ -47,7 +47,7 @@ export default function Gallery() {
 
   if (loading) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-8 pt-[40vh]">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         <p className="mt-2 text-gray-400">Загрузка изображений...</p>
       </div>
@@ -55,7 +55,7 @@ export default function Gallery() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-800 text-white py-16 md:pt-20 relative">
+    <div className="flex flex-col min-h-screen bg-neutral-800 text-white pt-20 relative">
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/40 to-transparent pointer-events-none"></div>
       <Header />
       <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-center">Галерея</h1>
