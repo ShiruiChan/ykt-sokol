@@ -496,7 +496,7 @@ export default function ProductPage() {
 
 			{/* Аксессуары */}
 			<div className="container mx-auto px-4 mt-8">
-				<h3 className="text-3xl font-bold mb-6 text-gray-100">Аксессуары:</h3>
+				<h3 className="text-3xl font-bold mb-6 text-green-400">Дополнительные аксессуары:</h3>
 				{/* Аксессуары */}
 				{Object.entries(product.accessories).map(([category, accessories]) => (
 					<div key={category} className="mt-6">
@@ -533,13 +533,6 @@ export default function ProductPage() {
 												${isSelected ? "border-gray-500 bg-neutral-700/60" : "border-gray-600 hover:border-gray-400"}
 											`}
 										>
-											<div className="relative w-full h-24 overflow-hidden rounded-md mb-3 flex items-center justify-center">
-												<img
-													src={acc.image}
-													alt={`${acc.name} - аксессуар`}
-													className="max-w-full max-h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
-												/>
-											</div>
 											<div className="flex-1 min-w-0">
 												<h5 className="font-semibold text-base text-gray-200">{acc.name}</h5>
 												<p className="text-sm text-gray-500 mt-1">{acc.description}</p>
