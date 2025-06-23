@@ -138,6 +138,13 @@ export default function Header() {
 								>
 									Новости
 								</Link>
+								<Link
+									to="/gallery"
+									className="text-2xl font-bold text-white hover:text-green-400 transition"
+									onClick={() => setIsMenuOpen(false)}
+								>
+									Галлерея
+								</Link>
 							</nav>
 
 							{/* Телефон внизу мобильного меню */}
