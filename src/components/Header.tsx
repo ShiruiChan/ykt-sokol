@@ -54,6 +54,12 @@ export default function Header() {
 						>
 							Новости
 						</Link>
+						<Link
+							to="/gallery"
+							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
+						>
+							Галлерея
+						</Link>
 					</nav>
 
 					{/* Мобильная кнопка меню */}
