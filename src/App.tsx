@@ -1,12 +1,19 @@
+// src/App.tsx
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import News from './pages/News';
-import ProductPage from './pages/ProductPage';
-import NotFound from './pages/NotFound';
+import { motion } from 'framer-motion';
 import ScrollToTop from './scripts/ScrollToTop';
+import RouteProgress from './components/scripts/RouteProgress';
 import SeoTitle from './components/SeoTitle';
-import { motion, AnimationType } from 'framer-motion';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Lazy-загрузка страниц
+const Home = React.lazy(() => import('./pages/Home'));
+const News = React.lazy(() => import('./pages/News'));
+const ProductPage = React.lazy(() => import('./pages/ProductPage'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Анимация для страниц
 const pageVariants = {
@@ -35,38 +42,73 @@ const AnimatedRoute = ({ children }) => (
 function App() {
   return (
     <>
+      {/* Индикатор прогресса */}
+      <RouteProgress />
+
       {/* Скролл вверх при переходе */}
       <ScrollToTop />
 
       {/* Маршруты с анимацией и динамическими заголовками */}
       <Routes>
-        <Route path="/" element={
-          <AnimatedRoute>
-            <SeoTitle title="Главная" />
-            <Home />
-          </AnimatedRoute>
-        } />
+        <Route
+          path="/"
+          element={
+            <React.Suspense fallback={<LoadingSpinner />}>
+              <AnimatedRoute>
+                <SeoTitle title="Главная — Sokol" />
+                <Home />
+              </AnimatedRoute>
+            </React.Suspense>
+          }
+        />
 
-        <Route path="/news" element={
-          <AnimatedRoute>
-            <SeoTitle title="Новости" />
-            <News />
-          </AnimatedRoute>
-        } />
+        <Route
+          path="/news"
+          element={
+            <React.Suspense fallback={<LoadingSpinner />}>
+              <AnimatedRoute>
+                <SeoTitle title="Новости — Sokol" />
+                <News />
+              </AnimatedRoute>
+            </React.Suspense>
+          }
+        />
 
-        <Route path="/product/:id" element={
-          <AnimatedRoute>
-            <SeoTitle title="Продукт" />
-            <ProductPage />
-          </AnimatedRoute>
-        } />
+        <Route
+          path="/product/:id"
+          element={
+            <React.Suspense fallback={<LoadingSpinner />}>
+              <AnimatedRoute>
+                <SeoTitle title="Продукт — Sokol" />
+                <ProductPage />
+              </AnimatedRoute>
+            </React.Suspense>
+          }
+        />
 
-        <Route path="*" element={
-          <AnimatedRoute>
-            <SeoTitle title="Страница не найдена" />
-            <NotFound />
-          </AnimatedRoute>
-        } />
+        <Route
+          path="/gallery"
+          element={
+            <React.Suspense fallback={<LoadingSpinner />}>
+              <AnimatedRoute>
+                <SeoTitle title="Галерея — Sokol" />
+                <Gallery />
+              </AnimatedRoute>
+            </React.Suspense>
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <React.Suspense fallback={<LoadingSpinner />}>
+              <AnimatedRoute>
+                <SeoTitle title="Страница не найдена — Sokol" />
+                <NotFound />
+              </AnimatedRoute>
+            </React.Suspense>
+          }
+        />
       </Routes>
     </>
   );
