@@ -558,7 +558,7 @@ export default function ProductPage() {
 					<div ref={formRef} id="form-section" className="w-full md:w-2/3">
 						<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
 						{/* верхняя часть — корзина с ценой для мобилок*/}
-						{!showPriceBox && (
+						{showPriceBox && (
 							<div className="w-full z-50 md:hidden">
 								<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 									<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
@@ -732,7 +732,7 @@ export default function ProductPage() {
 			)}
 
 			{/* Мобильная корзина (внизу) */}
-			{showPriceBox && (
+			{!showPriceBox && (
 				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-lg border-t z-50">
 					<div
 						className="flex justify-between items-center p-3"
