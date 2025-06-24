@@ -38,7 +38,7 @@ export default function Header() {
 						className="hidden md:block absolute left-1/2 transform -translate-x-1/2 text-xl font-bold px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-500 rounded-full border-b-4 border-green-700 shadow-lg hover:shadow-green-500/30 transition-transform hover:-translate-y-0.5 active:translate-y-0"
 						onClick={() => setIsMenuOpen(false)}
 					>
-						+7 (914) 994-14-14
+						+7 (996) 914 14 14
 					</a>
 
 					{/* Навигация на десктопе */}
@@ -150,11 +150,11 @@ export default function Header() {
 
 							{/* Телефон внизу мобильного меню */}
 							<a
-								href="tel:+79149941414"
+								href="tel:+79969141414"
 								className="mt-12 inline-block text-xl font-bold text-green-400 hover:text-green-300 transition"
 								onClick={() => setIsMenuOpen(false)}
 							>
-								+7 (914) 994-14-14
+								+7 (996) 914 14 14
 							</a>
 						</div>
 					</div>
