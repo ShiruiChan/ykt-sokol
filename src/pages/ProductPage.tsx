@@ -92,7 +92,7 @@ export default function ProductPage() {
 				const rect = formRef.current.getBoundingClientRect();
 
 				// Показываем боковую панель, если пользователь почти добрался до формы
-				setShowPriceBox(rect.top < window.innerHeight * 0.9);
+				setShowPriceBox(rect.top < window.innerHeight * 0.8);
 
 				// На больших экранах — автоматически открываем корзину
 				if (!isCartOpen && window.innerWidth >= 768 && rect.top < window.innerHeight * 0.8) {
@@ -630,9 +630,9 @@ export default function ProductPage() {
 					</div>
 
 					{/* Правая часть — корзина с ценой для пк*/}
-					{!showPriceBox && (
+					{showPriceBox && (
 						<div className="w-full md:w-1/3 z-2 pt-12 hidden md:block">
-							<div className="sticky top-24 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border max-h-[340px] overflow-y-auto animate-fadeIn">
+							<div className="sticky top-24 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border animate-fadeIn">
 								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
 								{/* Основной товар */}
 								<div className="mb-4">
@@ -695,7 +695,7 @@ export default function ProductPage() {
 			</div>
 
 			{/* Корзина с ценой (для десктопа) */}
-			{showPriceBox && (
+			{!showPriceBox && (
 				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border max-w-xs transition-transform duration-300 animate-fadeIn">
 					{/* Основной товар */}
 					<div className="mb-4">
