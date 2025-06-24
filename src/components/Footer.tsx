@@ -7,7 +7,10 @@ export default function Footer() {
         {/* Информация */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
-            <h2 className="text-xl font-bold text-white">YktSokol</h2>
+						<div className='flex gap-x-2 items-center'>
+							<img src="/logo.png" className='w-10 h-10' alt="" />
+							<h2 className="text-xl font-bold tracking-tight bg-gradient-to-r bg-clip-text from-green-400 to-emerald-500 text-transparent">YktSokol</h2>
+						</div>
             <p className="text-sm mt-1">Производство квадрациклов</p>
           </div>
 
