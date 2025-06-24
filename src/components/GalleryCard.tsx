@@ -21,7 +21,7 @@ export default function GalleryCard({ image }: GalleryCardProps) {
           loading="lazy"
           decoding="async"
           className="w-full h-48 sm:h-64 object-cover cursor-pointer"
-          onClick={() => setIsModalOpen(true)}
+          // onClick={() => setIsModalOpen(true)}
           srcSet={`${image.url} 1x, ${image.url.replace(/\.\w+$/, '@2x$&')} 2x`}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
@@ -34,13 +34,13 @@ export default function GalleryCard({ image }: GalleryCardProps) {
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="relative max-w-[50vw] max-h-[45vh] w-auto h-auto flex items-center justify-center p-4"
+            className="relative max-w-[90vw] max-h-[85vh] w-auto h-auto flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={image.url}
               alt={image.title}
-              className="max-w-[45vw] max-h-[45vh] object-contain rounded-lg shadow-xl border-green-400 border-2"
+              className="max-w-[95vw] max-h-[50vh] object-contain rounded-lg shadow-xl border-green-400 border-2"
             />
             <button
               aria-label="Закрыть"
