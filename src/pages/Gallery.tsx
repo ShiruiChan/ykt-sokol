@@ -12,11 +12,14 @@ interface GalleryImage {
 
 export default function Gallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const [visibleCount, setVisibleCount] = useState(9); // Initially show 10 images
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
+    // Simulate fetching images
     const start = 1;
-    const end = 30;
+    const end = 65; // Total images available
     const extensions = ['avif'];
 
     const loadedImages: GalleryImage[] = [];
@@ -32,18 +35,29 @@ export default function Gallery() {
           title: `Фото ${i}`,
           description: `Описание для изображения ${i}`,
         });
-        break; // Останавливаемся на первом найденном расширении
+        break; // Stop at the first extension
       }
     }
 
-    // Эмуляция задержки загрузки
+    // Simulate network delay
     setTimeout(() => {
       setImages(loadedImages);
       setLoading(false);
     }, 500);
   }, []);
 
-  const memoizedImages = useMemo(() => images, [images]);
+  // Memoize the visible images slice to prevent unnecessary re-computation
+  const visibleImages = useMemo(() => images.slice(0, visibleCount), [images, visibleCount]);
+
+  // Handle "Show More" button click
+  const handleShowMore = () => {
+    setIsLoadingMore(true);
+    // Simulate a small delay for loading more images
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + 9, images.length));
+      setIsLoadingMore(false);
+    }, 300);
+  };
 
   if (loading) {
     return (
@@ -66,18 +80,33 @@ export default function Gallery() {
             Просмотрите наши фотографии.
           </p>
 
-          {/* Галерея */}
+          {/* Gallery Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            {memoizedImages.length === 0 ? (
+            {visibleImages.length > 0 ? (
+              visibleImages.map((img) => (
+                <GalleryCard key={img.id} image={img} loading="lazy" />
+              ))
+            ) : (
               <p className="text-gray-400 col-span-full text-center py-8">
                 Изображений пока нет.
               </p>
-            ) : (
-              memoizedImages.map((img) => (
-                <GalleryCard key={img.id} image={img} />
-              ))
             )}
           </div>
+
+          {/* Show More Button */}
+          {visibleCount < images.length && (
+            <div className="text-center mt-8">
+              <button
+                onClick={handleShowMore}
+                disabled={isLoadingMore}
+                className={`px-6 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition ${
+                  isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isLoadingMore ? 'Загрузка...' : 'Показать ещё'}
+              </button>
+            </div>
+          )}
         </div>
       </section>
       <Footer />
