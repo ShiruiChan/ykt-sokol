@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { Accessory } from '../types';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 export default function ProductPage() {
 	const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ export default function ProductPage() {
 	const [isCartOpen, setIsCartOpen] = useState(false);
 	const [expandedSections, setExpandedSections] = useState<string[]>(['']);
 	const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+	const [formStatus, setFormStatus] = useState<string>('');
 
 	// Проверяем наличие изображений
 	const hasImages = product?.images && product.images.length > 0;
@@ -50,14 +52,7 @@ export default function ProductPage() {
 	}
 
 	const formRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [id]);
-
-	if (!product) {
-		return <div className="section text-center text-gray-300">Товар не найден</div>;
-	}
+	const emailFormRef = useRef<HTMLFormElement>(null);
 
 	const toggleAccessory = (accId: number) => {
 		setSelectedAccessories(prev => ({
@@ -90,11 +85,7 @@ export default function ProductPage() {
 		const handleScroll = () => {
 			if (formRef.current) {
 				const rect = formRef.current.getBoundingClientRect();
-
-				// Показываем боковую панель, если пользователь почти добрался до формы
 				setShowPriceBox(rect.top < window.innerHeight * 0.8);
-
-				// На больших экранах — автоматически открываем корзину
 				if (!isCartOpen && window.innerWidth >= 768 && rect.top < window.innerHeight * 0.8) {
 					setIsCartOpen(true);
 				}
@@ -125,6 +116,45 @@ export default function ProductPage() {
 		window.addEventListener('scroll', handleScroll);
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, [isCartOpen]);
+
+	// Initialize EmailJS
+	useEffect(() => {
+		emailjs.init('YOUR_PUBLIC_KEY'); // Replace with your EmailJS public key
+	}, []);
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!emailFormRef.current) return;
+
+		const accessoriesList = selectedAccList.map(acc => `${acc.name}: ${acc.price.toLocaleString()} ₽`).join('\n');
+
+		const templateParams = {
+			from_name: emailFormRef.current.from_name.value,
+			contact: emailFormRef.current.contact.value,
+			comments: emailFormRef.current.comments.value,
+			product_name: product.name,
+			product_price: product.price.toLocaleString(),
+			accessories: accessoriesList || 'Нет выбранных аксессуаров',
+			total_price: totalPrice.toLocaleString()
+		};
+
+		setFormStatus('Отправка...');
+
+		emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+			.then(() => {
+				setFormStatus('Заявка успешно отправлена!');
+				setTimeout(() => setFormStatus(''), 3000);
+				emailFormRef.current?.reset();
+				setSelectedAccessories({});
+			})
+			.catch(() => {
+				setFormStatus('Ошибка при отправке. Попробуйте снова.');
+				setTimeout(() => setFormStatus(''), 3000);
+			});
+	};
+
+	// ... (Previous code remains unchanged until the form section)
 
 	return (
 		<div className="bg-neutral-900/40 text-gray-200 mt-20">
@@ -170,8 +200,6 @@ export default function ProductPage() {
 											<p className="text-lg font-medium">Фото пока нет</p>
 										</div>
 									)}
-
-									{/* Кнопки навигации на десктопе */}
 									{hasImages && (
 										<>
 											<button
@@ -204,7 +232,7 @@ export default function ProductPage() {
 												className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-20"
 											>
 												<svg
-													xmlns="http://www.w3.org/2000/svg"
+													xmlns="thio://www.w3.org/2000/svg"
 													className="h-6 w-6"
 													fill="none"
 													viewBox="0 0 24 24"
@@ -221,8 +249,6 @@ export default function ProductPage() {
 										</>
 									)}
 								</div>
-
-								{/* Компактный слайдер на мобильных устройствах */}
 								<div className="block md:hidden rounded-xl w-full h-64 bg-gradient-to-br from-gray-300 to-gray-400 relative">
 									{hasImages ? (
 										<AnimatePresence mode="wait">
@@ -256,8 +282,6 @@ export default function ProductPage() {
 											<p className="text-sm font-medium">Фото пока нет</p>
 										</div>
 									)}
-
-									{/* Кнопки навигации на мобильных */}
 									{hasImages && (
 										<>
 											<button
@@ -307,8 +331,6 @@ export default function ProductPage() {
 										</>
 									)}
 								</div>
-
-								{/* Миниатюры под слайдером (всегда видны) */}
 								{hasImages && (
 									<div className="flex justify-center mt-3 space-x-2 overflow-x-auto pb-2">
 										{product.images.map((_, index) => (
@@ -329,77 +351,61 @@ export default function ProductPage() {
 								)}
 							</div>
 						</div>
-
 						<div className=''>
 							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
 							<p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
-
-							{/* Характеристики */}
 							<div className="mt-6">
 								<div
 									onClick={() => toggleSection("specs")}
 									className="flex justify-between items-center cursor-pointer"
 								>
 									<h3 className="text-2xl font-semibold text-gray-100">Характеристики</h3>
-									{/* <h3 className="text-gray-300 underline">
-										{expandedSections.includes("specs") ? "Скрыть" : "Показать всё"}
-									</h3> */}
 								</div>
-
-								{/* Адаптивная сетка вместо таблицы */}
 								<div className="mt-4 max-h-[400px] overflow-y-auto rounded-lg p-2 bg-neutral-900/30 relative">
 									<div className="font-semibold text-green-400 mb-3">Основная характеристика</div>
 									<div className='grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2'>
-										{/* Основные характеристики */}
 										{product.specs.size && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
 												<div className="text-gray-400">{product.specs.size}</div>
 											</>
 										)}
-
 										{product.specs.height && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
 												<div className="text-gray-400">{product.specs.height}</div>
 											</>
 										)}
-
 										{product.specs.engine && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
 												<div className="text-gray-400">{product.specs.engine}</div>
 											</>
 										)}
-
 										{product.specs.clearance && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
 												<div className="text-gray-400">{product.specs.clearance}</div>
 											</>
 										)}
-
 										{product.specs.transmission && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
 												<div className="text-gray-400">{product.specs.transmission}</div>
 											</>
 										)}
-
 										{product.specs.seats && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
 												<div className="text-gray-400">{product.specs.seats}</div>
 											</>
 										)}
-
 										{product.specs.maxSpeed && (
 											<>
 												<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
 												<div className="text-gray-400">{product.specs.maxSpeed}</div>
 											</>
 										)}
-
 										{product.specs.fuelConsumption && (
 											<>
 												<div className="font-semibold text-gray-300 mb-4 border-b border-gray-600">Расход топлива</div>
@@ -408,9 +414,6 @@ export default function ProductPage() {
 										)}
 									</div>
 									<div className="font-semibold text-green-400 mb-3">Расширенная характеристика</div>
-
-									{/* expandedSections.includes("specs") && */}
-									{/* Расширенные характеристики */}
 									{product.specs.extendedSpecs && (
 										<>
 											{Object.entries(product.specs.extendedSpecs).map(([key, value]) => {
@@ -442,23 +445,8 @@ export default function ProductPage() {
 											})}
 										</>
 									)}
-									{/* Прилипающая кнопка внутри блока */}
-									{/* {expandedSections.includes("specs") && (
-										<div className="sticky bottom-1 right-4 h-12">
-											<div className="w-full flex justify-end">
-												<button
-													onClick={() => toggleSection("specs")}
-													className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 border border-neutral-600 rounded-3xl text-gray-300 transition-colors shadow-lg z-10"
-												>
-													Скрыть
-												</button>
-											</div>
-										</div>
-									)} */}
 								</div>
 							</div>
-
-							{/* Комплектация по умолчанию */}
 							<div className="mt-6">
 								<div
 									onClick={() => toggleSection("kit")}
@@ -473,8 +461,7 @@ export default function ProductPage() {
 										fill="none"
 										stroke="currentColor"
 										strokeWidth="2"
-										className={`transition-transform duration-300 ${expandedSections.includes("kit") ? "rotate-180" : ""
-											}`}
+										className={`transition-transform duration-300 ${expandedSections.includes("kit") ? "rotate-180" : ""}`}
 									>
 										<polyline points="6 9 12 15 18 9"></polyline>
 									</svg>
@@ -493,11 +480,8 @@ export default function ProductPage() {
 					</div>
 				</div>
 			</div>
-
-			{/* Аксессуары */}
 			<div className="container mx-auto px-4 mt-8">
 				<h3 className="text-3xl font-bold mb-6 text-green-400">Дополнительные аксессуары:</h3>
-				{/* Аксессуары */}
 				{Object.entries(product.accessories).map(([category, accessories]) => (
 					<div key={category} className="mt-6">
 						<div
@@ -513,13 +497,11 @@ export default function ProductPage() {
 								fill="none"
 								stroke="currentColor"
 								strokeWidth="2"
-								className={`transition-transform duration-300 -mt-3 ml-2 ${expandedSections.includes(`accessory-${category}`) ? "rotate-180" : ""
-									}`}
+								className={`transition-transform duration-300 -mt-3 ml-2 ${expandedSections.includes(`accessory-${category}`) ? "rotate-180" : ""}`}
 							>
 								<polyline points="6 9 12 15 18 9"></polyline>
 							</svg>
 						</div>
-
 						{expandedSections.includes(`accessory-${category}`) && (
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
 								{accessories.map((acc) => {
@@ -528,10 +510,7 @@ export default function ProductPage() {
 										<div
 											key={acc.id}
 											onClick={() => toggleAccessory(acc.id)}
-											className={`
-												group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300
-												${isSelected ? "border-gray-500 bg-neutral-700/60" : "border-gray-600 hover:border-gray-400"}
-											`}
+											className={`group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300 ${isSelected ? "border-gray-500 bg-neutral-700/60" : "border-gray-600 hover:border-gray-400"}`}
 										>
 											<div className="flex-1 min-w-0">
 												<h5 className="font-semibold text-base text-gray-200">{acc.name}</h5>
@@ -551,19 +530,13 @@ export default function ProductPage() {
 						)}
 					</div>
 				))}
-
-				{/* Форма заявки */}
 				<div className="flex flex-col md:flex-row gap-8 pt-10">
-					{/* Левая часть — форма */}
 					<div ref={formRef} id="form-section" className="w-full md:w-2/3">
 						<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
-						{/* верхняя часть — корзина с ценой для мобилок*/}
 						{showPriceBox && (
 							<div className="w-full z-50 md:hidden">
 								<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
 									<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-
-									{/* Основной товар */}
 									<div className="mb-3">
 										<div className="flex items-center gap-2">
 											<img src={product.images[0]} alt={product.name} className="w-10 h-10 object-cover rounded" />
@@ -573,8 +546,6 @@ export default function ProductPage() {
 											</div>
 										</div>
 									</div>
-
-									{/* Аксессуары */}
 									{selectedAccList.length > 0 ? (
 										selectedAccList.map(acc => (
 											<div key={acc.id} className="flex justify-between text-sm py-1">
@@ -585,7 +556,6 @@ export default function ProductPage() {
 									) : (
 										<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
 									)}
-
 									<hr className="my-4 border-t border-gray-600" />
 									<div className="font-bold text-lg text-right text-green-400">
 										Итого: {totalPrice.toLocaleString()} ₽
@@ -594,47 +564,54 @@ export default function ProductPage() {
 							</div>
 						)}
 						<div className="bg-neutral-800 p-6 rounded-lg shadow-lg border border-gray-700 mt-4 md:mt-0">
-							<div className="space-y-5">
+							<form ref={emailFormRef} onSubmit={handleSubmit} className="space-y-5">
 								<div>
 									<label className="block text-gray-300 font-medium mb-2">Имя</label>
 									<input
 										type="text"
+										name="from_name"
 										placeholder="Ваше имя"
 										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										required
 									/>
 								</div>
-
 								<div>
 									<label className="block text-gray-300 font-medium mb-2">Телефон или Email</label>
 									<input
-										type="tel"
-										placeholder="+7 (999) 999-99-99"
+										type="text"
+										name="contact"
+										placeholder="+7 (999) 999-99-99 или email"
 										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										required
 									/>
 								</div>
-
 								<div>
 									<label className="block text-gray-300 font-medium mb-2">Комментарий</label>
 									<textarea
+										name="comments"
 										placeholder="Дополнительные пожелания"
 										rows={4}
 										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 									></textarea>
 								</div>
-
-								<button className="w-full bg-gradient-to-r from-green-600 to-emerald-500 hover:bg-teal-400 text-white py-3 px-6 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+								{formStatus && (
+									<div className={`text-center ${formStatus.includes('Ошибка') ? 'text-red-400' : 'text-green-400'}`}>
+										{formStatus}
+									</div>
+								)}
+								<button
+									type="submit"
+									className="w-full bg-gradient-to-r from-green-600 to-emerald-500 hover:bg-teal-400 text-white py-3 px-6 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+								>
 									Отправить заявку
 								</button>
-							</div>
+							</form>
 						</div>
 					</div>
-
-					{/* Правая часть — корзина с ценой для пк*/}
 					{showPriceBox && (
 						<div className="w-full md:w-1/3 z-2 pt-12 hidden md:block">
 							<div className="sticky top-24 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border animate-fadeIn">
 								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-								{/* Основной товар */}
 								<div className="mb-4">
 									<div className="text-sm text-gray-500 mb-2">Основное:</div>
 									<div className="flex items-center gap-2">
@@ -645,8 +622,6 @@ export default function ProductPage() {
 										</div>
 									</div>
 								</div>
-
-								{/* Аксессуары */}
 								{selectedAccList.length > 0 ? (
 									<>
 										<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
@@ -669,8 +644,6 @@ export default function ProductPage() {
 					)}
 				</div>
 			</div>
-
-			{/* Блок "Другие модели" всегда виден внизу */}
 			<div className="mt-12 container mx-auto px-4 mb-20">
 				<h3 className="text-2xl font-semibold mb-4">Другие модели</h3>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -693,11 +666,8 @@ export default function ProductPage() {
 						))}
 				</div>
 			</div>
-
-			{/* Корзина с ценой (для десктопа) */}
 			{!showPriceBox && (
 				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border max-w-xs transition-transform duration-300 animate-fadeIn">
-					{/* Основной товар */}
 					<div className="mb-4">
 						<div className="text-sm text-gray-500 mb-2">Основное:</div>
 						<div className="flex items-center gap-2">
@@ -708,8 +678,6 @@ export default function ProductPage() {
 							</div>
 						</div>
 					</div>
-
-					{/* Аксессуары */}
 					{selectedAccList.length > 0 ? (
 						<>
 							<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
@@ -723,15 +691,12 @@ export default function ProductPage() {
 					) : (
 						<div className="text-center text-gray-500 italic">Нет выбранных аксессуаров</div>
 					)}
-
 					<hr className="my-2 border-t border-gray-600" />
 					<div className="font-bold text-lg text-right text-green-400">
 						Итого: {totalPrice.toLocaleString()} ₽
 					</div>
 				</div>
 			)}
-
-			{/* Мобильная корзина (внизу) */}
 			{!showPriceBox && (
 				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-lg border-t z-50">
 					<div
@@ -770,11 +735,8 @@ export default function ProductPage() {
 							Оформить
 						</button>
 					</div>
-
-					{/* Раскрывающийся список аксессуаров на мобильных устройствах */}
 					{isCartOpen && (
 						<div className="bg-neutral-800 border-t border-gray-600 p-3 animate-fadeIn">
-							{/* Основной товар */}
 							<div className="mb-4">
 								<div className="text-sm text-gray-500 mb-2">Основное:</div>
 								<div className="flex items-center gap-2">
@@ -785,8 +747,6 @@ export default function ProductPage() {
 									</div>
 								</div>
 							</div>
-
-							{/* Аксессуары */}
 							{selectedAccList.length > 0 && (
 								<>
 									<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
@@ -798,7 +758,6 @@ export default function ProductPage() {
 									))}
 								</>
 							)}
-
 							<hr className="my-2 border-t border-gray-600" />
 							<div className="flex justify-between font-bold text-base">
 								<span className="text-gray-300">Общая цена:</span>
@@ -808,7 +767,6 @@ export default function ProductPage() {
 					)}
 				</div>
 			)}
-
 			<Footer />
 		</div>
 	);
