@@ -25,7 +25,8 @@ export default function Header() {
 			>
 				<div className="container mx-auto flex items-center justify-between relative">
 					{/* Логотип */}
-					<a href="/" className="text-left z-10">
+					<a href="/" className="text-left z-10 flex gap-x-2 items-center">
+						<img src="/logo.png" alt="" className='w-10 h-10' />
 						<h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text hover:opacity-90 transition">
 							ЯКТСокол
 						</h1>

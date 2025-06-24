@@ -5,18 +5,26 @@ html {
   font-family: 'Inter', 'Roboto', sans-serif;
 }
 
+@font-face {
+  font-family: 'YKTS';
+  src: url('/fonts/12233.ttf') format('truetype');
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-family: 'YKTS', 'Inter', 'Roboto', sans-serif;
 }
 
-#__next {
+#root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
+
+/* Rest of your CSS remains unchanged */
 
 .animate-pulse-slow {
   animation: pulse 2s infinite;
