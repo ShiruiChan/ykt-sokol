@@ -17,7 +17,7 @@ export default function Gallery() {
   useEffect(() => {
     const start = 1;
     const end = 30;
-    const extensions = ['jpg', 'jpeg'];
+    const extensions = ['avif'];
 
     const loadedImages: GalleryImage[] = [];
 
