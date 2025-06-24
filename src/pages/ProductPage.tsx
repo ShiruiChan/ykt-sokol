@@ -119,7 +119,7 @@ export default function ProductPage() {
 
 	// Initialize EmailJS
 	useEffect(() => {
-		emailjs.init('YOUR_PUBLIC_KEY'); // Replace with your EmailJS public key
+		emailjs.init('TM3V3hM-DcofEcNaA'); // Replace with your EmailJS public key
 	}, []);
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -141,7 +141,7 @@ export default function ProductPage() {
 
 		setFormStatus('Отправка...');
 
-		emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+		emailjs.send('service_f50pda5', 'template_jo8mi7s', templateParams)
 			.then(() => {
 				setFormStatus('Заявка успешно отправлена!');
 				setTimeout(() => setFormStatus(''), 3000);
@@ -566,22 +566,22 @@ export default function ProductPage() {
 						<div className="bg-neutral-800 p-6 rounded-lg shadow-lg border border-gray-700 mt-4 md:mt-0">
 							<form ref={emailFormRef} onSubmit={handleSubmit} className="space-y-5">
 								<div>
-									<label className="block text-gray-300 font-medium mb-2">Имя</label>
+									<label className="block text-gray-300 font-medium mb-2">ФИО</label>
 									<input
 										type="text"
 										name="from_name"
-										placeholder="Ваше имя"
-										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										placeholder="ФИО"
+										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 										required
 									/>
 								</div>
 								<div>
-									<label className="block text-gray-300 font-medium mb-2">Телефон или Email</label>
+									<label className="block text-gray-300 font-medium mb-2">Телефон</label>
 									<input
-										type="text"
+										type="phone"
 										name="contact"
-										placeholder="+7 (999) 999-99-99 или email"
-										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										placeholder="+7 (999) 999-99-99"
+										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 										required
 									/>
 								</div>
@@ -591,7 +591,7 @@ export default function ProductPage() {
 										name="comments"
 										placeholder="Дополнительные пожелания"
 										rows={4}
-										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
+										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
 									></textarea>
 								</div>
 								{formStatus && (
