@@ -61,6 +61,12 @@ export default function Header() {
 						>
 							Галерея
 						</Link>
+						<Link
+							to="/cert"
+							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
+						>
+							Документы
+						</Link>
 					</nav>
 
 					{/* Мобильная кнопка меню */}
@@ -145,6 +151,13 @@ export default function Header() {
 									onClick={() => setIsMenuOpen(false)}
 								>
 									Галерея
+								</Link>
+								<Link
+									to="/cert"
+									className="text-2xl font-bold text-white hover:text-green-400 transition"
+									onClick={() => setIsMenuOpen(false)}
+								>
+									Документы
 								</Link>
 							</nav>
 

@@ -7,6 +7,7 @@ import ScrollToTop from './scripts/ScrollToTop';
 import RouteProgress from './components/scripts/RouteProgress';
 import SeoTitle from './components/SeoTitle';
 import LoadingSpinner from './components/LoadingSpinner';
+import Documents from './pages/Cert';
 
 // Lazy-загрузка страниц
 const Home = React.lazy(() => import('./pages/Home'));
@@ -93,6 +94,18 @@ function App() {
               <AnimatedRoute>
                 <SeoTitle title="Галерея — Sokol" />
                 <Gallery />
+              </AnimatedRoute>
+            </React.Suspense>
+          }
+        />
+
+				<Route
+          path="/cert"
+          element={
+            <React.Suspense fallback={<LoadingSpinner />}>
+              <AnimatedRoute>
+                <SeoTitle title="Галерея — Sokol" />
+                <Documents/>
               </AnimatedRoute>
             </React.Suspense>
           }
