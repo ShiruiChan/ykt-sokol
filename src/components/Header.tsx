@@ -59,7 +59,7 @@ export default function Header() {
 							to="/gallery"
 							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
 						>
-							Галлерея
+							Галерея
 						</Link>
 					</nav>
 
@@ -144,7 +144,7 @@ export default function Header() {
 									className="text-2xl font-bold text-white hover:text-green-400 transition"
 									onClick={() => setIsMenuOpen(false)}
 								>
-									Галлерея
+									Галерея
 								</Link>
 							</nav>
 
