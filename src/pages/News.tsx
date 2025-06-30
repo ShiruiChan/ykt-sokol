@@ -53,9 +53,9 @@ export default function News() {
 													})}
 												</time>
 												<p className="text-gray-300 mb-4 line-clamp-3">
-													{item.summary || item.content.substring(0, 150)}...
+													{item.summary || item.content.substring(0, 500)}
 												</p>
-												<a
+												{/* <a
 													href="#"
 													className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors"
 												>
@@ -74,7 +74,7 @@ export default function News() {
 													>
 														<path d="M5 12h14M12 5l7 7-7 7" />
 													</svg>
-												</a>
+												</a> */}
 											</div>
 										</article>
 									))}
@@ -120,9 +120,9 @@ export default function News() {
 												})}
 											</time>
 											<p className="text-gray-300 mb-4 line-clamp-3">
-												{item.summary || item.content.substring(0, 150)}...
+												{item.summary || item.content.substring(0, 500)}
 											</p>
-											<a
+											{/* <a
 												href="#"
 												className="inline-flex items-center text-gray-400 hover:text-white transition-colors"
 											>
@@ -141,7 +141,7 @@ export default function News() {
 												>
 													<path d="M5 12h14M12 5l7 7-7 7" />
 												</svg>
-											</a>
+											</a> */}
 										</div>
 									</article>
 								))}
