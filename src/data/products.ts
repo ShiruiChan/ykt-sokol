@@ -644,13 +644,13 @@ export const products: Product[] = [
 		},
 	},
 	{
-		id: 5,
+		id: 6,
 		name: "СОКОЛ ЛИС",
 		description:
 			"В разработке",
 		deskSmall: "На данный момент находится в разработке и тестировании всех систем техники",
 		price: 1800000,
-		images: ["/images/sokol-plus/1.png", "/images/sokol-plus/2.png", "/images/sokol-plus/3.png", "/images/sokol-plus/4.png", "/images/sokol-plus/5.png",],
+		images: ["/images/lis/1.png", "/images/lis/2.png", "/images/lis/3.png", "/images/lis/4.png", "/images/lis/5.png",],
 		specs: {
 			size: "В разработке",
 			height: "В разработке",
