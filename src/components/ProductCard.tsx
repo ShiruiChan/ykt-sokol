@@ -46,7 +46,7 @@ export default function ProductCard({ product }: Props) {
 							<img
 								src={product.images[currentSlideIndex]}
 								alt={`${product.name} - квадроцикл`}
-								className="object-cover w-full h-full"
+								className="object-cover w-full h-full object-[50%_60%]"
 							/>
 						</motion.div>
 					) : (
