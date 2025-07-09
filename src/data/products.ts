@@ -8,7 +8,7 @@ export const products: Product[] = [
 			"Идеальный выбор для тех, кто ценит надёжность и проходимость в сложных условиях. Снегоболотоход СОКОЛ ПИКАП 1.5 создан для уверенного передвижения по бездорожью — будь то заснеженные трассы, заболоченные районы или непроходимая тайга. Базовая комплектация обеспечивает всё необходимое для эксплуатации, а широкие возможности для дооснащения позволяют адаптировать технику под любые задачи — от путешествий до хозяйственных нужд.",
 		deskSmall: "Проходимый снегоболотоход для бездорожья. Надёжный, универсальный, с возможностью дооснащения.",
 		price: 1660000,
-		images: ["/images/pickup-1.5/1.png", "/images/pickup-1.5/2.png", "/images/pickup-1.5/3.png", "/images/pickup-1.5/3.jpg"],
+		images: ["/images/pickup-1.5/1.avif", "/images/pickup-1.5/2.png", "/images/pickup-1.5/3.png", "/images/pickup-1.5/3.jpg"],
 		specs: {
 			size: "3400 × 2060 × 1700 мм",
 			height: "1700 мм",
@@ -157,7 +157,7 @@ export const products: Product[] = [
 			"Мощный, устойчивый и готовый к любым испытаниям внедорожник для тех, кто не боится сложных маршрутов. СОКОЛ ПИКАП 1.8 — это расширенная версия с увеличенным дорожным просветом, усиленной подвеской и уже установленными базовыми аксессуарами: фарами, багажниками и сигнализацией. Отличный выбор как для семейного отдыха, так и для работы в полевых условиях.",
 		deskSmall: "Усиленный внедорожник с увеличенным клиренсом и полной базовой комплектацией.",
 		price: 1900000,
-		images: ["/images/pickup-1.8/1.png", "/images/pickup-1.8/2.png", "/images/pickup-1.8/3.png", "/images/pickup-1.8/4.png", "/images/pickup-1.8/5.png"],
+		images: ["/images/pickup-1.8/1.avif", "/images/pickup-1.8/2.png", "/images/pickup-1.8/3.png", "/images/pickup-1.8/4.png", "/images/pickup-1.8/5.png"],
 		specs: {
 			size: "3200 × 2050 × 1700 мм",
 			height: "1700 мм",
@@ -306,7 +306,7 @@ export const products: Product[] = [
 			"Компактный двухместный снегоболотоход, разработанный специально для активного передвижения по сложному рельефу. Подходит для охотников, рыбаков и любителей приключений. Простой, но надёжный — легко осваивается, отлично держит дорогу даже в экстремальных условиях. Идеален для тех, кто ищет доступную и функциональную технику без лишних наворотов.",
 		deskSmall: "Компактный двухместный снегоболотоход для охоты, рыбалки и активного отдыха.",
 		price: 1350000,
-		images: ["/images/sokol-plus/1.png", "/images/sokol-plus/2.png", "/images/sokol-plus/3.png", "/images/sokol-plus/4.png", "/images/sokol-plus/5.png", "/images/sokol-plus/6.png"],
+		images: ["/images/sokol-plus/1.avif", "/images/sokol-plus/2.png", "/images/sokol-plus/3.png", "/images/sokol-plus/4.png", "/images/sokol-plus/5.png", "/images/sokol-plus/6.png"],
 		specs: {
 			size: "3000 × 1950 × 1700 мм",
 			height: "1700 мм",
@@ -418,7 +418,7 @@ export const products: Product[] = [
 			"Компактный двухместный снегоболотоход с улучшенной проходимостью благодаря мостам Тимкен и принудительной блокировке дифференциала. Подходит для охотников, рыбаков и любителей приключений. Простой, но надёжный — легко осваивается, отлично держит дорогу даже в экстремальных условиях.",
 		deskSmall: "Компактный снегоболотоход с мостами Тимкен для охоты, рыбалки и активного отдыха.",
 		price: 1550000,
-		images: ["/images/sokol-plus/1.png", "/images/sokol-plus/2.png", "/images/sokol-plus/3.png", "/images/sokol-plus/4.png", "/images/sokol-plus/5.png", "/images/sokol-plus/6.png"],
+		images: ["/images/sokol-plus/1.avif", "/images/sokol-plus/2.png", "/images/sokol-plus/3.png", "/images/sokol-plus/4.png", "/images/sokol-plus/5.png", "/images/sokol-plus/6.png"],
 		specs: {
 			size: "3000 × 1950 × 1700 мм",
 			height: "1700 мм",
@@ -650,7 +650,7 @@ export const products: Product[] = [
 			"В разработке",
 		deskSmall: "На данный момент находится в разработке и тестировании всех систем техники",
 		price: 1800000,
-		images: ["/images/lis/1.png", "/images/lis/2.png", "/images/lis/3.png", "/images/lis/4.png", "/images/lis/5.png",],
+		images: ["/images/lis/1.avif", "/images/lis/2.png", "/images/lis/3.png", "/images/lis/4.png", "/images/lis/5.png",],
 		specs: {
 			size: "В разработке",
 			height: "В разработке",
