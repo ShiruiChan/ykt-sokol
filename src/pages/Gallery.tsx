@@ -1,115 +1,61 @@
-import { useState, useEffect, useMemo } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import GalleryCard from '../components/GalleryCard';
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import "react-photo-view/dist/react-photo-view.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import GalleryCard from "../components/GalleryCard";
 
-interface GalleryImage {
-  id: string;
-  url: string;
-  title: string;
-  description?: string;
+const IMAGES_TOTAL = 65;          // Кол-во файлов в /public/gallery
+const INITIAL_VISIBLE = 10;       // Показываем при первой загрузке
+const BATCH_SIZE = 10;            // Порция по кнопке «Ещё»
+const TEMPLATE = (i: number) => `/gallery/1 (${i}).avif`;
+
+function useGallerySources(total: number) {
+  return useMemo(() => Array.from({ length: total }, (_, i) => TEMPLATE(i + 1)), [total]);
 }
 
-export default function Gallery() {
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [visibleCount, setVisibleCount] = useState(9); // Initially show 10 images
-  const [loading, setLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+const GalleryPage = () => {
+  const galleryImages = useGallerySources(IMAGES_TOTAL);
+  const [visible, setVisible] = useState(INITIAL_VISIBLE);
 
-  useEffect(() => {
-    // Simulate fetching images
-    const start = 1;
-    const end = 65; // Total images available
-    const extensions = ['avif'];
-
-    const loadedImages: GalleryImage[] = [];
-
-    for (let i = start; i <= end; i++) {
-      for (const ext of extensions) {
-        const fileName = `1 (${i}).${ext}`;
-        const filePath = `/gallery/${fileName}`;
-
-        loadedImages.push({
-          id: `img-${i}`,
-          url: filePath,
-          title: `Фото ${i}`,
-          description: `Описание для изображения ${i}`,
-        });
-        break; // Stop at the first extension
-      }
-    }
-
-    // Simulate network delay
-    setTimeout(() => {
-      setImages(loadedImages);
-      setLoading(false);
-    }, 500);
-  }, []);
-
-  // Memoize the visible images slice to prevent unnecessary re-computation
-  const visibleImages = useMemo(() => images.slice(0, visibleCount), [images, visibleCount]);
-
-  // Handle "Show More" button click
   const handleShowMore = () => {
-    setIsLoadingMore(true);
-    // Simulate a small delay for loading more images
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + 9, images.length));
-      setIsLoadingMore(false);
-    }, 300);
+    setVisible((prev) => Math.min(prev + BATCH_SIZE, galleryImages.length));
   };
 
-  if (loading) {
-    return (
-      <div className="text-center py-8 pt-[40vh]">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="mt-2 text-gray-400">Загрузка изображений...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-800 text-white pt-20 relative">
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/40 to-transparent pointer-events-none"></div>
-      <Header />
-      <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-center">Галерея</h1>
+		<>
+		<Header />
+			<div className="container mx-auto py-20 px-5 mt-5">
+				<h1 className="mb-8 text-center text-4xl font-bold md:text-5xl text-zinc-300">Галерея работ</h1>
 
-      <section className="py-12 md:pb-16 md:pt-24">
-        <div className="container mx-auto px-4">
-          <p className="text-center max-w-2xl mx-auto text-gray-400">
-            Просмотрите наши фотографии.
-          </p>
+				{galleryImages.length === 0 ? (
+					<p className="text-center text-muted-foreground">Изображения не найдены</p>
+				) : (
+					<motion.div
+						layout
+						className="columns-1 gap-4 sm:columns-2 md:columns-3 lg:columns-4"
+					>
+						{galleryImages.slice(0, visible).map((src, i) => (
+							<GalleryCard key={src} src={src} index={i} />
+						))}
+					</motion.div>
+				)}
 
-          {/* Gallery Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            {visibleImages.length > 0 ? (
-              visibleImages.map((img) => (
-                <GalleryCard key={img.id} image={img} loading="lazy" />
-              ))
-            ) : (
-              <p className="text-gray-400 col-span-full text-center py-8">
-                Изображений пока нет.
-              </p>
-            )}
-          </div>
-
-          {/* Show More Button */}
-          {visibleCount < images.length && (
-            <div className="text-center mt-8">
-              <button
-                onClick={handleShowMore}
-                disabled={isLoadingMore}
-                className={`px-6 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition ${
-                  isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {isLoadingMore ? 'Загрузка...' : 'Показать ещё'}
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-      <Footer />
-    </div>
+				{visible < galleryImages.length && (
+					<div className="mt-8 text-center">
+						<button
+							onClick={handleShowMore}
+							className="rounded-md bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600"
+						>
+							Показать ещё
+						</button>
+					</div>
+				)}
+			</div>
+			<Footer />
+		</>
+    
   );
-}
+};
+
+export default GalleryPage;
