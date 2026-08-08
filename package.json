@@ -3,49 +3,32 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
-	"compilerOptions": {
-		"typeRoots": [
-			"./node_modules/@types",
-			"./src/types"
-		]
-	},
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
-		"bot": "ts-node telegram-bot/src/bot.ts",
-		"api": "ts-node telegram-bot/src/server.ts",
-		"start:bot": "node dist/telegram-bot/src/bot.js",
-		"start:api": "node dist/telegram-bot/src/server.js"
+		"optimize:images": "node scripts/optimize-images.mjs"
 	},
 	"dependencies": {
-		"@cloudinary/react": "^1.14.3",
-		"@cloudinary/url-gen": "^1.21.0",
 		"@emailjs/browser": "^4.4.1",
-		"@hookform/resolvers": "^5.0.1",
 		"@tailwindcss/vite": "^4.1.8",
-		"axios": "^1.10.0",
-		"cors": "^2.8.5",
-		"dotenv": "^16.5.0",
-		"express": "^5.1.0",
 		"framer-motion": "^12.18.1",
-		"nprogress": "^0.2.0",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"react-helmet": "^6.1.0",
-		"react-hook-form": "^7.57.0",
 		"react-photo-view": "^1.2.7",
 		"react-swipeable": "^7.0.2",
 		"tailwindcss": "^4.1.8",
-		"yup": "^1.6.1",
 		"zustand": "^5.0.5"
 	},
 	"devDependencies": {
 		"@types/react": "^19.1.2",
 		"@types/react-dom": "^19.1.2",
+		"@types/react-helmet": "^6.1.11",
 		"@vitejs/plugin-react": "^4.4.1",
 		"globals": "^16.0.0",
 		"react-router-dom": "^7.6.1",
+		"sharp": "^0.33.5",
 		"vite": "^6.3.5"
 	}
 }

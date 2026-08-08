@@ -1,773 +1,858 @@
-import { useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import 'react-photo-view/dist/react-photo-view.css';
+
 import { products } from '../data/products';
-import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useState, useEffect, useRef } from 'react';
-import type { Accessory } from '../types';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import emailjs from '@emailjs/browser';
+import Breadcrumbs from '../components/Breadcrumbs';
+import Reveal from '../components/Reveal';
+import {
+	ArrowLeft,
+	ArrowRight,
+	ArrowUpRight,
+	Check,
+	ChevronDown,
+	Image as ImageIcon,
+	categoryIcon,
+} from '../components/Icons';
+import { sendRequest } from '../utils/emailjs';
+import type { Accessory, Product } from '../types';
 
-export default function ProductPage() {
-	const { id } = useParams<{ id: string }>();
-	const product = products.find((p) => p.id === Number(id));
-	const [selectedAccessories, setSelectedAccessories] = useState<Record<number, boolean>>({});
-	const [showPriceBox, setShowPriceBox] = useState(true);
-	const [isCartOpen, setIsCartOpen] = useState(false);
-	const [expandedSections, setExpandedSections] = useState<string[]>(['']);
-	const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-	const [formStatus, setFormStatus] = useState<string>('');
+/* -------------------------------------------------------------------------- */
+/*  Таблица характеристик: плоские данные раскладываем по инженерным группам   */
+/* -------------------------------------------------------------------------- */
 
-	// Проверяем наличие изображений
-	const hasImages = product?.images && product.images.length > 0;
+const SPEC_GROUPS: { title: string; rows: [string, (p: Product) => string | undefined][] }[] = [
+	{
+		title: 'Габариты и масса',
+		rows: [
+			['Габариты (Д×Ш×В)', (p) => p.specs.size],
+			['Высота', (p) => p.specs.height],
+			['Дорожный просвет', (p) => p.specs.clearance],
+			['Колёсная формула', (p) => p.specs.extendedSpecs?.wheelFormula],
+			['Снаряжённая масса', (p) => p.specs.extendedSpecs?.weight],
+			['Полная масса', (p) => p.specs.extendedSpecs?.fullWeight],
+			['Мест', (p) => p.specs.seats],
+		],
+	},
+	{
+		title: 'Двигатель и трансмиссия',
+		rows: [
+			['Двигатель', (p) => p.specs.engine],
+			['Мощность', (p) => p.specs.extendedSpecs?.enginePower],
+			['Крутящий момент', (p) => p.specs.extendedSpecs?.torque],
+			['Коробка передач', (p) => p.specs.transmission],
+			['Расход топлива', (p) => p.specs.fuelConsumption],
+			['Максимальная скорость', (p) => p.specs.maxSpeed],
+			['Скорость на плаву', (p) => p.specs.extendedSpecs?.waterSpeed],
+		],
+	},
+	{
+		title: 'Ходовая часть и тормоза',
+		rows: [
+			['Подвеска', (p) => p.specs.extendedSpecs?.suspension],
+			['Рулевое управление', (p) => p.specs.extendedSpecs?.steering],
+			['Тормозная система', (p) => p.specs.extendedSpecs?.brakeSystem],
+			['Стояночный тормоз', (p) => p.specs.extendedSpecs?.parkingBrake],
+		],
+	},
+	{
+		title: 'Колёса и проходимость',
+		rows: [
+			['Шины', (p) => p.specs.extendedSpecs?.tires],
+			['Давление в шинах', (p) => p.specs.extendedSpecs?.tirePressure],
+			['Преодолеваемый подъём', (p) => p.specs.extendedSpecs?.slope],
+			['Угол поперечной устойчивости', (p) => p.specs.extendedSpecs?.lateralStability],
+		],
+	},
+];
 
-	// Обработчики скролла
-	useEffect(() => {
-		const handleScroll = () => {
-			if (!formRef.current) return;
-			const rect = formRef.current.getBoundingClientRect();
-			setShowPriceBox(rect.top < window.innerHeight * 0.9);
+/** «103 кВт / 140 л.с. (6400 об/мин)» → «140 л.с.» для плитки ключевых цифр */
+function shortPower(value?: string) {
+	if (!value) return undefined;
+	return value.match(/\d[\d.,]*\s*л\.\s?с\./i)?.[0] ?? value.split('/')[0].trim();
+}
 
-			if (!isCartOpen && window.innerWidth >= 768 && rect.top < window.innerHeight * 0.8) {
-				setIsCartOpen(true);
-			}
-		};
+/* ------------------------------ Галерея модели ----------------------------- */
 
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [isCartOpen]);
+function ProductGallery({ product }: { product: Product }) {
+	const [index, setIndex] = useState(0);
+	const reduce = useReducedMotion();
+	const images = product.images ?? [];
 
-	// Прокрутка к верху при смене товара
-	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [id]);
+	useEffect(() => setIndex(0), [product.id]);
 
-	if (!product) {
+	if (!images.length) {
 		return (
-			<div className="section text-center text-gray-300">
-				Товар не найден
+			<div className="bezel">
+				<div className="hatch grid aspect-[4/3] place-items-center rounded-[calc(2rem-0.375rem)] bg-ink-900 text-fog-500">
+					<div className="text-center">
+						<ImageIcon className="mx-auto h-10 w-10 opacity-60" />
+						<p className="mt-3 text-xs tracking-[0.18em] uppercase">фотосъёмка готовится</p>
+					</div>
+				</div>
 			</div>
 		);
 	}
 
+	const go = (delta: number) => setIndex((i) => (i + delta + images.length) % images.length);
+
+	return (
+		<div className="min-w-0">
+			<PhotoProvider maskOpacity={0.94} bannerVisible={false}>
+				<div className="bezel">
+					<div className="relative overflow-hidden rounded-[calc(2rem-0.375rem)] bg-ink-900">
+						<PhotoView key={images[index]} src={images[index]}>
+							<motion.img
+								src={images[index]}
+								alt={`${product.name} — фото ${index + 1} из ${images.length}`}
+								className="aspect-[4/3] w-full cursor-zoom-in object-cover"
+								initial={reduce ? false : { opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+								fetchPriority={index === 0 ? 'high' : 'auto'}
+								decoding="async"
+							/>
+						</PhotoView>
+
+						{images.length > 1 && (
+							<>
+								<button
+									type="button"
+									onClick={() => go(-1)}
+									aria-label="Предыдущее фото"
+									className="absolute top-1/2 left-4 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/12 bg-ink-950/55 text-fog-50 backdrop-blur transition hover:bg-ink-950/85"
+								>
+									<ArrowLeft className="h-5 w-5" />
+								</button>
+								<button
+									type="button"
+									onClick={() => go(1)}
+									aria-label="Следующее фото"
+									className="absolute top-1/2 right-4 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/12 bg-ink-950/55 text-fog-50 backdrop-blur transition hover:bg-ink-950/85"
+								>
+									<ArrowRight className="h-5 w-5" />
+								</button>
+								<span className="tnum absolute bottom-4 left-4 rounded-full bg-ink-950/70 px-3 py-1 text-xs text-fog-200 backdrop-blur">
+									{index + 1} / {images.length}
+								</span>
+							</>
+						)}
+					</div>
+				</div>
+
+				{/* Скрытые превью, чтобы лайтбокс листал всю серию */}
+				<div className="hidden">
+					{images.map((src, i) =>
+						i === index ? null : (
+							<PhotoView key={src} src={src}>
+								<img src={src} alt="" />
+							</PhotoView>
+						)
+					)}
+				</div>
+			</PhotoProvider>
+
+			{images.length > 1 && (
+				<div className="mt-3 flex min-w-0 gap-2 overflow-x-auto pb-1">
+					{images.map((src, i) => (
+						<button
+							key={src}
+							type="button"
+							onClick={() => setIndex(i)}
+							aria-label={`Показать фото ${i + 1}`}
+							aria-current={i === index}
+							className={`h-16 w-22 shrink-0 overflow-hidden rounded-xs border transition-all duration-300 ${
+								i === index
+									? 'border-accent-500'
+									: 'border-white/10 opacity-55 hover:opacity-100'
+							}`}
+						>
+							<img
+								src={src}
+								alt=""
+								className="h-full w-full object-cover"
+								loading="lazy"
+								decoding="async"
+							/>
+						</button>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
+/* ------------------------------ Страница модели ---------------------------- */
+
+export default function ProductPage() {
+	const { id } = useParams<{ id: string }>();
+	const product = products.find((p) => p.id === Number(id));
+
+	const [selected, setSelected] = useState<Record<number, boolean>>({});
+	const [openCategories, setOpenCategories] = useState<string[]>([]);
+	const [openGroups, setOpenGroups] = useState<string[]>([SPEC_GROUPS[0].title]);
+	const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+	const [showMobileBar, setShowMobileBar] = useState(false);
+
 	const formRef = useRef<HTMLDivElement>(null);
 	const emailFormRef = useRef<HTMLFormElement>(null);
 
-	const toggleAccessory = (accId: number) => {
-		setSelectedAccessories(prev => ({
-			...prev,
-			[accId]: !prev[accId]
-		}));
-	};
+	// Сброс выбора при переходе на другую модель
+	useEffect(() => {
+		setSelected({});
+		setStatus('idle');
+		setOpenCategories([]);
+	}, [id]);
 
-	const selectedAccList = Object.entries(selectedAccessories)
-		.filter(([, isSelected]) => isSelected)
-		.map(([accId]) => {
-			for (const category in product.accessories) {
-				const found = product.accessories[category].find(acc => acc.id === Number(accId));
-				if (found) return found;
-			}
-			return null;
-		})
-		.filter(Boolean) as Accessory[];
+	// Одна подписка на скролл вместо четырёх конфликтующих
+	useEffect(() => {
+		const onScroll = () => {
+			const rect = formRef.current?.getBoundingClientRect();
+			const pastHero = window.scrollY > window.innerHeight * 0.5;
+			const formVisible = rect ? rect.top < window.innerHeight && rect.bottom > 0 : false;
+			setShowMobileBar(pastHero && !formVisible);
+		};
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', onScroll);
+		};
+	}, []);
 
-	const toggleSection = (section: string) => {
-		setExpandedSections(prev =>
-			prev.includes(section)
-				? prev.filter(s => s !== section)
-				: [...prev, section]
+	const selectedList = useMemo<Accessory[]>(() => {
+		if (!product) return [];
+		return Object.values(product.accessories)
+			.flat()
+			.filter((acc) => selected[acc.id]);
+	}, [product, selected]);
+
+	const total = (product?.price ?? 0) + selectedList.reduce((sum, a) => sum + a.price, 0);
+
+	if (!product) {
+		return (
+			<>
+				<Header />
+				<main id="main" className="section flex flex-1 items-center bg-ink-950">
+					<div className="shell text-center">
+						<p className="eyebrow justify-center">ошибка 404</p>
+						<h1 className="mt-5 text-title text-fog-50">Такой модели нет</h1>
+						<p className="mt-4 text-fog-400">Возможно, она снята с производства.</p>
+						<Link to="/#catalog" className="btn btn-primary mt-8">
+							Ко всем моделям
+							<span className="btn-dot">
+								<ArrowUpRight className="h-4 w-4" />
+							</span>
+						</Link>
+					</div>
+				</main>
+				<Footer />
+			</>
 		);
-	};
+	}
 
-	// Отслеживаем положение формы
-	useEffect(() => {
-		const handleScroll = () => {
-			if (formRef.current) {
-				const rect = formRef.current.getBoundingClientRect();
-				setShowPriceBox(rect.top < window.innerHeight * 0.8);
-				if (!isCartOpen && window.innerWidth >= 768 && rect.top < window.innerHeight * 0.8) {
-					setIsCartOpen(true);
-				}
-			}
-		};
+	const toggleAccessory = (accId: number) =>
+		setSelected((prev) => ({ ...prev, [accId]: !prev[accId] }));
 
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, []);
+	const toggleCategory = (name: string) =>
+		setOpenCategories((prev) =>
+			prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
+		);
 
-	const totalPrice = product.price + selectedAccList.reduce((sum, acc) => sum + acc.price, 0);
+	const toggleGroup = (name: string) =>
+		setOpenGroups((prev) =>
+			prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
+		);
 
-	useEffect(() => {
-		const handleScroll = () => {
-			if (formRef.current) {
-				const rect = formRef.current.getBoundingClientRect();
-				setShowPriceBox(rect.top > window.innerHeight * 0.8);
-			}
-		};
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, []);
+	const scrollToForm = () =>
+		formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-	useEffect(() => {
-		const handleScroll = () => {
-			if (isCartOpen) setIsCartOpen(false);
-		};
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [isCartOpen]);
-
-	// Initialize EmailJS
-	useEffect(() => {
-		emailjs.init('TM3V3hM-DcofEcNaA'); // Replace with your EmailJS public key
-	}, []);
-
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		const form = emailFormRef.current;
+		if (!form) return;
 
-		if (!emailFormRef.current) return;
-
-		const accessoriesList = selectedAccList.map(acc => `${acc.name}: ${acc.price.toLocaleString()} ₽`).join('\n');
-
-		const templateParams = {
-			from_name: emailFormRef.current.from_name.value,
-			contact: emailFormRef.current.contact.value,
-			comments: emailFormRef.current.comments.value,
-			product_name: product.name,
-			product_price: product.price.toLocaleString(),
-			accessories: accessoriesList || 'Нет выбранных аксессуаров',
-			total_price: totalPrice.toLocaleString()
-		};
-
-		setFormStatus('Отправка...');
-
-		emailjs.send('service_f50pda5', 'template_jo8mi7s', templateParams)
-			.then(() => {
-				setFormStatus('Заявка успешно отправлена!');
-				setTimeout(() => setFormStatus(''), 3000);
-				emailFormRef.current?.reset();
-				setSelectedAccessories({});
-			})
-			.catch(() => {
-				setFormStatus('Ошибка при отправке. Попробуйте снова.');
-				setTimeout(() => setFormStatus(''), 3000);
+		setStatus('sending');
+		try {
+			await sendRequest({
+				from_name: (form.from_name as HTMLInputElement).value,
+				contact: (form.contact as HTMLInputElement).value,
+				comments: (form.comments as HTMLTextAreaElement).value || '—',
+				product_name: product.name,
+				product_price: product.price.toLocaleString('ru-RU'),
+				accessories:
+					selectedList.map((a) => `${a.name}: ${a.price.toLocaleString('ru-RU')} ₽`).join('\n') ||
+					'Нет выбранных аксессуаров',
+				total_price: total.toLocaleString('ru-RU'),
 			});
+			setStatus('sent');
+			form.reset();
+			setSelected({});
+		} catch {
+			setStatus('error');
+		}
 	};
 
-	// ... (Previous code remains unchanged until the form section)
+	const others = products.filter((p) => p.id !== product.id).slice(0, 3);
 
 	return (
-		<div className="bg-neutral-900/40 text-gray-200 mt-20">
+		<>
+			<Helmet>
+				<title>{`${product.name} — снегоболотоход ЯКТ СОКОЛ`}</title>
+				<meta name="description" content={product.deskSmall} />
+			</Helmet>
+
 			<Header />
-			<div className="z-30 bg-neutral-800 rounded-lg p-6 mb-8 shadow-2xl -mt-4">
-				<div className="container mx-auto px-4">
+
+			<main id="main" className="flex-1 bg-ink-950 pt-28 md:pt-32">
+				{/* ---------------------------- Первый экран модели ---------------------------- */}
+				<section className="shell">
 					<Breadcrumbs currentPage={product.name} />
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-						{/* Слайдер */}
-						<div>
-							<div className="w-full rounded-xl relative overflow-hidden">
-								{/* Большое изображение на десктопе */}
-								<div className="hidden md:block rounded-xl w-full h-[500px] bg-gradient-to-br from-gray-300 to-gray-400 relative">
-									{hasImages ? (
-										<AnimatePresence mode="wait">
-											<motion.img
-												key={currentSlideIndex}
-												src={product.images[currentSlideIndex]}
-												alt={`${product.name} - фото ${currentSlideIndex + 1}`}
-												initial={{ opacity: 0 }}
-												animate={{ opacity: 1 }}
-												exit={{ opacity: 0 }}
-												transition={{ duration: 0.5 }}
-												className="object-cover rounded-xl w-full h-full"
-											/>
-										</AnimatePresence>
-									) : (
-										<div className="text-center p-8 text-gray-700 flex flex-col items-center justify-center h-full">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												className="h-20 w-20 mb-4 opacity-70"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={1.5}
-													d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-												/>
-											</svg>
-											<p className="text-lg font-medium">Фото пока нет</p>
-										</div>
-									)}
-									{hasImages && (
-										<>
-											<button
-												onClick={() =>
-													setCurrentSlideIndex(
-														(prev) => (prev - 1 + product.images.length) % product.images.length
-													)
-												}
-												className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-20"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													className="h-6 w-6"
-													fill="none"
-													viewBox="0 0 24 24"
-													stroke="currentColor"
-												>
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth={2}
-														d="M15 19l-7-7 7-7"
-													/>
-												</svg>
-											</button>
-											<button
-												onClick={() =>
-													setCurrentSlideIndex((prev) => (prev + 1) % product.images.length)
-												}
-												className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-20"
-											>
-												<svg
-													xmlns="thio://www.w3.org/2000/svg"
-													className="h-6 w-6"
-													fill="none"
-													viewBox="0 0 24 24"
-													stroke="currentColor"
-												>
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth={2}
-														d="M9 5l7 7-7 7"
-													/>
-												</svg>
-											</button>
-										</>
-									)}
-								</div>
-								<div className="block md:hidden rounded-xl w-full h-64 bg-gradient-to-br from-gray-300 to-gray-400 relative">
-									{hasImages ? (
-										<AnimatePresence mode="wait">
-											<motion.img
-												key={currentSlideIndex}
-												src={product.images[currentSlideIndex]}
-												alt={`${product.name} - фото ${currentSlideIndex + 1}`}
-												initial={{ opacity: 0 }}
-												animate={{ opacity: 1 }}
-												exit={{ opacity: 0 }}
-												transition={{ duration: 0.5 }}
-												className="object-cover w-full h-full rounded-xl"
-											/>
-										</AnimatePresence>
-									) : (
-										<div className="text-center p-4 text-gray-700 flex flex-col items-center justify-center h-full">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												className="h-16 w-16 mx-auto mb-2 opacity-70"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={1.5}
-													d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-												/>
-											</svg>
-											<p className="text-sm font-medium">Фото пока нет</p>
-										</div>
-									)}
-									{hasImages && (
-										<>
-											<button
-												onClick={() =>
-													setCurrentSlideIndex(
-														(prev) => (prev - 1 + product.images.length) % product.images.length
-													)
-												}
-												className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-20"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													className="h-5 w-5"
-													fill="none"
-													viewBox="0 0 24 24"
-													stroke="currentColor"
-												>
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth={2}
-														d="M15 19l-7-7 7-7"
-													/>
-												</svg>
-											</button>
-											<button
-												onClick={() =>
-													setCurrentSlideIndex((prev) => (prev + 1) % product.images.length)
-												}
-												className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-20"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													className="h-5 w-5"
-													fill="none"
-													viewBox="0 0 24 24"
-													stroke="currentColor"
-												>
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth={2}
-														d="M9 5l7 7-7 7"
-													/>
-												</svg>
-											</button>
-										</>
-									)}
-								</div>
-								{hasImages && (
-									<div className="flex justify-center mt-3 space-x-2 overflow-x-auto pb-2">
-										{product.images.map((_, index) => (
-											<button
-												key={index}
-												onClick={() => setCurrentSlideIndex(index)}
-												className={`w-12 h-12 rounded-md border-2 ${currentSlideIndex === index ? 'border-green-500' : 'border-transparent'
-													}`}
-											>
-												<img
-													src={_}
-													alt={`Миниатюра ${index + 1}`}
-													className="w-full h-full object-cover rounded-md"
-												/>
-											</button>
-										))}
-									</div>
-								)}
-							</div>
+
+					<div className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-14">
+						<div className="min-w-0 lg:col-span-7">
+							<ProductGallery product={product} />
 						</div>
-						<div className=''>
-							<h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-100">{product.name}</h2>
-							<p className="mb-4 text-gray-400 leading-relaxed">{product.description}</p>
-							<div className="mt-6">
-								<div
-									onClick={() => toggleSection("specs")}
-									className="flex justify-between items-center cursor-pointer"
-								>
-									<h3 className="text-2xl font-semibold text-gray-100">Характеристики</h3>
-								</div>
-								<div className="mt-4 max-h-[400px] overflow-y-auto rounded-lg p-2 bg-neutral-900/30 relative">
-									<div className="font-semibold text-green-400 mb-3">Основная характеристика</div>
-									<div className='grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2'>
-										{product.specs.size && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Размер</div>
-												<div className="text-gray-400">{product.specs.size}</div>
-											</>
-										)}
-										{product.specs.height && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Высота</div>
-												<div className="text-gray-400">{product.specs.height}</div>
-											</>
-										)}
-										{product.specs.engine && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Двигатель</div>
-												<div className="text-gray-400">{product.specs.engine}</div>
-											</>
-										)}
-										{product.specs.clearance && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Клиренс</div>
-												<div className="text-gray-400">{product.specs.clearance}</div>
-											</>
-										)}
-										{product.specs.transmission && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Трансмиссия</div>
-												<div className="text-gray-400">{product.specs.transmission}</div>
-											</>
-										)}
-										{product.specs.seats && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Мест</div>
-												<div className="text-gray-400">{product.specs.seats}</div>
-											</>
-										)}
-										{product.specs.maxSpeed && (
-											<>
-												<div className="font-semibold text-gray-300 border-b border-gray-600">Макс. скорость</div>
-												<div className="text-gray-400">{product.specs.maxSpeed}</div>
-											</>
-										)}
-										{product.specs.fuelConsumption && (
-											<>
-												<div className="font-semibold text-gray-300 mb-4 border-b border-gray-600">Расход топлива</div>
-												<div className="text-gray-400">{product.specs.fuelConsumption}</div>
-											</>
-										)}
-									</div>
-									<div className="font-semibold text-green-400 mb-3">Расширенная характеристика</div>
-									{product.specs.extendedSpecs && (
-										<>
-											{Object.entries(product.specs.extendedSpecs).map(([key, value]) => {
-												const specLabels: Record<string, string> = {
-													wheelFormula: "Колёсная формула",
-													weight: "Масса снаряжённого ТС",
-													fullWeight: "Полная масса ТС",
-													enginePower: "Мощность двигателя",
-													torque: "Максимальный крутящий момент",
-													slope: "Максимально преодолеваемый уклон",
-													lateralStability: "Угол поперечной устойчивости",
-													suspension: "Подвеска",
-													steering: "Рулевое управление",
-													brakeSystem: "Тормозная система",
-													parkingBrake: "Стояночная тормозная система",
-													tires: "Шины",
-													tirePressure: "Давление воздуха в шинах",
-													waterSpeed: "Скорость на плаву"
-												};
-												const label = specLabels[key] || key;
-												return (
-													value && (
-														<>
-															<div className="font-semibold text-gray-300 border-b border-gray-600">{label}</div>
-															<div className="text-gray-400">{value}</div>
-														</>
-													)
-												);
-											})}
-										</>
-									)}
-								</div>
-							</div>
-							<div className="mt-6">
-								<div
-									onClick={() => toggleSection("kit")}
-									className="flex justify-between items-center cursor-pointer"
-								>
-									<h3 className="text-2xl font-semibold text-gray-100">Комплектация по умолчанию</h3>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										strokeWidth="2"
-										className={`transition-transform duration-300 ${expandedSections.includes("kit") ? "rotate-180" : ""}`}
-									>
-										<polyline points="6 9 12 15 18 9"></polyline>
-									</svg>
-								</div>
-								{expandedSections.includes("kit") && (
-									<ul className="list-disc pl-6 mt-4 space-y-1">
-										{product.defaultKit.map((item, index) => (
-											<li key={index} className="text-gray-400">
-												<span className="font-medium">{item.name}</span> — {item.quantity}
-											</li>
-										))}
-									</ul>
-								)}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div className="container mx-auto px-4 mt-8">
-				<h3 className="text-3xl font-bold mb-6 text-green-400">Дополнительные аксессуары:</h3>
-				{Object.entries(product.accessories).map(([category, accessories]) => (
-					<div key={category} className="mt-6">
-						<div
-							onClick={() => toggleSection(`accessory-${category}`)}
-							className="flex items-center cursor-pointer"
-						>
-							<h4 className="text-xl font-semibold mb-4 text-gray-300">{category}</h4>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								className={`transition-transform duration-300 -mt-3 ml-2 ${expandedSections.includes(`accessory-${category}`) ? "rotate-180" : ""}`}
-							>
-								<polyline points="6 9 12 15 18 9"></polyline>
-							</svg>
-						</div>
-						{expandedSections.includes(`accessory-${category}`) && (
-							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
-								{accessories.map((acc) => {
-									const isSelected = selectedAccessories[acc.id];
-									return (
-										<div
-											key={acc.id}
-											onClick={() => toggleAccessory(acc.id)}
-											className={`group relative flex flex-col p-4 border rounded-lg cursor-pointer transition-all duration-300 ${isSelected ? "border-gray-500 bg-neutral-700/60" : "border-gray-600 hover:border-gray-400"}`}
-										>
-											<div className="flex-1 min-w-0">
-												<h5 className="font-semibold text-base text-gray-200">{acc.name}</h5>
-												<p className="text-sm text-gray-500 mt-1">{acc.description}</p>
-												<p className="mt-2 font-bold text-gray-300">{acc.price.toLocaleString()} ₽</p>
-											</div>
-											<div className="absolute top-2 right-2 border border-gray-500 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"></div>
-											{isSelected && (
-												<div className="absolute top-2 right-2 bg-gradient-to-r from-emerald-500 to-green-600 text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-													✓
-												</div>
-											)}
-										</div>
-									);
-								})}
-							</div>
-						)}
-					</div>
-				))}
-				<div className="flex flex-col md:flex-row gap-8 pt-10">
-					<div ref={formRef} id="form-section" className="w-full md:w-2/3">
-						<h4 className="text-2xl font-bold mb-4 text-gray-100">Оформить заявку</h4>
-						{showPriceBox && (
-							<div className="w-full z-50 md:hidden">
-								<div className="sticky top-24 bg-neutral-800 shadow-xl rounded-lg p-4 border border-gray-600 max-h-[340px] overflow-y-auto animate-fadeIn">
-									<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-									<div className="mb-3">
-										<div className="flex items-center gap-2">
-											<img src={product.images[0]} alt={product.name} className="w-10 h-10 object-cover rounded" />
-											<div>
-												<div className="font-medium text-gray-200">{product.name}</div>
-												<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
-											</div>
-										</div>
-									</div>
-									{selectedAccList.length > 0 ? (
-										selectedAccList.map(acc => (
-											<div key={acc.id} className="flex justify-between text-sm py-1">
-												<span className="text-gray-300">{acc.name}</span>
-												<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
-											</div>
-										))
-									) : (
-										<div className="text-center text-gray-600 italic">Нет выбранных аксессуаров</div>
-									)}
-									<hr className="my-4 border-t border-gray-600" />
-									<div className="font-bold text-lg text-right text-green-400">
-										Итого: {totalPrice.toLocaleString()} ₽
-									</div>
-								</div>
-							</div>
-						)}
-						<div className="bg-neutral-800 p-6 rounded-lg shadow-lg border border-gray-700 mt-4 md:mt-0">
-							<form ref={emailFormRef} onSubmit={handleSubmit} className="space-y-5">
-								<div>
-									<label className="block text-gray-300 font-medium mb-2">ФИО</label>
-									<input
-										type="text"
-										name="from_name"
-										placeholder="ФИО"
-										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
-										required
-									/>
-								</div>
-								<div>
-									<label className="block text-gray-300 font-medium mb-2">Телефон</label>
-									<input
-										type="phone"
-										name="contact"
-										placeholder="+7 (999) 999-99-99"
-										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
-										required
-									/>
-								</div>
-								<div>
-									<label className="block text-gray-300 font-medium mb-2">Комментарий</label>
-									<textarea
-										name="comments"
-										placeholder="Дополнительные пожелания"
-										rows={4}
-										className="w-full p-3 border border-gray-600 rounded bg-zinc-300 text-gray-500 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition"
-									></textarea>
-								</div>
-								{formStatus && (
-									<div className={`text-center ${formStatus.includes('Ошибка') ? 'text-red-400' : 'text-green-400'}`}>
-										{formStatus}
-									</div>
-								)}
-								<button
-									type="submit"
-									className="w-full bg-gradient-to-r from-green-600 to-emerald-500 hover:bg-teal-400 text-white py-3 px-6 rounded-full font-semibold shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-								>
-									Отправить заявку
-								</button>
-							</form>
-						</div>
-					</div>
-					{showPriceBox && (
-						<div className="w-full md:w-1/3 z-2 pt-12 hidden md:block">
-							<div className="sticky top-24 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border animate-fadeIn">
-								<div className="text-sm text-gray-500 mb-2">Выбрано:</div>
-								<div className="mb-4">
-									<div className="text-sm text-gray-500 mb-2">Основное:</div>
-									<div className="flex items-center gap-2">
-										<img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover rounded" />
-										<div>
-											<div className="font-medium text-gray-200">{product.name}</div>
-											<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
-										</div>
-									</div>
-								</div>
-								{selectedAccList.length > 0 ? (
-									<>
-										<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
-										{selectedAccList.map(acc => (
-											<div key={acc.id} className="flex justify-between text-sm py-1">
-												<span className="text-gray-300">{acc.name}</span>
-												<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
-											</div>
-										))}
-									</>
-								) : (
-									<div className="text-center text-gray-500 italic">Нет выбранных аксессуаров</div>
-								)}
-								<hr className="my-4 border-t border-gray-600" />
-								<div className="font-bold text-lg text-right text-green-400">
-									Итого: {totalPrice.toLocaleString()} ₽
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
-			</div>
-			<div className="mt-12 container mx-auto px-4 mb-20">
-				<h3 className="text-2xl font-semibold mb-4">Другие модели</h3>
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{products
-						.filter(p => p.id !== product.id)
-						.slice(0, 3)
-						.map(p => (
-							<div key={p.id} className="card">
-								<img src={p.images[0]} alt={`${p.name} - квадроцикл`} className="w-full h-64 object-cover" />
-								<div className="p-4 flex justify-between">
-									<div className=''>
-										<h4 className="text-lg font-semibold text-black">{p.name}</h4>
-										<p className="text-black text-sm">{p.price.toLocaleString()} ₽</p>
-									</div>
-									<Link to={`/product/${p.id}`} className="btn-primary inline-block">
-										Подробнее
-									</Link>
-								</div>
-							</div>
-						))}
-				</div>
-			</div>
-			{!showPriceBox && (
-				<div className="fixed right-8 bottom-8 z-50 hidden md:block bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-xl rounded-lg p-4 border max-w-xs transition-transform duration-300 animate-fadeIn">
-					<div className="mb-4">
-						<div className="text-sm text-gray-500 mb-2">Основное:</div>
-						<div className="flex items-center gap-2">
-							<img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover rounded" />
-							<div>
-								<div className="font-medium text-gray-200">{product.name}</div>
-								<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
-							</div>
-						</div>
-					</div>
-					{selectedAccList.length > 0 ? (
-						<>
-							<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
-							{selectedAccList.map(acc => (
-								<div key={acc.id} className="flex justify-between text-sm py-1 gap-x-4">
-									<span className="text-gray-300">{acc.name}</span>
-									<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
-								</div>
-							))}
-						</>
-					) : (
-						<div className="text-center text-gray-500 italic">Нет выбранных аксессуаров</div>
-					)}
-					<hr className="my-2 border-t border-gray-600" />
-					<div className="font-bold text-lg text-right text-green-400">
-						Итого: {totalPrice.toLocaleString()} ₽
-					</div>
-				</div>
-			)}
-			{!showPriceBox && (
-				<div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900/70 backdrop-blur-md border-gray-700/50 shadow-lg border-t z-50">
-					<div
-						className="flex justify-between items-center p-3"
-						onClick={() => selectedAccList.length > 0 && setIsCartOpen(!isCartOpen)}
-					>
-						<div onClick={(e) => {
-							e.stopPropagation();
-							setIsCartOpen(!isCartOpen);
-						}}
-							className="flex items-center space-x-2">
-							<button
-								className="text-gray-400 bg-gray-700 p-2 rounded-full relative"
-								aria-label="Показать выбранные аксессуары"
-							>
-								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-									<path d="M9 22H15a2 2 0 0 0 2-2H7a2 2 0 0 0 2 2z" />
-									<path d="M8 12h.01M12 12h.01M16 12h.01M21 8l-5-5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z" />
-								</svg>
-								{selectedAccList.length > 0 && (
-									<span className="absolute -top-1 -right-1 bg-gray-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-										{selectedAccList.length}
-									</span>
-								)}
-							</button>
-							<div>
-								<div className="text-xs">Итого:</div>
-								<div className="font-bold text-gray-300">{totalPrice.toLocaleString()} ₽</div>
-							</div>
-						</div>
-						<button
-							className={`px-6 py-2 rounded-full font-semibold ${selectedAccList.length === 0 ? 'opacity-50' : ''}`}
-							disabled={selectedAccList.length === 0}
-							onClick={() => document.getElementById('form-section')?.scrollIntoView({ behavior: 'smooth' })}
-						>
-							Оформить
-						</button>
-					</div>
-					{isCartOpen && (
-						<div className="bg-neutral-800 border-t border-gray-600 p-3 animate-fadeIn">
-							<div className="mb-4">
-								<div className="text-sm text-gray-500 mb-2">Основное:</div>
-								<div className="flex items-center gap-2">
-									<img src={product.images[0]} alt={product.name} className="w-10 h-10 object-cover rounded" />
-									<div>
-										<div className="font-medium text-gray-200">{product.name}</div>
-										<div className="text-green-400 font-bold">{product.price.toLocaleString()} ₽</div>
-									</div>
-								</div>
-							</div>
-							{selectedAccList.length > 0 && (
-								<>
-									<div className="text-sm text-gray-500 mb-2 mt-4">Дополнительно:</div>
-									{selectedAccList.map(acc => (
-										<div key={acc.id} className="flex justify-between text-sm py-1">
-											<span className="text-gray-300">{acc.name}</span>
-											<span className="text-gray-400">{acc.price.toLocaleString()} ₽</span>
+
+						<div className="min-w-0 lg:col-span-5">
+							<p className="eyebrow">
+								<span className="h-px w-8 bg-accent-400/70" />
+								снегоболотоход 4×4
+							</p>
+							<h1 className="mt-5 font-display text-title tracking-[0.01em] text-fog-50 uppercase">
+								{product.name}
+							</h1>
+
+							<p className="mt-6 text-fog-400">{product.deskSmall}</p>
+
+							{/* Ключевые цифры */}
+							<dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/8 bg-white/8">
+								{[
+									{ k: 'Клиренс', v: product.specs.clearance },
+									{ k: 'Мощность', v: shortPower(product.specs.extendedSpecs?.enginePower) },
+									{ k: 'Мест', v: product.specs.seats },
+									{ k: 'На плаву', v: product.specs.extendedSpecs?.waterSpeed },
+								]
+									.filter((x) => x.v)
+									.map((x) => (
+										<div key={x.k} className="bg-ink-900 px-4 py-4">
+											<dt className="text-[11px] tracking-[0.14em] text-fog-500 uppercase">
+												{x.k}
+											</dt>
+											<dd className="tnum mt-1.5 text-base font-semibold text-fog-50">{x.v}</dd>
 										</div>
 									))}
-								</>
-							)}
-							<hr className="my-2 border-t border-gray-600" />
-							<div className="flex justify-between font-bold text-base">
-								<span className="text-gray-300">Общая цена:</span>
-								<span className="text-gray-300">{totalPrice.toLocaleString()} ₽</span>
+							</dl>
+
+							{/* Цена и целевое действие */}
+							<div className="mt-8 rounded-lg border border-white/8 bg-ink-850 p-6">
+								<span className="text-[11px] tracking-[0.16em] text-fog-500 uppercase">
+									базовая комплектация
+								</span>
+								<p className="tnum mt-2 text-3xl font-bold text-fog-50">
+									{product.price.toLocaleString('ru-RU')} ₽
+								</p>
+								<p className="mt-2 text-sm text-fog-500">
+									Цена с документами и ЗИП. Доставка по России — рассчитывается отдельно.
+								</p>
+								<button type="button" onClick={scrollToForm} className="btn btn-primary mt-6 w-full">
+									Оставить заявку
+									<span className="btn-dot">
+										<ArrowUpRight className="h-4 w-4" />
+									</span>
+								</button>
+								<a href="tel:+79969141414" className="btn btn-ghost mt-3 w-full">
+									<span className="tnum">+7 (996) 914-14-14</span>
+								</a>
 							</div>
 						</div>
-					)}
-				</div>
-			)}
+					</div>
+				</section>
+
+				{/* --------------------------------- Описание --------------------------------- */}
+				<section className="section">
+					<div className="shell grid gap-8 lg:grid-cols-12">
+						<Reveal className="lg:col-span-4">
+							<h2 className="text-heading text-fog-50">О модели</h2>
+						</Reveal>
+						<Reveal delay={0.08} className="lg:col-span-8">
+							<p className="max-w-[68ch] text-lede text-fog-200">{product.description}</p>
+						</Reveal>
+					</div>
+				</section>
+
+				{/* ---------------------------- Технические данные ---------------------------- */}
+				<section className="border-y border-white/8 bg-ink-900">
+					<div className="section shell">
+						<Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+							<div>
+								<p className="eyebrow">
+									<span className="h-px w-8 bg-accent-400/70" />
+									паспортные данные
+								</p>
+								<h2 className="mt-5 text-title text-fog-50">Характеристики</h2>
+							</div>
+							<button
+								type="button"
+								onClick={() =>
+									setOpenGroups((prev) =>
+										prev.length === SPEC_GROUPS.length
+											? []
+											: SPEC_GROUPS.map((g) => g.title)
+									)
+								}
+								className="link-quiet self-start text-sm sm:self-auto"
+							>
+								{openGroups.length === SPEC_GROUPS.length ? 'Свернуть всё' : 'Раскрыть всё'}
+							</button>
+						</Reveal>
+
+						<div className="mt-10 overflow-hidden rounded-lg border border-white/8 bg-ink-850 md:mt-12">
+							{SPEC_GROUPS.map((group) => {
+								const rows = group.rows
+									.map(([label, get]) => [label, get(product)] as const)
+									.filter(([, value]) => Boolean(value));
+								if (!rows.length) return null;
+
+								const isOpen = openGroups.includes(group.title);
+
+								return (
+									<div key={group.title} className="border-t border-white/8 first:border-t-0">
+										<button
+											type="button"
+											onClick={() => toggleGroup(group.title)}
+											aria-expanded={isOpen}
+											className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left transition-colors hover:bg-white/3 md:px-8"
+										>
+											<span className="flex items-baseline gap-4">
+												<span className="text-base font-semibold text-fog-50 md:text-lg">
+													{group.title}
+												</span>
+												<span className="tnum text-xs text-fog-500">{rows.length}</span>
+											</span>
+											<ChevronDown
+												className={`h-5 w-5 shrink-0 text-fog-400 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+													isOpen ? 'rotate-180' : ''
+												}`}
+											/>
+										</button>
+
+										<AnimatePresence initial={false}>
+											{isOpen && (
+												<motion.div
+													initial={{ height: 0, opacity: 0 }}
+													animate={{ height: 'auto', opacity: 1 }}
+													exit={{ height: 0, opacity: 0 }}
+													transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+													className="overflow-hidden"
+												>
+													<div className="px-5 pb-6 md:px-8">
+														{rows.map(([label, value]) => (
+															<div key={label} className="spec-row">
+																<span className="spec-key">{label}</span>
+																<span className="spec-val">{value}</span>
+															</div>
+														))}
+													</div>
+												</motion.div>
+											)}
+										</AnimatePresence>
+									</div>
+								);
+							})}
+						</div>
+
+						{/* Комплект поставки */}
+						<Reveal className="mt-12 grid gap-8 lg:grid-cols-12">
+							<div className="lg:col-span-4">
+								<h3 className="text-heading text-fog-50">Комплект поставки</h3>
+								<p className="mt-3 text-sm text-fog-400">
+									Входит в базовую цену, ничего докупать не нужно.
+								</p>
+							</div>
+							<ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:col-span-8">
+								{product.defaultKit.map((item) => (
+									<li
+										key={item.name}
+										className="flex items-baseline justify-between gap-4 border-b border-white/7 pb-3 text-sm"
+									>
+										<span className="text-fog-200">{item.name}</span>
+										<span className="tnum shrink-0 text-fog-500">{item.quantity}</span>
+									</li>
+								))}
+							</ul>
+						</Reveal>
+					</div>
+				</section>
+
+				{/* ------------------------------- Аксессуары -------------------------------- */}
+				<section className="section shell">
+					<Reveal>
+						<p className="eyebrow">
+							<span className="h-px w-8 bg-accent-400/70" />
+							дооснащение
+						</p>
+						<h2 className="mt-5 text-title text-fog-50">Соберите свою комплектацию</h2>
+						<p className="mt-5 max-w-xl text-fog-400">
+							Отметьте нужное — сумма пересчитается, и мы получим её вместе с заявкой.
+						</p>
+					</Reveal>
+
+					<div className="mt-10 space-y-3 md:mt-12">
+						{Object.entries(product.accessories).map(([category, items]) => {
+							const Icon = categoryIcon(category);
+							const isOpen = openCategories.includes(category);
+							const chosen = items.filter((a) => selected[a.id]).length;
+
+							return (
+								<div
+									key={category}
+									className="overflow-hidden rounded-lg border border-white/8 bg-ink-850"
+								>
+									<button
+										type="button"
+										onClick={() => toggleCategory(category)}
+										aria-expanded={isOpen}
+										className="flex w-full items-center gap-4 px-5 py-5 text-left transition-colors hover:bg-white/3 md:px-7"
+									>
+										<Icon className="h-6 w-6 shrink-0 text-accent-200" />
+										<span className="flex-1 font-semibold text-fog-50">{category}</span>
+										{chosen > 0 && (
+											<span className="tnum rounded-full bg-accent-900 px-2.5 py-1 text-xs font-semibold text-accent-200">
+												выбрано {chosen}
+											</span>
+										)}
+										<span className="tnum hidden text-xs text-fog-500 sm:inline">
+											{items.length} поз.
+										</span>
+										<ChevronDown
+											className={`h-5 w-5 shrink-0 text-fog-400 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+												isOpen ? 'rotate-180' : ''
+											}`}
+										/>
+									</button>
+
+									<AnimatePresence initial={false}>
+										{isOpen && (
+											<motion.div
+												initial={{ height: 0, opacity: 0 }}
+												animate={{ height: 'auto', opacity: 1 }}
+												exit={{ height: 0, opacity: 0 }}
+												transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+												className="overflow-hidden"
+											>
+												<div className="grid gap-3 px-5 pb-6 sm:grid-cols-2 md:px-7 lg:grid-cols-3">
+													{items.map((acc) => {
+														const isSelected = Boolean(selected[acc.id]);
+														return (
+															<button
+																key={acc.id}
+																type="button"
+																onClick={() => toggleAccessory(acc.id)}
+																aria-pressed={isSelected}
+																className={`relative flex flex-col rounded-md border p-5 pr-12 text-left transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+																	isSelected
+																		? 'border-accent-500/60 bg-accent-900/35'
+																		: 'border-white/8 bg-ink-800 hover:border-white/20'
+																}`}
+															>
+																<span className="text-sm font-semibold text-fog-50">
+																	{acc.name}
+																</span>
+																<span className="mt-1.5 flex-1 text-xs leading-relaxed text-fog-500">
+																	{acc.description}
+																</span>
+																<span className="tnum mt-4 text-sm font-bold text-fog-200">
+																	+{acc.price.toLocaleString('ru-RU')} ₽
+																</span>
+
+																<span
+																	className={`absolute top-4 right-4 grid h-6 w-6 place-items-center rounded-full border transition-colors duration-300 ${
+																		isSelected
+																			? 'border-accent-500 bg-accent-500 text-white'
+																			: 'border-white/20 text-transparent'
+																	}`}
+																>
+																	<Check className="h-3.5 w-3.5" />
+																</span>
+															</button>
+														);
+													})}
+												</div>
+											</motion.div>
+										)}
+									</AnimatePresence>
+								</div>
+							);
+						})}
+					</div>
+				</section>
+
+				{/* --------------------------- Заявка + смета -------------------------------- */}
+				<section className="border-t border-white/8 bg-ink-900">
+					<div className="section shell">
+						<div ref={formRef} id="form-section" className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+							<div className="min-w-0 lg:col-span-7">
+								<p className="eyebrow">
+									<span className="h-px w-8 bg-accent-400/70" />
+									шаг последний
+								</p>
+								<h2 className="mt-5 text-title text-fog-50">Оформить заявку</h2>
+								<p className="mt-5 max-w-lg text-fog-400">
+									Инженер перезвонит, уточнит комплектацию и назовёт срок изготовления.
+									Предоплата не требуется до согласования.
+								</p>
+
+								{status === 'sent' ? (
+									<div className="animate-fadeIn mt-9 rounded-lg border border-accent-500/30 bg-accent-900/40 p-8">
+										<div className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-accent-500 text-white">
+											<Check className="h-6 w-6" />
+										</div>
+										<p className="text-lg font-semibold text-fog-50">Заявка принята</p>
+										<p className="mt-2 text-sm text-fog-400">
+											Перезвоним в рабочее время — с 9:00 до 18:00 по Якутску.
+										</p>
+										<button
+											type="button"
+											onClick={() => setStatus('idle')}
+											className="link-quiet mt-6"
+										>
+											Отправить ещё одну
+										</button>
+									</div>
+								) : (
+									<form
+										ref={emailFormRef}
+										onSubmit={handleSubmit}
+										className="mt-9 space-y-5 rounded-lg border border-white/8 bg-ink-850 p-6 md:p-8"
+									>
+										<div className="grid gap-5 sm:grid-cols-2">
+											<div>
+												<label htmlFor="pp-name" className="field-label">
+													ФИО
+												</label>
+												<input
+													id="pp-name"
+													type="text"
+													name="from_name"
+													autoComplete="name"
+													placeholder="Айсен Николаев"
+													className="field"
+													required
+												/>
+											</div>
+											<div>
+												<label htmlFor="pp-contact" className="field-label">
+													Телефон
+												</label>
+												<input
+													id="pp-contact"
+													type="tel"
+													name="contact"
+													inputMode="tel"
+													autoComplete="tel"
+													placeholder="+7 (914) 276-75-20"
+													className="field tnum"
+													required
+												/>
+											</div>
+										</div>
+										<div>
+											<label htmlFor="pp-comments" className="field-label">
+												Комментарий
+												<span className="ml-2 font-normal tracking-normal text-fog-500">
+													необязательно
+												</span>
+											</label>
+											<textarea
+												id="pp-comments"
+												name="comments"
+												rows={4}
+												placeholder="Сроки, доставка, дополнительные пожелания"
+												className="field resize-none"
+											/>
+										</div>
+
+										{status === 'error' && (
+											<p className="rounded-sm border border-[#a8543f]/50 bg-[#2a1512] px-4 py-3 text-sm text-[#e5a894]">
+												Не удалось отправить заявку. Попробуйте ещё раз или позвоните:{' '}
+												<a href="tel:+79969141414" className="underline">
+													+7 (996) 914-14-14
+												</a>
+											</p>
+										)}
+
+										<button
+											type="submit"
+											disabled={status === 'sending'}
+											className="btn btn-primary w-full sm:w-auto"
+										>
+											{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
+											<span className="btn-dot">
+												<ArrowUpRight className="h-4 w-4" />
+											</span>
+										</button>
+
+										<p className="text-xs leading-relaxed text-fog-500">
+											Нажимая кнопку, вы соглашаетесь на обработку персональных данных.
+										</p>
+									</form>
+								)}
+							</div>
+
+							{/* Смета */}
+							<aside className="min-w-0 lg:col-span-5">
+								<div className="sticky top-28 rounded-lg border border-white/8 bg-ink-850 p-6">
+									<h3 className="text-[11px] tracking-[0.2em] text-fog-500 uppercase">
+										ваша конфигурация
+									</h3>
+
+									<div className="mt-5 flex items-center gap-3 border-b border-white/8 pb-5">
+										{product.images?.[0] ? (
+											<img
+												src={product.images[0]}
+												alt=""
+												className="h-14 w-14 shrink-0 rounded-xs object-cover"
+												loading="lazy"
+												decoding="async"
+											/>
+										) : (
+											<span className="hatch grid h-14 w-14 shrink-0 place-items-center rounded-xs bg-ink-800">
+												<ImageIcon className="h-5 w-5 text-fog-500" />
+											</span>
+										)}
+										<div className="min-w-0">
+											<p className="truncate font-display text-sm tracking-wide text-fog-50 uppercase">
+												{product.name}
+											</p>
+											<p className="tnum mt-1 text-sm font-semibold text-fog-200">
+												{product.price.toLocaleString('ru-RU')} ₽
+											</p>
+										</div>
+									</div>
+
+									{selectedList.length > 0 ? (
+										<ul className="mt-5 space-y-2.5">
+											{selectedList.map((acc) => (
+												<li key={acc.id} className="flex justify-between gap-4 text-sm">
+													<span className="text-fog-400">{acc.name}</span>
+													<span className="tnum shrink-0 text-fog-200">
+														{acc.price.toLocaleString('ru-RU')} ₽
+													</span>
+												</li>
+											))}
+										</ul>
+									) : (
+										<p className="mt-5 text-sm text-fog-500">
+											Базовая комплектация. Аксессуары можно добавить выше.
+										</p>
+									)}
+
+									<div className="mt-6 flex items-baseline justify-between border-t border-white/8 pt-5">
+										<span className="text-sm text-fog-400">Итого</span>
+										<span className="tnum text-2xl font-bold text-fog-50">
+											{total.toLocaleString('ru-RU')} ₽
+										</span>
+									</div>
+								</div>
+							</aside>
+						</div>
+					</div>
+				</section>
+
+				{/* ------------------------------ Другие модели ------------------------------ */}
+				<section className="section shell">
+					<Reveal className="flex items-end justify-between gap-6">
+						<h2 className="text-heading text-fog-50">Другие модели</h2>
+						<Link to="/#catalog" className="link-quiet shrink-0 text-sm">
+							Вся линейка
+							<ArrowUpRight className="h-4 w-4" />
+						</Link>
+					</Reveal>
+
+					<div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+						{others.map((p, i) => (
+							<Reveal key={p.id} delay={i * 0.07}>
+								<Link
+									to={`/product/${p.id}`}
+									className="group block overflow-hidden rounded-lg border border-white/7 bg-ink-850 transition-[border-color,transform] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:border-white/16"
+								>
+									<div className="relative aspect-[4/3] overflow-hidden bg-ink-900">
+										{p.images?.[0] ? (
+											<img
+												src={p.images[0]}
+												alt={`Снегоболотоход ${p.name}`}
+												className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
+												loading="lazy"
+												decoding="async"
+											/>
+										) : (
+											<div className="hatch grid h-full place-items-center">
+												<ImageIcon className="h-8 w-8 text-fog-500" />
+											</div>
+										)}
+									</div>
+									<div className="flex items-center justify-between gap-4 p-5">
+										<div className="min-w-0">
+											<p className="truncate font-display text-base tracking-wide text-fog-50 uppercase">
+												{p.name}
+											</p>
+											<p className="tnum mt-1 text-sm text-fog-400">
+												{p.price.toLocaleString('ru-RU')} ₽
+											</p>
+										</div>
+										<span className="btn-dot bg-white/8 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1">
+											<ArrowUpRight className="h-4 w-4 text-fog-50" />
+										</span>
+									</div>
+								</Link>
+							</Reveal>
+						))}
+					</div>
+				</section>
+			</main>
+
+			{/* Мобильная панель со сметой и переходом к форме */}
+			<AnimatePresence>
+				{showMobileBar && (
+					<motion.div
+						initial={{ y: 80 }}
+						animate={{ y: 0 }}
+						exit={{ y: 80 }}
+						transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+						className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-ink-950/92 px-4 py-3 backdrop-blur-xl lg:hidden"
+					>
+						<div className="flex items-center justify-between gap-4">
+							<div className="min-w-0">
+								<p className="text-[11px] tracking-[0.14em] text-fog-500 uppercase">
+									итого{selectedList.length > 0 ? ` · +${selectedList.length}` : ''}
+								</p>
+								<p className="tnum truncate text-lg font-bold text-fog-50">
+									{total.toLocaleString('ru-RU')} ₽
+								</p>
+							</div>
+							<button
+								type="button"
+								onClick={scrollToForm}
+								className="btn btn-primary shrink-0 py-3 pr-3 pl-5 text-sm"
+							>
+								Оформить
+								<span className="btn-dot h-7 w-7">
+									<ArrowUpRight className="h-3.5 w-3.5" />
+								</span>
+							</button>
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+
 			<Footer />
-		</div>
+		</>
 	);
 }

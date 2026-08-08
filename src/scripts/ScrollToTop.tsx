@@ -5,10 +5,9 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth', // или 'auto' для мгновенного скролла
-    });
+    // При смене маршрута прокручиваем мгновенно: плавный скролл здесь
+    // выглядит как «уезжающая» страница и мешает читать новую.
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [pathname]);
 
   return null;

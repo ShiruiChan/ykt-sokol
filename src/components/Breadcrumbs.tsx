@@ -1,12 +1,21 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from './Icons';
 
+/** Хлебные крошки + явный путь назад: тупиков в навигации быть не должно. */
 export default function Breadcrumbs({ currentPage }: { currentPage: string }) {
-  return (
-    <div className="bg-neutral-800 py-3 px-6">
-      <div className="container mx-auto text-sm text-gray-400">
-        <a href="/" className="hover:text-gray-300">Главная</a> /{' '}
-        <span className="text-gray-200 font-medium">{currentPage}</span>
-      </div>
-    </div>
-  );
+	return (
+		<nav aria-label="Хлебные крошки" className="flex items-center gap-2 text-sm text-fog-500">
+			<Link
+				to="/"
+				className="inline-flex items-center gap-1.5 transition-colors hover:text-fog-50"
+			>
+				<ArrowLeft className="h-4 w-4" />
+				Главная
+			</Link>
+			<span aria-hidden className="text-fog-500/60">
+				/
+			</span>
+			<span className="truncate text-fog-200">{currentPage}</span>
+		</nav>
+	);
 }

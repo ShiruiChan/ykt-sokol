@@ -3,19 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YktSokol | Квадрациклы высотой более 2 метров</title>
-    <meta name="description" content="Производство мощных внедорожных квадрациклов 3x2 м и выше для охоты, бизнеса и путешествий." />
-    <meta name="keywords" content="квадрациклы, внедорожники, БТС-Квадро, купить квадрацикл, квадрациклы для охоты" />
-    <meta property="og:title" content="БТС-Квадро | Квадрациклы высотой более 2 метров" />
-    <meta property="og:description" content="Производство мощных внедорожников 3x2 метра и выше." />
-    <meta property="og:image" content="/images/quad-1.jpg" />
+    <meta name="theme-color" content="#080a0a" />
+    <title>СОКОЛ | Снегоболотоходы производства Якутск</title>
+    <meta name="description" content="СОКОЛ — производство снегоболотоходов в Якутске. Надёжная вездеходная техника для охоты, рыбалки, бизнеса и путешествий по бездорожью, снегу и болотам." />
+    <meta name="keywords" content="снегоболотоход, СОКОЛ, Якутск, вездеход, купить снегоболотоход, снегоболотоходы для охоты" />
+    <meta property="og:title" content="СОКОЛ | Снегоболотоходы производства Якутск" />
+    <meta property="og:description" content="Производство надёжных снегоболотоходов СОКОЛ для бездорожья, охоты и путешествий." />
+    <meta property="og:image" content="/images/sokol-plus/1.webp" />
     <meta property="og:url" content="https://ykt-sokol.vercel.app/"  />
     <meta property="og:type" content="website" />
-    <link rel="icon" href="/logo.png">
+    <link rel="canonical" href="https://ykt-sokol.vercel.app/" />
+    <link rel="icon" href="/logo.webp">
+    <link rel="preload" href="/fonts/golos-cyrillic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/golos-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" as="image" href="/images/pickup-1.8/1.webp" fetchpriority="high" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "СОКОЛ",
+        "url": "https://ykt-sokol.vercel.app/",
+        "logo": "https://ykt-sokol.vercel.app/logo.webp",
+        "description": "Производство снегоболотоходов СОКОЛ в Якутске для охоты, рыбалки, бизнеса и путешествий по бездорожью.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "ул. Чусовского, 75/3",
+          "addressLocality": "Якутск",
+          "addressCountry": "RU"
+        },
+        "telephone": "+7-996-914-14-14"
+      }
+    </script>
   </head>
-  <body class="bg-neutral-800">
+  <body style="background:#080a0a">
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-		<script src="https://unpkg.com/@2gis/mapgl/dist/mapgl.min.js"  defer></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

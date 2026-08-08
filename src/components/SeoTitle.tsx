@@ -1,13 +1,11 @@
 import { useEffect } from 'react';
 
-export default function SeoTitle({ title }) {
-  useEffect(() => {
-    document.title = `${title} | YktSokol`;
-    return () => {
-      // Восстанавливаем дефолтный заголовок при размонтировании
-      document.title = 'YktSokol';
-    };
-  }, [title]);
+const BRAND = 'ЯКТ СОКОЛ';
 
-  return null;
+export default function SeoTitle({ title }: { title: string }) {
+	useEffect(() => {
+		document.title = `${title} — ${BRAND}`;
+	}, [title]);
+
+	return null;
 }
