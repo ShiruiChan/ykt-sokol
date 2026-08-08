@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/product/:id*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]

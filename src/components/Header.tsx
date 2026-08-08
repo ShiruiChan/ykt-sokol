@@ -1,184 +1,231 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useRequestModal } from './RequestModal';
+import { ArrowUpRight, Phone } from './Icons';
+
+const NAV = [
+	{ to: '/', label: 'Главная' },
+	{ to: '/news', label: 'Новости' },
+	{ to: '/gallery', label: 'Галерея' },
+	{ to: '/cert', label: 'Документы' },
+];
 
 export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
+	const openRequest = useRequestModal((s) => s.open);
+	const { pathname } = useLocation();
+	const reduce = useReducedMotion();
 
-	// Отслеживание скролла
 	useEffect(() => {
-		const handleScroll = () => {
-			setScrolled(window.scrollY > 0);
-		};
-
-		window.addEventListener('scroll', handleScroll);
-		return () => window.removeEventListener('scroll', handleScroll);
+		const onScroll = () => setScrolled(window.scrollY > 24);
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
 	}, []);
+
+	// Меню закрывается при переходе и блокирует скролл фона
+	useEffect(() => setIsMenuOpen(false), [pathname]);
+
+	useEffect(() => {
+		if (!isMenuOpen) return;
+		const prev = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setIsMenuOpen(false);
+		document.addEventListener('keydown', onKey);
+		return () => {
+			document.body.style.overflow = prev;
+			document.removeEventListener('keydown', onKey);
+		};
+	}, [isMenuOpen]);
 
 	return (
 		<>
-			<header
-				className={`${scrolled
-					? 'bg-neutral-900/70 backdrop-blur-md border-gray-700'
-					: 'bg-neutral-950 border-gray-800'
-					} text-gray-100 px-4 py-4 shadow-lg fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300`}
+			<a
+				href="#main"
+				className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-95 focus:rounded-full focus:bg-accent-500 focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
 			>
-				<div className="container mx-auto flex items-center justify-between relative">
-					{/* Логотип */}
-					<a href="/" className="text-left z-10 flex gap-x-2 items-center">
-						<img src="/logo.png" alt="" className='w-10 h-10' />
-						<h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text hover:opacity-90 transition">
-							ЯКТСокол
-						</h1>
-					</a>
+				Перейти к содержимому
+			</a>
 
-					{/* Телефон (на десктопе по центру) */}
-					<a
-						href="tel:+79149941414"
-						className="hidden md:block absolute left-1/2 transform -translate-x-1/2 text-xl font-bold px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-500 rounded-full border-b-4 border-green-700 shadow-lg hover:shadow-green-500/30 transition-transform hover:-translate-y-0.5 active:translate-y-0"
-						onClick={() => setIsMenuOpen(false)}
+			<header className="fixed inset-x-0 top-0 z-60 pt-3 md:pt-5">
+				<div className="shell">
+					<div
+						className={`flex items-center gap-3 rounded-full border px-3 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:px-4 ${
+							scrolled
+								? 'border-white/10 bg-ink-950/75 shadow-plate backdrop-blur-xl'
+								: 'border-transparent bg-ink-950/25 backdrop-blur-sm'
+						}`}
 					>
-						+7 (996) 914 14 14
-					</a>
-
-					{/* Навигация на десктопе */}
-					<nav className="hidden md:flex items-center space-x-10 z-10">
+						{/* Марка */}
 						<Link
 							to="/"
-							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
+							className="group flex shrink-0 items-center gap-2.5"
+							aria-label="ЯКТ СОКОЛ — на главную"
 						>
-							Главная
+							<img
+								src="/logo.webp"
+								alt=""
+								width={36}
+								height={36}
+								className="h-9 w-9 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105"
+							/>
+							<span className="font-display text-lg leading-none tracking-[0.06em] text-fog-50 md:text-xl">
+								ЯКТ СОКОЛ
+							</span>
 						</Link>
-						<Link
-							to="/news"
-							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
-						>
-							Новости
-						</Link>
-						<Link
-							to="/gallery"
-							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
-						>
-							Галерея
-						</Link>
-						<Link
-							to="/cert"
-							className="text-lg font-semibold text-gray-200 hover:text-white transition-colors duration-200"
-						>
-							Документы
-						</Link>
-					</nav>
 
-					{/* Мобильная кнопка меню */}
-					<button
-						onClick={() => setIsMenuOpen(!isMenuOpen)}
-						className="md:hidden z-20 focus:outline-none"
-						aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="28"
-							height="28"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							className="text-gray-100 hover:text-white transition"
-						>
-							{isMenuOpen ? (
-								<path d="M18 6L6 18M6 6l12 12" />
-							) : (
-								<path d="M3 12h18M3 6h18M3 18h18" />
-							)}
-						</svg>
-					</button>
+						{/* Навигация */}
+						<nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Основная">
+							{NAV.map((item) => (
+								<NavLink
+									key={item.to}
+									to={item.to}
+									end={item.to === '/'}
+									className={({ isActive }) =>
+										`relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300 ${
+											isActive
+												? 'text-fog-50'
+												: 'text-fog-400 hover:text-fog-50'
+										}`
+									}
+								>
+									{({ isActive }) => (
+										<>
+											{isActive && (
+												<motion.span
+													layoutId="nav-pill"
+													className="absolute inset-0 rounded-full bg-white/8"
+													transition={{ duration: reduce ? 0 : 0.45, ease: [0.32, 0.72, 0, 1] }}
+												/>
+											)}
+											<span className="relative">{item.label}</span>
+										</>
+									)}
+								</NavLink>
+							))}
+						</nav>
+
+						{/* Телефон + заявка */}
+						<div className="ml-auto flex items-center gap-2 md:ml-2">
+							<a
+								href="tel:+79969141414"
+								className="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-fog-50 transition-colors duration-300 hover:border-white/25 hover:bg-white/6 lg:inline-flex"
+							>
+								<Phone className="h-4 w-4 text-accent-400" />
+								<span className="tnum">+7 (996) 914-14-14</span>
+							</a>
+
+							<button
+								type="button"
+								onClick={() => openRequest()}
+								className="btn btn-primary hidden py-2.5 pr-2.5 pl-5 text-sm md:inline-flex"
+							>
+								Заявка
+								<span className="btn-dot h-7 w-7">
+									<ArrowUpRight className="h-3.5 w-3.5" />
+								</span>
+							</button>
+
+							{/* Гамбургер, превращающийся в крест */}
+							<button
+								type="button"
+								onClick={() => setIsMenuOpen((v) => !v)}
+								className="relative z-90 grid h-11 w-11 place-items-center rounded-full border border-white/10 text-fog-50 transition-colors hover:bg-white/6 md:hidden"
+								aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+								aria-expanded={isMenuOpen}
+							>
+								<span className="relative block h-4 w-5">
+									<span
+										className={`absolute left-0 block h-px w-5 bg-current transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+											isMenuOpen ? 'top-2 rotate-45' : 'top-0.5'
+										}`}
+									/>
+									<span
+										className={`absolute left-0 block h-px w-5 bg-current transition-all duration-300 ${
+											isMenuOpen ? 'top-2 opacity-0' : 'top-2 opacity-100'
+										}`}
+									/>
+									<span
+										className={`absolute left-0 block h-px w-5 bg-current transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+											isMenuOpen ? 'top-2 -rotate-45' : 'top-3.5'
+										}`}
+									/>
+								</span>
+							</button>
+						</div>
+					</div>
 				</div>
 			</header>
 
-			{/* Мобильное меню */}
-			{isMenuOpen && (
-				<>
-					<div
-						className="fixed inset-0 bg-gray-950/95 z-40 backdrop-blur-sm flex items-center justify-center p-8"
-						style={{ animation: 'fadeIn 0.3s ease-in-out forwards' }}
+			{/* Полноэкранное мобильное меню с каскадом ссылок */}
+			<AnimatePresence>
+				{isMenuOpen && (
+					<motion.div
+						className="fixed inset-0 z-55 flex flex-col bg-ink-950/96 backdrop-blur-2xl md:hidden"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: reduce ? 0 : 0.3 }}
 					>
-						<div
-							className="w-full max-w-xs text-center animate-fadeInUp"
-							style={{
-								animation: 'slideUp 0.4s ease-in-out forwards',
-							}}
+						<nav className="mt-28 flex flex-1 flex-col gap-1 px-6" aria-label="Мобильная">
+							{NAV.map((item, i) => (
+								<motion.div
+									key={item.to}
+									initial={reduce ? false : { opacity: 0, y: 24 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ delay: 0.06 + i * 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+								>
+									<NavLink
+										to={item.to}
+										end={item.to === '/'}
+										onClick={() => setIsMenuOpen(false)}
+										className={({ isActive }) =>
+											`flex items-baseline justify-between border-b border-white/8 py-5 font-display text-3xl tracking-[0.02em] uppercase transition-colors ${
+												isActive ? 'text-accent-200' : 'text-fog-50'
+											}`
+										}
+									>
+										{item.label}
+										<span className="font-sans text-xs tracking-[0.2em] text-fog-500">
+											0{i + 1}
+										</span>
+									</NavLink>
+								</motion.div>
+							))}
+						</nav>
+
+						<motion.div
+							className="space-y-3 px-6 pb-10"
+							initial={reduce ? false : { opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.32, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
 						>
 							<button
-								onClick={() => setIsMenuOpen(false)}
-								className="absolute top-6 right-6"
-								aria-label="Закрыть меню"
+								type="button"
+								onClick={() => {
+									setIsMenuOpen(false);
+									openRequest();
+								}}
+								className="btn btn-primary w-full"
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="32"
-									height="32"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="white"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="M18 6L6 18M6 6l12 12" />
-								</svg>
+								Оставить заявку
+								<span className="btn-dot">
+									<ArrowUpRight className="h-4 w-4" />
+								</span>
 							</button>
-
-							<nav className="flex flex-col items-center gap-8 mt-10">
-								<Link
-									to="/"
-									className="text-2xl font-bold text-white hover:text-green-400 transition"
-									onClick={() => setIsMenuOpen(false)}
-								>
-									Главная
-								</Link>
-								<Link
-									to="/news"
-									className="text-2xl font-bold text-white hover:text-green-400 transition"
-									onClick={() => setIsMenuOpen(false)}
-								>
-									Новости
-								</Link>
-								<Link
-									to="/gallery"
-									className="text-2xl font-bold text-white hover:text-green-400 transition"
-									onClick={() => setIsMenuOpen(false)}
-								>
-									Галерея
-								</Link>
-								<Link
-									to="/cert"
-									className="text-2xl font-bold text-white hover:text-green-400 transition"
-									onClick={() => setIsMenuOpen(false)}
-								>
-									Документы
-								</Link>
-							</nav>
-
-							{/* Телефон внизу мобильного меню */}
-							<a
-								href="tel:+79969141414"
-								className="mt-12 inline-block text-xl font-bold text-green-400 hover:text-green-300 transition"
-								onClick={() => setIsMenuOpen(false)}
-							>
-								+7 (996) 914 14 14
+							<a href="tel:+79969141414" className="btn btn-ghost w-full">
+								<Phone className="h-4 w-4 text-accent-400" />
+								<span className="tnum">+7 (996) 914-14-14</span>
 							</a>
-						</div>
-					</div>
-
-					{/* Overlay для закрытия */}
-					<div
-						className="fixed inset-0 bg-black/40 z-30 md:hidden"
-						onClick={() => setIsMenuOpen(false)}
-					></div>
-				</>
-			)}
+							<p className="pt-2 text-center text-xs text-fog-500">
+								г. Якутск, ул. Чусовского, 75/3 · ежедневно 9:00–18:00
+							</p>
+						</motion.div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</>
 	);
 }

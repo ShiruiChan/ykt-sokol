@@ -1,115 +1,107 @@
-import { useState, useEffect, useMemo } from 'react';
+import { Helmet } from 'react-helmet';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import DocumentCard from '../components/DocumentCard';
+import DocumentCard, { type DocumentItem } from '../components/DocumentCard';
+import Reveal from '../components/Reveal';
+import { useRequestModal } from '../components/RequestModal';
+import { ArrowUpRight } from '../components/Icons';
 
-interface Document {
-  id: string;
-  url: string;
-  title: string;
-  description?: string;
-}
+/**
+ * Документы лежат статикой в /public/documents. Список фиксированный —
+ * искусственная задержка и «загрузка» из прежней версии убраны:
+ * скрывать мгновенно доступный контент за спиннером незачем.
+ */
+const DOCUMENTS: DocumentItem[] = [
+	{
+		id: 'doc-1',
+		url: '/documents/document-1.pdf',
+		title: 'Одобрение типа транспортного средства',
+		description: 'Документ, на основании которого выдаётся электронный ПСМ.',
+	},
+	{
+		id: 'doc-2',
+		url: '/documents/document-2.pdf',
+		title: 'Сертификат соответствия',
+		description: 'Подтверждает соответствие техники требованиям технического регламента.',
+	},
+	{
+		id: 'doc-3',
+		url: '/documents/document-3.pdf',
+		title: 'Протокол испытаний',
+		description: 'Результаты проверок узлов и агрегатов в заявленных режимах.',
+	},
+	{
+		id: 'doc-4',
+		url: '/documents/document-4.pdf',
+		title: 'Свидетельство о регистрации',
+		description: 'Регистрационные данные предприятия-изготовителя.',
+	},
+];
 
 export default function Documents() {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [visibleCount, setVisibleCount] = useState(9); // Initially show 9 documents
-  const [loading, setLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const openRequest = useRequestModal((s) => s.open);
 
-  useEffect(() => {
-    // Simulate fetching documents
-    const start = 1;
-    const end = 4; // Total documents available (adjust as needed)
-    const extensions = ['pdf'];
+	return (
+		<>
+			<Helmet>
+				<title>Документы и сертификаты — ЯКТ СОКОЛ</title>
+				<meta
+					name="description"
+					content="Сертификаты соответствия, одобрение типа транспортного средства и протоколы испытаний снегоболотоходов СОКОЛ."
+				/>
+			</Helmet>
 
-    const loadedDocuments: Document[] = [];
+			<Header />
 
-    for (let i = start; i <= end; i++) {
-      for (const ext of extensions) {
-        const fileName = `document-${i}.${ext}`;
-        const filePath = `/documents/${fileName}`;
+			<main id="main" className="flex-1 bg-ink-950 pt-32 md:pt-40">
+				<div className="shell">
+					<Reveal className="max-w-2xl">
+						<p className="eyebrow">
+							<span className="h-px w-8 bg-accent-400/70" />
+							документы
+						</p>
+						<h1 className="mt-5 text-title text-fog-50">Сертификаты и ПСМ</h1>
+						<p className="mt-5 text-lede text-fog-400">
+							Техника поставляется с полным пакетом документов и ставится на учёт как
+							самоходная машина. Файлы можно открыть прямо здесь или скачать.
+						</p>
+					</Reveal>
 
-        loadedDocuments.push({
-          id: `doc-${i}`,
-          url: filePath,
-          title: `Документ ${i}`,
-          description: `Описание для документа ${i}`,
-        });
-        break; // Stop at the first extension
-      }
-    }
+					<div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 md:mt-16">
+						{DOCUMENTS.map((doc, i) => (
+							<Reveal key={doc.id} delay={(i % 3) * 0.07} className="h-full">
+								<DocumentCard document={doc} />
+							</Reveal>
+						))}
+					</div>
 
-    // Simulate network delay
-    setTimeout(() => {
-      setDocuments(loadedDocuments);
-      setLoading(false);
-    }, 500);
-  }, []);
+					<Reveal
+						delay={0.1}
+						className="mt-14 flex flex-col gap-5 rounded-lg border border-white/8 bg-ink-900 px-6 py-7 sm:flex-row sm:items-center sm:justify-between md:mt-20 md:px-8"
+					>
+						<div>
+							<p className="font-semibold text-fog-50">Нужен документ, которого здесь нет?</p>
+							<p className="mt-1 text-sm text-fog-400">
+								Вышлем копию по запросу — счёт, спецификацию или паспорт изделия.
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={() => openRequest('Запрос документов')}
+							className="btn btn-ghost shrink-0"
+						>
+							Запросить
+							<span className="btn-dot">
+								<ArrowUpRight className="h-4 w-4" />
+							</span>
+						</button>
+					</Reveal>
+				</div>
 
-  // Memoize the visible documents slice to prevent unnecessary re-computation
-  const visibleDocuments = useMemo(() => documents.slice(0, visibleCount), [documents, visibleCount]);
+				<div className="h-20 md:h-28" />
+			</main>
 
-  // Handle "Show More" button click
-  const handleShowMore = () => {
-    setIsLoadingMore(true);
-    // Simulate a small delay for loading more documents
-    setTimeout(() => {
-      setVisibleCount((prev) => Math.min(prev + 9, documents.length));
-      setIsLoadingMore(false);
-    }, 300);
-  };
-
-  if (loading) {
-    return (
-      <div className="text-center py-8 pt-[40vh]">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="mt-2 text-gray-400">Загрузка документов...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen bg-neutral-800 text-white pt-20 relative">
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/40 to-transparent pointer-events-none"></div>
-      <Header />
-      <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-center">Документы</h1>
-
-      <section className="py-12 md:pb-16 md:pt-24">
-        <div className="container mx-auto px-4">
-          <p className="text-center max-w-2xl mx-auto text-gray-400">
-            Просмотрите наши документы.
-          </p>
-
-          {/* Documents Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            {visibleDocuments.length > 0 ? (
-              visibleDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} loading="lazy" />
-              ))
-            ) : (
-              <p className="text-gray-400 col-span-full text-center py-8">
-                Документов пока нет.
-              </p>
-            )}
-          </div>
-
-          {/* Show More Button */}
-          {visibleCount < documents.length && (
-            <div className="text-center mt-8">
-              <button
-                onClick={handleShowMore}
-                disabled={isLoadingMore}
-                className={`px-6 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition ${
-                  isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {isLoadingMore ? 'Загрузка...' : 'Показать ещё'}
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-      <Footer />
-    </div>
-  );
+			<Footer />
+		</>
+	);
 }
