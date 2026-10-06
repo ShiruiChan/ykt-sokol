@@ -1,8 +1,15 @@
-import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { lazy, Suspense, useRef } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Check, ChevronDown } from './Icons';
 import { formatPrice, minPrice } from '../seo';
+import SplitText from '../motion/SplitText';
+import CountUp from '../motion/CountUp';
+import { useAfterLoad } from '../motion/useAfterLoad';
+import { useMagnetic } from '../motion/useMagnetic';
+
+// Scrub-сцена на gsap: отдельный чанк, подключается после загрузки страницы
+const HeroScene = lazy(() => import('../motion/scenes/HeroScene'));
 
 /** Цифры, которые продают: берём из реальных характеристик линейки */
 const FACTS = [
@@ -17,14 +24,9 @@ export default function Hero() {
 	const reduce = useReducedMotion();
 	const openRequest = useRequestModal((s) => s.open);
 
-	const { scrollYProgress } = useScroll({
-		target: ref,
-		offset: ['start start', 'end start'],
-	});
-	// Лёгкий параллакс кадра: только transform, без изменения layout
-	const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
-	const imageScale = useTransform(scrollYProgress, [0, 1], [1.04, 1.14]);
-	const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+	const sceneReady = useAfterLoad();
+	const primaryRef = useMagnetic<HTMLButtonElement>();
+	const ghostRef = useMagnetic<HTMLButtonElement>();
 
 	const scrollToCatalog = () => {
 		document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -35,11 +37,15 @@ export default function Hero() {
 			ref={ref}
 			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-10 md:pb-14"
 		>
-			{/* Кадр техники в среде: главный аргумент первого экрана */}
-			<motion.div
-				className="absolute inset-0"
-				style={reduce ? undefined : { y: imageY, scale: imageScale }}
-			>
+			{sceneReady && (
+				<Suspense fallback={null}>
+					<HeroScene scope={ref} />
+				</Suspense>
+			)}
+
+			{/* Кадр техники в среде: главный аргумент первого экрана.
+			    Анимируется только transform обёртки (HeroScene), картинка видна сразу. */}
+			<div className="absolute inset-0" data-hero-image>
 				<img
 					src="/images/pickup-1.8/1.webp"
 					alt="Снегоболотоход СОКОЛ ПИКАП 1.8 на таёжной просеке"
@@ -49,7 +55,7 @@ export default function Hero() {
 					width={1024}
 					height={1024}
 				/>
-			</motion.div>
+			</div>
 
 			{/* Затемнение: снизу глухое, сверху лёгкое: читаемость шапки и текста */}
 			<div
@@ -61,10 +67,7 @@ export default function Hero() {
 				className="absolute inset-0 bg-[radial-gradient(130%_90%_at_25%_95%,transparent_45%,rgba(8,10,10,0.55)_100%)]"
 			/>
 
-			<motion.div
-				className="shell relative"
-				style={reduce ? undefined : { opacity: contentOpacity }}
-			>
+			<div className="shell relative" data-hero-content>
 				<div className="max-w-3xl">
 					<motion.p
 						className="eyebrow"
@@ -76,16 +79,17 @@ export default function Hero() {
 						Якутск · собственное производство
 					</motion.p>
 
-					<motion.h1
+					{/* Заголовок по словам из-под маски: CSS, стартует с первого кадра */}
+					<SplitText
+						as="h1"
+						mode="intro"
+						delay={0.06}
 						className="mt-5 font-display text-display text-fog-50 uppercase"
-						initial={reduce ? false : { opacity: 0, y: 26 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.9, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
-					>
-						Пройдёт там,
-						<br />
-						<span className="text-accent-200">где дорог нет</span>
-					</motion.h1>
+						lines={[
+							{ text: 'Пройдёт там,', className: 'block' },
+							{ text: 'где дорог нет', className: 'block text-accent-200' },
+						]}
+					/>
 
 					<motion.p
 						className="mt-7 max-w-xl text-lede text-fog-200"
@@ -103,13 +107,23 @@ export default function Hero() {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.8, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
 					>
-						<button type="button" onClick={() => openRequest()} className="btn btn-primary">
+						<button
+							ref={primaryRef}
+							type="button"
+							onClick={() => openRequest()}
+							className="btn btn-primary"
+						>
 							Оставить заявку
 							<span className="btn-dot">
 								<ArrowUpRight className="h-4 w-4" />
 							</span>
 						</button>
-						<button type="button" onClick={scrollToCatalog} className="btn btn-ghost">
+						<button
+							ref={ghostRef}
+							type="button"
+							onClick={scrollToCatalog}
+							className="btn btn-ghost"
+						>
 							Смотреть модели
 							<span className="btn-dot">
 								<ChevronDown className="h-4 w-4" />
@@ -149,9 +163,10 @@ export default function Hero() {
 						<div key={f.label} className="bg-ink-950/88 px-5 py-5 md:bg-ink-950/70 md:px-6 md:py-6">
 							<dt className="sr-only">{f.label}</dt>
 							<dd>
-								<span className="tnum font-display text-3xl leading-none text-fog-50 md:text-4xl">
-									{f.value}
-								</span>
+								<CountUp
+									value={f.value}
+									className="tnum font-display text-3xl leading-none text-fog-50 md:text-4xl"
+								/>
 								{f.unit && (
 									<span className="ml-1.5 text-sm font-medium text-accent-200">{f.unit}</span>
 								)}
@@ -160,7 +175,7 @@ export default function Hero() {
 						</div>
 					))}
 				</motion.dl>
-			</motion.div>
+			</div>
 		</section>
 	);
 }

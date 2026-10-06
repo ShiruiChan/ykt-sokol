@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Phone } from './Icons';
+import { useMagnetic } from '../motion/useMagnetic';
 
 const NAV = [
 	{ to: '/', label: 'Главная' },
@@ -14,12 +15,24 @@ const NAV = [
 export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
+	const [hidden, setHidden] = useState(false);
 	const openRequest = useRequestModal((s) => s.open);
 	const { pathname } = useLocation();
 	const reduce = useReducedMotion();
+	const ctaRef = useMagnetic<HTMLButtonElement>();
+	const lastY = useRef(0);
 
+	// Фон после первых пикселей; при скролле вниз шапка уезжает, вверх: возвращается
 	useEffect(() => {
-		const onScroll = () => setScrolled(window.scrollY > 24);
+		const onScroll = () => {
+			const y = window.scrollY;
+			const delta = y - lastY.current;
+			setScrolled(y > 24);
+			if (y < 120) setHidden(false);
+			else if (delta > 6) setHidden(true);
+			else if (delta < -6) setHidden(false);
+			if (Math.abs(delta) > 6 || y < 120) lastY.current = y;
+		};
 		onScroll();
 		window.addEventListener('scroll', onScroll, { passive: true });
 		return () => window.removeEventListener('scroll', onScroll);
@@ -49,7 +62,14 @@ export default function Header() {
 				Перейти к содержимому
 			</a>
 
-			<header className="fixed inset-x-0 top-0 z-60 pt-3 md:pt-5">
+			{/* Сдвиг только transform: макет под шапкой не двигается. Фокус с клавиатуры
+			    внутри шапки и открытое меню всегда возвращают её на место. */}
+			<header
+				className={`fixed inset-x-0 top-0 z-60 pt-3 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:pt-5 ${
+					hidden && !isMenuOpen ? '-translate-y-[130%]' : 'translate-y-0'
+				}`}
+				onFocusCapture={() => setHidden(false)}
+			>
 				<div className="shell">
 					<div
 						className={`flex items-center gap-3 rounded-full border px-3 py-2.5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:px-4 ${
@@ -118,6 +138,7 @@ export default function Header() {
 							</a>
 
 							<button
+								ref={ctaRef}
 								type="button"
 								onClick={() => openRequest()}
 								className="btn btn-primary hidden py-2.5 pr-2.5 pl-5 text-sm md:inline-flex"

@@ -16,6 +16,8 @@ export default defineConfig({
 				manualChunks: {
 					"react-vendor": ["react", "react-dom", "react-router-dom"],
 					"framer-motion": ["framer-motion"],
+					// Сцены на скролле: грузится только из lazy-модулей, не в стартовом бандле
+					gsap: ["gsap", "gsap/ScrollTrigger", "@gsap/react"],
 				},
 			},
 		},

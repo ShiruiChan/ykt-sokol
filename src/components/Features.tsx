@@ -1,7 +1,14 @@
+import { lazy, Suspense, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Certificate, Frame, Frost, Plant, Tire, Wrench } from './Icons';
+import SplitText from '../motion/SplitText';
+import CountUp from '../motion/CountUp';
+import { useAfterLoad } from '../motion/useAfterLoad';
+import { useMagnetic } from '../motion/useMagnetic';
+
+const FeaturesScene = lazy(() => import('../motion/scenes/FeaturesScene'));
 
 /**
  * Асимметричный бенто вместо трёх одинаковых колонок.
@@ -33,20 +40,33 @@ const POINTS = [
 
 export default function Features() {
 	const openRequest = useRequestModal((s) => s.open);
+	const ref = useRef<HTMLElement>(null);
+	const sceneReady = useAfterLoad();
+	const ctaRef = useMagnetic<HTMLButtonElement>();
 
 	return (
-		<section className="section relative bg-ink-950">
+		<section ref={ref} className="section relative bg-ink-950">
+			{sceneReady && (
+				<Suspense fallback={null}>
+					<FeaturesScene scope={ref} />
+				</Suspense>
+			)}
+
 			<div className="shell">
-				<div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+				<div className="grid gap-10 lg:grid-cols-12 lg:gap-12" data-feat-stage>
 					<Reveal className="lg:col-span-5">
 						<p className="eyebrow">
 							<span className="h-px w-8 bg-accent-400/70" />
 							Почему берут СОКОЛ
 						</p>
-						<h2 className="mt-5 text-title text-fog-50">
-							Техника, собранная теми,
-							<br className="hidden sm:block" /> кто сам по ней ездит
-						</h2>
+						<SplitText
+							as="h2"
+							className="mt-5 text-title text-fog-50"
+							lines={[
+								{ text: 'Техника, собранная теми,' },
+								{ text: 'кто сам по ней ездит', className: 'sm:block' },
+							]}
+						/>
 						<p className="mt-6 max-w-md text-fog-400">
 							Мы производим снегоболотоходы в Якутске и испытываем их здесь же: на реке, в
 							тайге и на зимниках. Всё, что не выдерживает, до серии не доходит.
@@ -54,23 +74,26 @@ export default function Features() {
 
 						<div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
 							<div>
-								<span className="tnum block font-display text-4xl leading-none text-fog-50">
-									288
-								</span>
+								<CountUp
+									value="288"
+									className="tnum font-display text-4xl leading-none text-fog-50"
+								/>
 								<span className="mt-1.5 block text-xs text-fog-500">
 									машин отгружено одной партией
 								</span>
 							</div>
 							<div className="hidden h-10 w-px bg-white/10 sm:block" />
 							<div>
-								<span className="tnum block font-display text-4xl leading-none text-fog-50">
-									6
-								</span>
+								<CountUp
+									value="6"
+									className="tnum font-display text-4xl leading-none text-fog-50"
+								/>
 								<span className="mt-1.5 block text-xs text-fog-500">моделей в линейке</span>
 							</div>
 						</div>
 
 						<button
+							ref={ctaRef}
 							type="button"
 							onClick={() => openRequest()}
 							className="btn btn-ghost mt-9"
@@ -111,22 +134,36 @@ export default function Features() {
 							</figure>
 						</Reveal>
 
-						<div className="mt-6 grid gap-4 sm:grid-cols-2">
-							{POINTS.map((p, i) => {
+						{/* На широком экране сцена складывает доводы в «колоду» (data-scene="on") */}
+						<div className="feat-deck mt-6 grid gap-4 sm:grid-cols-2" data-feat-deck>
+							{POINTS.map((p) => {
 								const Icon = p.icon;
 								return (
-									<Reveal
+									<article
 										key={p.title}
-										delay={0.06 * i}
-										as="article"
+										data-feat-card
 										className="group rounded-lg border border-white/7 bg-ink-850 p-6 transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-accent-500/35 hover:bg-ink-800"
 									>
 										<Icon className="h-7 w-7 text-accent-200 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-0.5" />
 										<h3 className="mt-5 text-lg font-semibold text-fog-50">{p.title}</h3>
 										<p className="mt-2 text-sm leading-relaxed text-fog-400">{p.text}</p>
-									</Reveal>
+									</article>
 								);
 							})}
+						</div>
+
+						{/* Счётчик и прогресс колоды: декоративные, видны только в режиме сцены */}
+						<div aria-hidden className="feat-deck-meta mt-5 items-center gap-4">
+							<span className="tnum font-display text-sm tracking-[0.12em] text-fog-50">
+								<span data-feat-counter>01</span>
+								<span className="text-fog-500"> / {String(POINTS.length).padStart(2, '0')}</span>
+							</span>
+							<span className="relative h-px flex-1 overflow-hidden bg-white/10">
+								<span
+									data-feat-progress
+									className="absolute inset-0 origin-left scale-x-25 bg-accent-400"
+								/>
+							</span>
 						</div>
 					</div>
 				</div>

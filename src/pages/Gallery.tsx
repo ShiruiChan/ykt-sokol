@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useRef, useState } from 'react';
 import Seo from '../components/Seo';
 import { galleryMeta } from '../seo';
 import { PhotoProvider } from 'react-photo-view';
@@ -10,11 +10,19 @@ import Footer from '../components/Footer';
 import GalleryCard from '../components/GalleryCard';
 import Reveal from '../components/Reveal';
 import { ChevronDown } from '../components/Icons';
+import { useAfterLoad } from '../motion/useAfterLoad';
+
+const GalleryScene = lazy(() => import('../motion/scenes/GalleryScene'));
 
 const IMAGES_TOTAL = 65;
 const INITIAL_VISIBLE = 12;
 const BATCH_SIZE = 12;
 const SRC = (i: number) => `/gallery/1 (${i}).webp`;
+
+/** Собственные размеры файлов /gallery: почти все 1920×887, вертикальные 1848×4000 */
+const PORTRAIT = new Set([3, 4, 6, 16, 19, 23, 49, 50, 58, 63, 64]);
+const SIZE = (i: number): [number, number] =>
+	PORTRAIT.has(i) ? [1848, 4000] : i === 5 ? [1920, 1080] : [1920, 887];
 
 export default function GalleryPage() {
 	const images = useMemo(
@@ -23,6 +31,8 @@ export default function GalleryPage() {
 	);
 	const [visible, setVisible] = useState(INITIAL_VISIBLE);
 	const rest = images.length - visible;
+	const gridRef = useRef<HTMLDivElement>(null);
+	const sceneReady = useAfterLoad();
 
 	return (
 		<>
@@ -44,13 +54,20 @@ export default function GalleryPage() {
 						</p>
 					</Reveal>
 
-					<div className="mt-12 md:mt-16">
+					{sceneReady && (
+						<Suspense fallback={null}>
+							<GalleryScene scope={gridRef} count={visible} />
+						</Suspense>
+					)}
+
+					<div ref={gridRef} className="mt-12 md:mt-16">
 						{/* Один провайдер на всю сетку: лайтбокс листает всю серию */}
 						<PhotoProvider maskOpacity={0.94} bannerVisible={false}>
 							<div className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
-								{images.slice(0, visible).map((src, i) => (
-									<GalleryCard key={src} src={src} index={i} />
-								))}
+								{images.slice(0, visible).map((src, i) => {
+									const [w, h] = SIZE(i + 1);
+									return <GalleryCard key={src} src={src} index={i} width={w} height={h} />;
+								})}
 							</div>
 						</PhotoProvider>
 					</div>

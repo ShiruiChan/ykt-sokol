@@ -13,7 +13,9 @@
    • Golos Text (Paratype, variable 400–900): весь текст и интерфейс.
      Кириллица-first, высокий рост строчных, инженерный характер.
      Самохостинг: /public/fonts/golos-*.woff2 (cyrillic / cyrillic-ext / latin).
-   • Sokol Display (файл /public/fonts/12233.ttf, гарнитура «Prototype RUS»)
+   • Sokol Display (файл /public/fonts/sokol-display.woff2, фолбэк 12233.ttf,
+     гарнитура «Prototype RUS»). woff2 стоит в preload: заголовок первого
+     экрана набран им, без preload подмена шрифта сдвигала макет (CLS).
      Широкий техно-гротеск. Только заглавные и короткие строки:
      логотип, надзаголовки-эйбрау, названия моделей, крупные цифры.
      Для абзацев не используется: плохо читается.
@@ -56,7 +58,9 @@
 
 @font-face {
 	font-family: 'Sokol Display';
-	src: url('/fonts/12233.ttf') format('truetype');
+	src:
+		url('/fonts/sokol-display.woff2') format('woff2'),
+		url('/fonts/12233.ttf') format('truetype');
 	font-weight: 400 700;
 	font-style: normal;
 	font-display: swap;
@@ -478,6 +482,149 @@
 	opacity: 0.035;
 	mix-blend-mode: overlay;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------ Слой движения ------------------------------ */
+
+/* Сплит заголовка (src/motion/SplitText.tsx). Маска с запасом сверху и снизу,
+   чтобы не резать «Й», запятые и выносные элементы при line-height < 1. */
+.split-mask {
+	display: inline-block;
+	overflow: hidden;
+	vertical-align: top;
+	padding-block: 0.14em 0.1em;
+	margin-block: -0.14em -0.1em;
+}
+
+.split-word {
+	display: inline-block;
+}
+
+@keyframes sokol-rise {
+	from {
+		transform: translate3d(0, 108%, 0);
+	}
+}
+
+[data-split='intro'] .split-word {
+	animation: sokol-rise 1.05s var(--ease-out-expo) both;
+	animation-delay: calc(var(--d, 0s) + var(--i, 0) * 70ms);
+}
+
+/* 3D-наклон карточки (src/motion/useTilt.ts). Переменные пишет JS, без JS: 0. */
+.tilt {
+	transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+	transition:
+		transform 0.6s var(--ease-spring),
+		translate 0.5s var(--ease-spring),
+		border-color 0.5s var(--ease-spring);
+}
+
+.tilt[data-tilt='on'] {
+	transition-duration: 0.12s;
+}
+
+.tilt-glare {
+	pointer-events: none;
+	opacity: 0;
+	background: radial-gradient(
+		38rem circle at var(--gx, 50%) var(--gy, 0%),
+		rgb(255 255 255 / 0.16),
+		transparent 42%
+	);
+	mix-blend-mode: soft-light;
+	transition: opacity 0.5s var(--ease-spring);
+}
+
+.tilt[data-tilt='on'] .tilt-glare {
+	opacity: 1;
+}
+
+/* «Колода» доводов Features: включает FeaturesScene атрибутом data-scene="on".
+   Без сцены (телефон, reduced-motion, нет JS) это обычная сетка 2×2. */
+.feat-deck-meta {
+	display: none;
+}
+
+.feat-deck[data-scene='on'] {
+	grid-template-columns: 1fr;
+}
+
+.feat-deck[data-scene='on'] > * {
+	grid-area: 1 / 1;
+}
+
+.feat-deck[data-scene='on'] + .feat-deck-meta {
+	display: flex;
+}
+
+/* Лента шагов BuySteps: включает BuyStepsScene атрибутом data-scene="on" на .steps-stage.
+   Вне слоёв Tailwind, поэтому перекрывает утилиты сетки без !important. */
+.steps-meta {
+	display: none;
+}
+
+.steps-stage[data-scene='on'] .steps-meta {
+	display: block;
+}
+
+.steps-stage[data-scene='on'] .steps-track {
+	display: flex;
+	gap: 1rem;
+	margin-top: 2rem;
+	overflow: visible;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+}
+
+.steps-stage[data-scene='on'] .steps-track > li {
+	flex: none;
+	width: min(34rem, 44vw);
+	min-height: 19rem;
+	border: 1px solid rgb(255 255 255 / 0.08);
+	border-radius: var(--radius-lg);
+	padding: 2.5rem;
+}
+
+.steps-stage[data-scene='on'] .step-num {
+	display: block;
+	font-size: 5.5rem;
+}
+
+/* Магнитная кнопка (src/motion/useMagnetic.ts): translate отдельно от transform */
+.magnetic {
+	transition:
+		translate 0.45s var(--ease-spring),
+		transform 0.35s var(--ease-spring),
+		background-color 0.35s var(--ease-spring),
+		border-color 0.35s var(--ease-spring),
+		box-shadow 0.35s var(--ease-spring),
+		color 0.35s var(--ease-spring);
+}
+
+/* Lenis (src/motion/SmoothScroll.tsx). Базовые правила из lenis/dist/lenis.css
+   плюс сброс scroll-behavior: smooth у html, иначе каждый кадр Lenis
+   превращался бы в отдельную нативную плавную прокрутку. */
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+
+html.lenis {
+	scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+	overflow: clip;
+}
+
+.lenis [data-lenis-prevent] {
+	overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+	pointer-events: none;
 }
 
 /* ------------------------- Уважение к настройкам ОС ------------------------ */

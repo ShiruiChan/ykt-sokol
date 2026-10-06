@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { notFoundMeta, productMeta } from '../seo';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
@@ -146,12 +146,14 @@ function ProductGallery({ product }: { product: Product }) {
 					</div>
 				</div>
 
-				{/* Скрытые превью, чтобы лайтбокс листал всю серию */}
+				{/* Скрытые превью, чтобы лайтбокс листал всю серию. lazy: внутри display:none
+				    они не грузятся и не отнимают канал у главного кадра (LCP); лайтбокс
+				    берёт адрес из src у PhotoView, а не из этой картинки. */}
 				<div className="hidden">
 					{images.map((src, i) =>
 						i === index ? null : (
 							<PhotoView key={src} src={src}>
-								<img src={src} alt="" />
+								<img src={src} alt="" loading="lazy" />
 							</PhotoView>
 						)
 					)}
@@ -179,12 +181,30 @@ function ProductGallery({ product }: { product: Product }) {
 								className="h-full w-full object-cover"
 								loading="lazy"
 								decoding="async"
+								fetchPriority="low"
 							/>
 						</button>
 					))}
 				</div>
 			)}
 		</div>
+	);
+}
+
+/* ---------------------------- Прогресс чтения ------------------------------ */
+
+/** Тонкая полоса сверху: сколько страницы модели прочитано. Только scaleX. */
+function ReadingProgress() {
+	const reduce = useReducedMotion();
+	const { scrollYProgress } = useScroll();
+	const smooth = useSpring(scrollYProgress, { stiffness: 260, damping: 40, restDelta: 0.001 });
+
+	return (
+		<motion.div
+			aria-hidden
+			className="fixed inset-x-0 top-0 z-70 h-0.5 origin-left bg-accent-400"
+			style={{ scaleX: reduce ? scrollYProgress : smooth }}
+		/>
 	);
 }
 
@@ -307,6 +327,7 @@ export default function ProductPage() {
 		<>
 			<Seo meta={productMeta(product)} />
 
+			<ReadingProgress />
 			<Header />
 
 			<main id="main" className="flex-1 bg-ink-950 pt-28 md:pt-32">

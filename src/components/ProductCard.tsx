@@ -4,6 +4,7 @@ import Modal from './Modal';
 import ImageGallery from './ImageGallery';
 import { ArrowUpRight, Image as ImageIcon } from './Icons';
 import type { Product } from '../types';
+import { useTilt } from '../motion/useTilt';
 
 interface Props {
 	product: Product;
@@ -22,10 +23,15 @@ function keySpecs(product: Product) {
 export default function ProductCard({ product }: Props) {
 	const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 	const hasImages = product.images?.length > 0;
+	// Наклон за курсором: только мышь на десктопе, без reduced-motion
+	const tiltRef = useTilt<HTMLElement>();
 
 	return (
 		<>
-			<article className="group flex h-full flex-col overflow-hidden rounded-lg border border-white/7 bg-ink-850 transition-[border-color,transform] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:border-white/16">
+			<article
+				ref={tiltRef}
+				className="tilt group flex h-full flex-col overflow-hidden rounded-lg border border-white/7 bg-ink-850 duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:border-white/16"
+			>
 				{/* Кадр */}
 				<Link
 					to={`/product/${product.id}`}
@@ -53,6 +59,8 @@ export default function ProductCard({ product }: Props) {
 						aria-hidden
 						className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,10,0.85)_0%,transparent_50%)]"
 					/>
+					{/* Блик бежит за курсором (переменные пишет useTilt) */}
+					<span aria-hidden className="tilt-glare absolute inset-0" />
 
 					{product.badge && (
 						<span className="absolute top-4 left-4 rounded-full bg-ink-950/75 px-3 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-accent-200 uppercase ring-1 ring-accent-400/30 backdrop-blur">
