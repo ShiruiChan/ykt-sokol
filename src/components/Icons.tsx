@@ -54,7 +54,7 @@ export const Check = (p: IconProps) => (
 	</svg>
 );
 
-/** Колесо низкого давления — проходимость */
+/** Колесо низкого давления: проходимость */
 export const Tire = (p: IconProps) => (
 	<svg {...base} {...p}>
 		<circle cx="12" cy="12" r="9" />
@@ -63,7 +63,7 @@ export const Tire = (p: IconProps) => (
 	</svg>
 );
 
-/** Рама / сварной узел — надёжность конструкции */
+/** Рама / сварной узел: надёжность конструкции */
 export const Frame = (p: IconProps) => (
 	<svg {...base} {...p}>
 		<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" />
@@ -71,14 +71,14 @@ export const Frame = (p: IconProps) => (
 	</svg>
 );
 
-/** Ключ — сервис и запчасти */
+/** Ключ: сервис и запчасти */
 export const Wrench = (p: IconProps) => (
 	<svg {...base} {...p}>
 		<path d="M15.4 3.6a5.2 5.2 0 0 0-6.1 6.8l-6 6a1.8 1.8 0 0 0 2.5 2.5l6-6a5.2 5.2 0 0 0 6.8-6.1l-2.9 2.9-2.7-.5-.5-2.7z" />
 	</svg>
 );
 
-/** Термометр — работа на морозе */
+/** Термометр: работа на морозе */
 export const Frost = (p: IconProps) => (
 	<svg {...base} {...p}>
 		<path d="M12 2v20M12 6.5 8.6 4.4M12 6.5l3.4-2.1M12 17.5l-3.4 2.1M12 17.5l3.4 2.1" />
@@ -87,7 +87,7 @@ export const Frost = (p: IconProps) => (
 	</svg>
 );
 
-/** Документ с печатью — сертификаты, ПСМ */
+/** Документ с печатью: сертификаты, ПСМ */
 export const Certificate = (p: IconProps) => (
 	<svg {...base} {...p}>
 		<path d="M6 3h7l5 5v6.5" />
@@ -98,7 +98,7 @@ export const Certificate = (p: IconProps) => (
 	</svg>
 );
 
-/** Завод — собственное производство */
+/** Завод: собственное производство */
 export const Plant = (p: IconProps) => (
 	<svg {...base} {...p}>
 		<path d="M3 21h18M4 21V10l5 3.5V10l5 3.5V6l6 3.6V21" />

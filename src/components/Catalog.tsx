@@ -15,7 +15,7 @@ export default function Catalog() {
 						<h2 className="mt-5 text-title text-fog-50">Модели</h2>
 					</div>
 					<p className="max-w-sm text-fog-400 md:text-right">
-						Шесть машин — от компактного двухместного до трёхместного пикапа с блокировкой.
+						Шесть машин: от компактного двухместного до трёхместного пикапа с блокировкой.
 						Любую комплектуем под задачу.
 					</p>
 				</Reveal>

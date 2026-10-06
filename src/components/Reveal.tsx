@@ -1,7 +1,7 @@
 /**
  * Появление элемента при входе в вьюпорт: мягкий подъём + проявление.
  * Двигаем только transform/opacity. При prefers-reduced-motion анимация
- * отключается полностью — контент показывается сразу.
+ * отключается полностью: контент показывается сразу.
  */
 import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';

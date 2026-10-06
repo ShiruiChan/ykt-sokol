@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import Seo from '../components/Seo';
+import { galleryMeta } from '../seo';
 import { PhotoProvider } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
 import Header from '../components/Header';
+import MobileCta from '../components/MobileCta';
 import Footer from '../components/Footer';
 import GalleryCard from '../components/GalleryCard';
 import Reveal from '../components/Reveal';
@@ -24,13 +26,7 @@ export default function GalleryPage() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Галерея — снегоболотоходы ЯКТ СОКОЛ</title>
-				<meta
-					name="description"
-					content="Фотографии снегоболотоходов СОКОЛ: производство в Якутске, испытания на бездорожье, снегу и воде."
-				/>
-			</Helmet>
+			<Seo meta={galleryMeta} />
 
 			<Header />
 
@@ -43,13 +39,13 @@ export default function GalleryPage() {
 						</p>
 						<h1 className="mt-5 text-title text-fog-50">Галерея</h1>
 						<p className="mt-5 text-lede text-fog-400">
-							Цех, сборка и испытания. Снято на реке, на зимнике и в тайге — без студийного
+							Цех, сборка и испытания. Снято на реке, на зимнике и в тайге, без студийного
 							света и ретуши.
 						</p>
 					</Reveal>
 
 					<div className="mt-12 md:mt-16">
-						{/* Один провайдер на всю сетку — лайтбокс листает всю серию */}
+						{/* Один провайдер на всю сетку: лайтбокс листает всю серию */}
 						<PhotoProvider maskOpacity={0.94} bannerVisible={false}>
 							<div className="columns-1 gap-4 sm:columns-2 lg:columns-3 xl:columns-4">
 								{images.slice(0, visible).map((src, i) => (
@@ -82,6 +78,7 @@ export default function GalleryPage() {
 			</main>
 
 			<Footer />
+			<MobileCta />
 		</>
 	);
 }

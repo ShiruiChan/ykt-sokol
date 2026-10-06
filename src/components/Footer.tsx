@@ -9,7 +9,7 @@ export default function Footer() {
 
 	return (
 		<footer className="mt-auto border-t border-white/8 bg-ink-950">
-			{/* Финальный призыв — последний шанс на контакт */}
+			{/* Финальный призыв: последний шанс на контакт */}
 			<div className="shell">
 				<div className="flex flex-col gap-7 border-b border-white/8 py-14 md:flex-row md:items-center md:justify-between md:py-16">
 					<div>
@@ -17,7 +17,7 @@ export default function Footer() {
 							Подберём машину под ваш маршрут
 						</h2>
 						<p className="mt-3 max-w-md text-sm text-fog-400">
-							Расскажите, где и что возите — предложим модель, шины и комплектацию.
+							Расскажите, где и что возите, и мы предложим модель, шины и комплектацию.
 							Ответим в тот же день.
 						</p>
 					</div>

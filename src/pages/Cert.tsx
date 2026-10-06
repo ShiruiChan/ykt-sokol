@@ -1,5 +1,7 @@
-import { Helmet } from 'react-helmet';
+import Seo from '../components/Seo';
+import { certMeta } from '../seo';
 import Header from '../components/Header';
+import MobileCta from '../components/MobileCta';
 import Footer from '../components/Footer';
 import DocumentCard, { type DocumentItem } from '../components/DocumentCard';
 import Reveal from '../components/Reveal';
@@ -7,7 +9,7 @@ import { useRequestModal } from '../components/RequestModal';
 import { ArrowUpRight } from '../components/Icons';
 
 /**
- * Документы лежат статикой в /public/documents. Список фиксированный —
+ * Документы лежат статикой в /public/documents. Список фиксированный,
  * искусственная задержка и «загрузка» из прежней версии убраны:
  * скрывать мгновенно доступный контент за спиннером незачем.
  */
@@ -43,13 +45,7 @@ export default function Documents() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Документы и сертификаты — ЯКТ СОКОЛ</title>
-				<meta
-					name="description"
-					content="Сертификаты соответствия, одобрение типа транспортного средства и протоколы испытаний снегоболотоходов СОКОЛ."
-				/>
-			</Helmet>
+			<Seo meta={certMeta} />
 
 			<Header />
 
@@ -82,7 +78,7 @@ export default function Documents() {
 						<div>
 							<p className="font-semibold text-fog-50">Нужен документ, которого здесь нет?</p>
 							<p className="mt-1 text-sm text-fog-400">
-								Вышлем копию по запросу — счёт, спецификацию или паспорт изделия.
+								Вышлем копию по запросу: счёт, спецификацию или паспорт изделия.
 							</p>
 						</div>
 						<button
@@ -102,6 +98,7 @@ export default function Documents() {
 			</main>
 
 			<Footer />
+			<MobileCta />
 		</>
 	);
 }

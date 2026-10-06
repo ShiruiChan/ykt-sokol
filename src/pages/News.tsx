@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Helmet } from 'react-helmet';
+import Seo from '../components/Seo';
+import { newsMeta } from '../seo';
 import { newsList } from '../data/news';
 import Header from '../components/Header';
+import MobileCta from '../components/MobileCta';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal';
 import SmartImage from '../components/SmartImage';
@@ -60,13 +62,7 @@ export default function News() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Новости ЯКТ СОКОЛ</title>
-				<meta
-					name="description"
-					content="Новости производства снегоболотоходов СОКОЛ в Якутске: поставки, испытания, награды и упоминания в прессе."
-				/>
-			</Helmet>
+			<Seo meta={newsMeta} />
 
 			<Header />
 
@@ -83,7 +79,7 @@ export default function News() {
 						</p>
 					</Reveal>
 
-					{/* Главный материал — крупным планом, а не одной из карточек в ряду */}
+					{/* Главный материал: крупным планом, а не одной из карточек в ряду */}
 					{lead && (
 						<Reveal delay={0.08} as="article" className="mt-14 md:mt-20">
 							<div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
@@ -112,7 +108,7 @@ export default function News() {
 						</Reveal>
 					)}
 
-					{/* Остальное — редакционный список с волосяными линиями */}
+					{/* Остальное: редакционный список с волосяными линиями */}
 					<div className="mt-16 md:mt-24">
 						<h2 className="text-[11px] tracking-[0.2em] text-fog-500 uppercase">
 							Все публикации
@@ -163,6 +159,7 @@ export default function News() {
 			</main>
 
 			<Footer />
+			<MobileCta />
 		</>
 	);
 }

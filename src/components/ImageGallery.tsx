@@ -28,7 +28,7 @@ export default function ImageGallery({ images, alt = 'Снегоболотохо
 		trackMouse: false,
 	});
 
-	// Стрелками с клавиатуры — как в нормальном просмотрщике
+	// Стрелками с клавиатуры: как в нормальном просмотрщике
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === 'ArrowRight') next();
@@ -50,7 +50,7 @@ export default function ImageGallery({ images, alt = 'Снегоболотохо
 					<motion.img
 						key={images[index]}
 						src={images[index]}
-						alt={`${alt} — фото ${index + 1} из ${images.length}`}
+						alt={`${alt}, фото ${index + 1} из ${images.length}`}
 						className="absolute inset-0 h-full w-full object-cover"
 						initial={reduce ? false : { opacity: 0, x: direction * 24 }}
 						animate={{ opacity: 1, x: 0 }}

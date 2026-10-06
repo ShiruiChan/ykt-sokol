@@ -3,7 +3,6 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import ScrollToTop from './scripts/ScrollToTop';
 import RouteProgress from './components/scripts/RouteProgress';
-import SeoTitle from './components/SeoTitle';
 import LoadingSpinner from './components/LoadingSpinner';
 import RequestModal from './components/RequestModal';
 
@@ -15,7 +14,7 @@ const Documents = React.lazy(() => import('./pages/Cert'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 /** Мягкая смена страниц: только opacity + сдвиг, без «прыжка» макета */
-function PageShell({ children, title }: { children: ReactNode; title: string }) {
+function PageShell({ children }: { children: ReactNode }) {
 	const reduce = useReducedMotion();
 
 	return (
@@ -26,7 +25,6 @@ function PageShell({ children, title }: { children: ReactNode; title: string }) 
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
 			>
-				<SeoTitle title={title} />
 				{children}
 			</motion.div>
 		</React.Suspense>
@@ -45,7 +43,7 @@ export default function App() {
 				<Route
 					path="/"
 					element={
-						<PageShell title="Снегоболотоходы из Якутска">
+						<PageShell>
 							<Home />
 						</PageShell>
 					}
@@ -53,7 +51,7 @@ export default function App() {
 				<Route
 					path="/news"
 					element={
-						<PageShell title="Новости">
+						<PageShell>
 							<News />
 						</PageShell>
 					}
@@ -61,7 +59,7 @@ export default function App() {
 				<Route
 					path="/product/:id"
 					element={
-						<PageShell title="Модель">
+						<PageShell>
 							<ProductPage />
 						</PageShell>
 					}
@@ -69,7 +67,7 @@ export default function App() {
 				<Route
 					path="/gallery"
 					element={
-						<PageShell title="Галерея">
+						<PageShell>
 							<Gallery />
 						</PageShell>
 					}
@@ -77,7 +75,7 @@ export default function App() {
 				<Route
 					path="/cert"
 					element={
-						<PageShell title="Документы и сертификаты">
+						<PageShell>
 							<Documents />
 						</PageShell>
 					}
@@ -85,14 +83,14 @@ export default function App() {
 				<Route
 					path="*"
 					element={
-						<PageShell title="Страница не найдена">
+						<PageShell>
 							<NotFound />
 						</PageShell>
 					}
 				/>
 			</Routes>
 
-			{/* Модалка заявки живёт над маршрутами — открывается из любой точки сайта */}
+			{/* Модалка заявки живёт над маршрутами: открывается из любой точки сайта */}
 			<RequestModal />
 
 			{/* Плёночное зерно поверх интерфейса */}

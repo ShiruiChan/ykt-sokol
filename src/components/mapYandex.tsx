@@ -3,7 +3,7 @@ import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Clock, Phone, Pin } from './Icons';
 
 /**
- * Блок «Контакты и производство». Карта оставлена прежним виджетом-iframe —
+ * Блок «Контакты и производство». Карта оставлена прежним виджетом-iframe,
  * менялась только оправа и раскладка (текст слева, карта справа).
  */
 export default function DynamicYandexMap() {
@@ -20,7 +20,7 @@ export default function DynamicYandexMap() {
 						</p>
 						<h2 className="mt-5 text-title text-fog-50">Приезжайте в цех</h2>
 						<p className="mt-6 max-w-md text-fog-400">
-							Машину можно осмотреть и проехать на ней до покупки. Заранее позвоните —
+							Машину можно осмотреть и проехать на ней до покупки. Заранее позвоните, и мы
 							подготовим нужную модель.
 						</p>
 
@@ -71,7 +71,7 @@ export default function DynamicYandexMap() {
 
 					<Reveal delay={0.1} className="bezel lg:col-span-7">
 						<div className="h-full overflow-hidden rounded-[calc(2rem-0.375rem)] bg-ink-900">
-{/* Светлый виджет карты на тёмной странице выглядит инородно —
+{/* Светлый виджет карты на тёмной странице выглядит инородно,
 							    приводим его к тёмной теме инверсией с возвратом оттенков. */}
 							<iframe
 								src="https://yandex.ru/map-widget/v1/?um=constructor%3A254de833350520bd7e4f5e1bfc20d3607f3b01fac102f13db1df68fc1696db89&amp;source=constructor"

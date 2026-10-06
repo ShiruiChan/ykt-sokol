@@ -7,7 +7,7 @@ interface GalleryCardProps {
 }
 
 /**
- * Плитка галереи. PhotoProvider живёт на странице — один на всю сетку,
+ * Плитка галереи. PhotoProvider живёт на странице: один на всю сетку,
  * иначе лайтбокс не листает соседние снимки.
  */
 export default function GalleryCard({ src, index }: GalleryCardProps) {
@@ -25,7 +25,7 @@ export default function GalleryCard({ src, index }: GalleryCardProps) {
 				<div className="relative cursor-zoom-in overflow-hidden rounded-md border border-white/7 bg-ink-900">
 					<img
 						src={src}
-						alt={`Снегоболотоход СОКОЛ — кадр ${index + 1}`}
+						alt={`Снегоболотоход СОКОЛ, кадр ${index + 1}`}
 						loading="lazy"
 						decoding="async"
 						className="w-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import Seo from '../components/Seo';
+import { notFoundMeta, productMeta } from '../seo';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
@@ -109,7 +110,7 @@ function ProductGallery({ product }: { product: Product }) {
 						<PhotoView key={images[index]} src={images[index]}>
 							<motion.img
 								src={images[index]}
-								alt={`${product.name} — фото ${index + 1} из ${images.length}`}
+								alt={`${product.name}, фото ${index + 1} из ${images.length}`}
 								className="aspect-[4/3] w-full cursor-zoom-in object-cover"
 								initial={reduce ? false : { opacity: 0 }}
 								animate={{ opacity: 1 }}
@@ -238,6 +239,7 @@ export default function ProductPage() {
 	if (!product) {
 		return (
 			<>
+				<Seo meta={notFoundMeta} />
 				<Header />
 				<main id="main" className="section flex flex-1 items-center bg-ink-950">
 					<div className="shell text-center">
@@ -283,7 +285,7 @@ export default function ProductPage() {
 			await sendRequest({
 				from_name: (form.from_name as HTMLInputElement).value,
 				contact: (form.contact as HTMLInputElement).value,
-				comments: (form.comments as HTMLTextAreaElement).value || '—',
+				comments: (form.comments as HTMLTextAreaElement).value || '-',
 				product_name: product.name,
 				product_price: product.price.toLocaleString('ru-RU'),
 				accessories:
@@ -303,10 +305,7 @@ export default function ProductPage() {
 
 	return (
 		<>
-			<Helmet>
-				<title>{`${product.name} — снегоболотоход ЯКТ СОКОЛ`}</title>
-				<meta name="description" content={product.deskSmall} />
-			</Helmet>
+			<Seo meta={productMeta(product)} />
 
 			<Header />
 
@@ -359,7 +358,7 @@ export default function ProductPage() {
 									{product.price.toLocaleString('ru-RU')} ₽
 								</p>
 								<p className="mt-2 text-sm text-fog-500">
-									Цена с документами и ЗИП. Доставка по России — рассчитывается отдельно.
+									Цена с документами и ЗИП. Доставка по России рассчитывается отдельно.
 								</p>
 								<button type="button" onClick={scrollToForm} className="btn btn-primary mt-6 w-full">
 									Оставить заявку
@@ -500,7 +499,7 @@ export default function ProductPage() {
 						</p>
 						<h2 className="mt-5 text-title text-fog-50">Соберите свою комплектацию</h2>
 						<p className="mt-5 max-w-xl text-fog-400">
-							Отметьте нужное — сумма пересчитается, и мы получим её вместе с заявкой.
+							Отметьте нужное: сумма пересчитается, а мы получим её вместе с заявкой.
 						</p>
 					</Reveal>
 
@@ -616,7 +615,7 @@ export default function ProductPage() {
 										</div>
 										<p className="text-lg font-semibold text-fog-50">Заявка принята</p>
 										<p className="mt-2 text-sm text-fog-400">
-											Перезвоним в рабочее время — с 9:00 до 18:00 по Якутску.
+											Перезвоним в рабочее время, с 9:00 до 18:00 по Якутску.
 										</p>
 										<button
 											type="button"

@@ -1,26 +1,23 @@
 import { lazy, Suspense } from 'react';
-import { Helmet } from 'react-helmet';
+import Seo from '../components/Seo';
+import { homeMeta } from '../seo';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import SectionSkeleton from '../components/SectionSkeleton';
+import MobileCta from '../components/MobileCta';
 
-// Ниже первого экрана — подгружаем по мере необходимости.
+// Ниже первого экрана: подгружаем по мере необходимости.
 const Features = lazy(() => import('../components/Features'));
 const Catalog = lazy(() => import('../components/Catalog'));
+const BuySteps = lazy(() => import('../components/BuySteps'));
+const Faq = lazy(() => import('../components/Faq'));
 const ContactsMap = lazy(() => import('../components/mapYandex'));
 const Footer = lazy(() => import('../components/Footer'));
 
 export default function Home() {
 	return (
 		<>
-			<Helmet>
-				<title>СОКОЛ | Снегоболотоходы производства Якутск</title>
-				<meta
-					name="description"
-					content="СОКОЛ — производство снегоболотоходов в Якутске. Надёжная вездеходная техника для охоты, рыбалки, бизнеса и путешествий по бездорожью, снегу и болотам."
-				/>
-				<link rel="canonical" href="https://ykt-sokol.vercel.app/" />
-			</Helmet>
+			<Seo meta={homeMeta} />
 
 			<Header />
 
@@ -36,6 +33,14 @@ export default function Home() {
 				</Suspense>
 
 				<Suspense fallback={<SectionSkeleton />}>
+					<BuySteps />
+				</Suspense>
+
+				<Suspense fallback={<SectionSkeleton />}>
+					<Faq />
+				</Suspense>
+
+				<Suspense fallback={<SectionSkeleton />}>
 					<ContactsMap />
 				</Suspense>
 			</main>
@@ -43,6 +48,8 @@ export default function Home() {
 			<Suspense fallback={null}>
 				<Footer />
 			</Suspense>
+
+			<MobileCta />
 		</>
 	);
 }

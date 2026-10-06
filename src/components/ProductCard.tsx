@@ -9,7 +9,7 @@ interface Props {
 	product: Product;
 }
 
-/** Четыре характеристики, которые решают при выборе — остальное на странице модели */
+/** Четыре характеристики, которые решают при выборе: остальное на странице модели */
 function keySpecs(product: Product) {
 	return [
 		{ k: 'Двигатель', v: product.specs.engine },
@@ -54,6 +54,12 @@ export default function ProductCard({ product }: Props) {
 						className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,10,0.85)_0%,transparent_50%)]"
 					/>
 
+					{product.badge && (
+						<span className="absolute top-4 left-4 rounded-full bg-ink-950/75 px-3 py-1.5 text-[11px] font-semibold tracking-[0.12em] text-accent-200 uppercase ring-1 ring-accent-400/30 backdrop-blur">
+							{product.badge}
+						</span>
+					)}
+
 					<h3 className="absolute right-5 bottom-4 left-5 font-display text-xl leading-tight tracking-[0.02em] text-fog-50 uppercase">
 						{product.name}
 					</h3>
@@ -76,14 +82,14 @@ export default function ProductCard({ product }: Props) {
 						))}
 					</dl>
 
-					{/* Цена и действия прижаты к низу — линия кнопок ровная во всём ряду */}
+					{/* Цена и действия прижаты к низу: линия кнопок ровная во всём ряду */}
 					<div className="mt-auto pt-6">
 						<div className="flex items-end justify-between border-t border-white/8 pt-4">
 							<div>
 								<span className="block text-[11px] tracking-[0.14em] text-fog-500 uppercase">
 									цена от
 								</span>
-								<span className="tnum mt-1 block text-xl font-bold text-fog-50">
+								<span className="tnum mt-1 block text-2xl font-bold text-fog-50">
 									{product.price.toLocaleString('ru-RU')} ₽
 								</span>
 							</div>

@@ -3,7 +3,7 @@ import { sendRequest } from '../utils/emailjs';
 import { ArrowUpRight, Check } from './Icons';
 
 interface ContactFormProps {
-	/** Что именно интересует клиента — уходит в письмо */
+	/** Что именно интересует клиента: уходит в письмо */
 	subject?: string;
 	/** Подпись под заголовком формы */
 	note?: string;
@@ -43,7 +43,7 @@ export default function ContactForm({
 		const contact = values.contact.trim();
 		if (!contact) next.contact = 'Нужен телефон или почта для ответа';
 		else if (!PHONE_RE.test(contact) && !EMAIL_RE.test(contact))
-			next.contact = 'Похоже на опечатку — проверьте номер или адрес';
+			next.contact = 'Похоже на опечатку, проверьте номер или адрес';
 		setErrors(next);
 		return Object.keys(next).length === 0;
 	};
@@ -57,11 +57,11 @@ export default function ContactForm({
 			await sendRequest({
 				from_name: values.name.trim(),
 				contact: values.contact.trim(),
-				comments: values.comments.trim() || '—',
+				comments: values.comments.trim() || '-',
 				product_name: subject,
-				product_price: '—',
+				product_price: '-',
 				accessories: 'Нет выбранных аксессуаров',
-				total_price: '—',
+				total_price: '-',
 			});
 			setStatus('sent');
 			setValues({ name: '', contact: '', comments: '' });
@@ -79,7 +79,7 @@ export default function ContactForm({
 				</div>
 				<p className="text-lg font-semibold text-fog-50">Заявка принята</p>
 				<p className="mt-2 text-sm text-fog-400">
-					Перезвоним в рабочее время — с 9:00 до 18:00 по Якутску.
+					Перезвоним в рабочее время, с 9:00 до 18:00 по Якутску.
 				</p>
 				<button
 					type="button"

@@ -62,7 +62,7 @@ export default function Header() {
 						<Link
 							to="/"
 							className="group flex shrink-0 items-center gap-2.5"
-							aria-label="ЯКТ СОКОЛ — на главную"
+							aria-label="ЯКТ СОКОЛ, на главную"
 						>
 							<img
 								src="/logo.webp"

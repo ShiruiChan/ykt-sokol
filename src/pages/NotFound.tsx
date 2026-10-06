@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import Seo from '../components/Seo';
+import { notFoundMeta } from '../seo';
 import Footer from '../components/Footer';
 import { ArrowUpRight } from '../components/Icons';
 
@@ -13,13 +15,14 @@ const ROUTES = [
 export default function NotFound() {
 	return (
 		<>
+			<Seo meta={notFoundMeta} />
 			<Header />
 
 			<main
 				id="main"
 				className="relative flex flex-1 items-center overflow-hidden bg-ink-950 pt-32 pb-20 md:pt-40"
 			>
-				{/* Тот же кадр, что и на первом экране — страница не выпадает из мира сайта */}
+				{/* Тот же кадр, что и на первом экране: страница не выпадает из мира сайта */}
 				<img
 					src="/images/lis/1.webp"
 					alt=""
@@ -41,10 +44,10 @@ export default function NotFound() {
 						</p>
 						<p className="tnum mt-6 font-display text-display leading-none text-fog-50">404</p>
 						<h1 className="mt-6 text-heading text-fog-50">
-							Дальше дороги нет — страница не найдена
+							Дальше дороги нет: страница не найдена
 						</h1>
 						<p className="mt-4 max-w-md text-fog-400">
-							Возможно, адрес набран с опечаткой или раздел переехал. Ниже — куда можно
+							Возможно, адрес набран с опечаткой или раздел переехал. Ниже есть, куда можно
 							свернуть.
 						</p>
 

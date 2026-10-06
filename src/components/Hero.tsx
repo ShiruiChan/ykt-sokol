@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useRequestModal } from './RequestModal';
-import { ArrowUpRight, ChevronDown } from './Icons';
+import { ArrowUpRight, Check, ChevronDown } from './Icons';
+import { formatPrice, minPrice } from '../seo';
 
 /** Цифры, которые продают: берём из реальных характеристик линейки */
 const FACTS = [
@@ -34,7 +35,7 @@ export default function Hero() {
 			ref={ref}
 			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-10 md:pb-14"
 		>
-			{/* Кадр техники в среде — главный аргумент первого экрана */}
+			{/* Кадр техники в среде: главный аргумент первого экрана */}
 			<motion.div
 				className="absolute inset-0"
 				style={reduce ? undefined : { y: imageY, scale: imageScale }}
@@ -50,7 +51,7 @@ export default function Hero() {
 				/>
 			</motion.div>
 
-			{/* Затемнение: снизу глухое, сверху лёгкое — читаемость шапки и текста */}
+			{/* Затемнение: снизу глухое, сверху лёгкое: читаемость шапки и текста */}
 			<div
 				aria-hidden
 				className="absolute inset-0 bg-[linear-gradient(to_top,var(--color-ink-950)_2%,rgba(8,10,10,0.82)_26%,rgba(8,10,10,0.28)_58%,rgba(8,10,10,0.6)_100%)]"
@@ -93,7 +94,7 @@ export default function Hero() {
 						transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
 					>
 						Снегоболотоходы СОКОЛ 4×4 из Якутска: полный привод, клиренс до 500 мм и шины
-						низкого давления. Машина идёт по снегу, болоту и воде — и возвращается обратно.
+						низкого давления. Машина идёт по снегу, болоту и воде, а потом возвращается обратно.
 					</motion.p>
 
 					<motion.div
@@ -115,9 +116,29 @@ export default function Hero() {
 							</span>
 						</button>
 					</motion.div>
+
+					{/* Цена-якорь и снятие страхов прямо под кнопками */}
+					<motion.div
+						className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm"
+						initial={reduce ? false : { opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ duration: 0.8, delay: 0.32 }}
+					>
+						<span className="text-fog-200">
+							от <span className="tnum font-semibold text-fog-50">{formatPrice(minPrice)}</span>
+						</span>
+						{['без предоплаты до согласования', 'тест-драйв в Якутске', 'доставка по России'].map(
+							(t) => (
+								<span key={t} className="flex items-center gap-1.5 text-fog-400">
+									<Check className="h-3.5 w-3.5 text-accent-400" />
+									{t}
+								</span>
+							)
+						)}
+					</motion.div>
 				</div>
 
-				{/* Полоса фактов — цифры вместо обещаний */}
+				{/* Полоса фактов: цифры вместо обещаний */}
 				<motion.dl
 					className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 md:mt-16 md:grid-cols-4 md:backdrop-blur-md"
 					initial={reduce ? false : { opacity: 0, y: 24 }}

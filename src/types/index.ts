@@ -48,6 +48,8 @@ export type Product = {
 	name: string;
 	description: string;
 	deskSmall: string;
+	/** Короткая плашка на карточке: «Новинка», «Лучшая цена» */
+	badge?: string;
 	price: number;
 	images: string[];
 	specs: Spec;
