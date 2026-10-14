@@ -1,1 +1,16 @@
+# зависимости и сборка
 node_modules
+dist
+.vite
+.vercel
+
+# секреты — никогда не коммитим
+.env
+.env.*
+!.env.example
+
+# мусор ОС и редакторов
+.DS_Store
+*.log
+.idea
+.vscode

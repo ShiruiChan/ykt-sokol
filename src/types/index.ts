@@ -45,6 +45,8 @@ export type DefaultKit = {
 // Тип продукта
 export type Product = {
 	id: number;
+	/** Адрес страницы модели: /models/<slug> */
+	slug: string;
 	name: string;
 	description: string;
 	deskSmall: string;

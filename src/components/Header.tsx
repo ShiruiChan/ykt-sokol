@@ -2,14 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useRequestModal } from './RequestModal';
-import { ArrowUpRight, Phone } from './Icons';
-
-const NAV = [
-	{ to: '/', label: 'Главная' },
-	{ to: '/news', label: 'Новости' },
-	{ to: '/gallery', label: 'Галерея' },
-	{ to: '/cert', label: 'Документы' },
-];
+import { ArrowUpRight, Phone, Telegram, WhatsApp } from './Icons';
+import { ADDRESS, BRAND, HOURS, MESSENGERS, NAV, PHONE } from '../config/site';
 
 export default function Header() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -62,7 +56,7 @@ export default function Header() {
 						<Link
 							to="/"
 							className="group flex shrink-0 items-center gap-2.5"
-							aria-label="ЯКТ СОКОЛ — на главную"
+							aria-label={`${BRAND} — на главную`}
 						>
 							<img
 								src="/logo.webp"
@@ -72,19 +66,19 @@ export default function Header() {
 								className="h-9 w-9 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105"
 							/>
 							<span className="font-display text-lg leading-none tracking-[0.06em] text-fog-50 md:text-xl">
-								ЯКТ СОКОЛ
+								{BRAND}
 							</span>
 						</Link>
 
 						{/* Навигация */}
-						<nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Основная">
+						<nav className="ml-auto hidden items-center gap-0.5 lg:flex" aria-label="Основная">
 							{NAV.map((item) => (
 								<NavLink
 									key={item.to}
 									to={item.to}
 									end={item.to === '/'}
 									className={({ isActive }) =>
-										`relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300 ${
+										`relative rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-300 ${
 											isActive
 												? 'text-fog-50'
 												: 'text-fog-400 hover:text-fog-50'
@@ -108,13 +102,13 @@ export default function Header() {
 						</nav>
 
 						{/* Телефон + заявка */}
-						<div className="ml-auto flex items-center gap-2 md:ml-2">
+						<div className="ml-auto flex items-center gap-2 lg:ml-2">
 							<a
-								href="tel:+79969141414"
-								className="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-fog-50 transition-colors duration-300 hover:border-white/25 hover:bg-white/6 lg:inline-flex"
+								href={PHONE.href}
+								className="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-fog-50 transition-colors duration-300 hover:border-white/25 hover:bg-white/6 xl:inline-flex"
 							>
 								<Phone className="h-4 w-4 text-accent-400" />
-								<span className="tnum">+7 (996) 914-14-14</span>
+								<span className="tnum">{PHONE.label}</span>
 							</a>
 
 							<button
@@ -132,7 +126,7 @@ export default function Header() {
 							<button
 								type="button"
 								onClick={() => setIsMenuOpen((v) => !v)}
-								className="relative z-90 grid h-11 w-11 place-items-center rounded-full border border-white/10 text-fog-50 transition-colors hover:bg-white/6 md:hidden"
+								className="relative z-90 grid h-11 w-11 place-items-center rounded-full border border-white/10 text-fog-50 transition-colors hover:bg-white/6 lg:hidden"
 								aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
 								aria-expanded={isMenuOpen}
 							>
@@ -163,13 +157,13 @@ export default function Header() {
 			<AnimatePresence>
 				{isMenuOpen && (
 					<motion.div
-						className="fixed inset-0 z-55 flex flex-col bg-ink-950/96 backdrop-blur-2xl md:hidden"
+						className="fixed inset-0 z-55 flex flex-col bg-ink-950/96 backdrop-blur-2xl lg:hidden"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 						transition={{ duration: reduce ? 0 : 0.3 }}
 					>
-						<nav className="mt-28 flex flex-1 flex-col gap-1 px-6" aria-label="Мобильная">
+						<nav className="mt-24 flex flex-1 flex-col overflow-y-auto px-6" aria-label="Мобильная">
 							{NAV.map((item, i) => (
 								<motion.div
 									key={item.to}
@@ -182,7 +176,7 @@ export default function Header() {
 										end={item.to === '/'}
 										onClick={() => setIsMenuOpen(false)}
 										className={({ isActive }) =>
-											`flex items-baseline justify-between border-b border-white/8 py-5 font-display text-3xl tracking-[0.02em] uppercase transition-colors ${
+											`flex items-baseline justify-between border-b border-white/8 py-4 font-display text-2xl tracking-[0.02em] uppercase transition-colors ${
 												isActive ? 'text-accent-200' : 'text-fog-50'
 											}`
 										}
@@ -215,12 +209,22 @@ export default function Header() {
 									<ArrowUpRight className="h-4 w-4" />
 								</span>
 							</button>
-							<a href="tel:+79969141414" className="btn btn-ghost w-full">
+							<a href={PHONE.href} className="btn btn-ghost w-full">
 								<Phone className="h-4 w-4 text-accent-400" />
-								<span className="tnum">+7 (996) 914-14-14</span>
+								<span className="tnum">{PHONE.label}</span>
 							</a>
+							<div className="grid grid-cols-2 gap-3">
+								<a href={MESSENGERS.whatsapp} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+									<WhatsApp className="h-4 w-4 text-accent-400" />
+									WhatsApp
+								</a>
+								<a href={MESSENGERS.telegram} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+									<Telegram className="h-4 w-4 text-accent-400" />
+									Telegram
+								</a>
+							</div>
 							<p className="pt-2 text-center text-xs text-fog-500">
-								г. Якутск, ул. Чусовского, 75/3 · ежедневно 9:00–18:00
+								{ADDRESS.full} · {HOURS.short}
 							</p>
 						</motion.div>
 					</motion.div>

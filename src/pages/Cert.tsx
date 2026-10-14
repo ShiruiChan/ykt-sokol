@@ -1,6 +1,3 @@
-import { Helmet } from 'react-helmet';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import DocumentCard, { type DocumentItem } from '../components/DocumentCard';
 import Reveal from '../components/Reveal';
 import { useRequestModal } from '../components/RequestModal';
@@ -43,16 +40,6 @@ export default function Documents() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Документы и сертификаты — ЯКТ СОКОЛ</title>
-				<meta
-					name="description"
-					content="Сертификаты соответствия, одобрение типа транспортного средства и протоколы испытаний снегоболотоходов СОКОЛ."
-				/>
-			</Helmet>
-
-			<Header />
-
 			<main id="main" className="flex-1 bg-ink-950 pt-32 md:pt-40">
 				<div className="shell">
 					<Reveal className="max-w-2xl">
@@ -100,8 +87,6 @@ export default function Documents() {
 
 				<div className="h-20 md:h-28" />
 			</main>
-
-			<Footer />
 		</>
 	);
 }

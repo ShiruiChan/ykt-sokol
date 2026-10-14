@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import { Helmet } from 'react-helmet';
 import { newsList } from '../data/news';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import Reveal from '../components/Reveal';
 import SmartImage from '../components/SmartImage';
 import { ChevronDown } from '../components/Icons';
@@ -60,16 +57,6 @@ export default function News() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Новости ЯКТ СОКОЛ</title>
-				<meta
-					name="description"
-					content="Новости производства снегоболотоходов СОКОЛ в Якутске: поставки, испытания, награды и упоминания в прессе."
-				/>
-			</Helmet>
-
-			<Header />
-
 			<main id="main" className="flex-1 bg-ink-950 pt-32 md:pt-40">
 				<div className="shell">
 					<Reveal className="max-w-2xl">
@@ -161,8 +148,6 @@ export default function News() {
 
 				<div className="h-20 md:h-28" />
 			</main>
-
-			<Footer />
 		</>
 	);
 }

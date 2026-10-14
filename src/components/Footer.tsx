@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useRequestModal } from './RequestModal';
-import { ArrowUpRight, Clock, Instagram, Phone, Pin } from './Icons';
+import { ArrowUpRight, Clock, Phone, Pin, Telegram, WhatsApp } from './Icons';
+import { ADDRESS, BRAND, HOURS, MESSENGERS, NAV, PHONES } from '../config/site';
 
 const YEAR = new Date().getFullYear();
 
@@ -34,32 +35,38 @@ export default function Footer() {
 						<Link to="/" className="flex items-center gap-2.5">
 							<img src="/logo.webp" alt="" width={36} height={36} className="h-9 w-9" loading="lazy" />
 							<span className="font-display text-lg tracking-[0.06em] text-fog-50">
-								ЯКТ СОКОЛ
+								{BRAND}
 							</span>
 						</Link>
 						<p className="mt-4 max-w-xs text-sm leading-relaxed text-fog-500">
 							Производство снегоболотоходов 4×4 в Республике Саха (Якутия).
 						</p>
-						<a
-							href="https://www.instagram.com/yktsokol/"
-							target="_blank"
-							rel="noopener noreferrer"
-							aria-label="Instagram ЯКТ СОКОЛ"
-							className="mt-6 inline-grid h-10 w-10 place-items-center rounded-full border border-white/10 text-fog-400 transition-colors hover:border-white/25 hover:text-fog-50"
-						>
-							<Instagram className="h-5 w-5" />
-						</a>
+						<div className="mt-6 flex gap-2">
+							<a
+								href={MESSENGERS.whatsapp}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Написать в WhatsApp"
+								className="inline-grid h-10 w-10 place-items-center rounded-full border border-white/10 text-fog-400 transition-colors hover:border-white/25 hover:text-fog-50"
+							>
+								<WhatsApp className="h-5 w-5" />
+							</a>
+							<a
+								href={MESSENGERS.telegram}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label="Написать в Telegram"
+								className="inline-grid h-10 w-10 place-items-center rounded-full border border-white/10 text-fog-400 transition-colors hover:border-white/25 hover:text-fog-50"
+							>
+								<Telegram className="h-5 w-5" />
+							</a>
+						</div>
 					</div>
 
 					<nav aria-label="Разделы сайта">
 						<h3 className="text-[11px] tracking-[0.2em] text-fog-500 uppercase">Разделы</h3>
 						<ul className="mt-5 space-y-3 text-sm">
-							{[
-								{ to: '/', label: 'Главная' },
-								{ to: '/news', label: 'Новости' },
-								{ to: '/gallery', label: 'Галерея' },
-								{ to: '/cert', label: 'Документы' },
-							].map((l) => (
+							{NAV.map((l) => (
 								<li key={l.to}>
 									<Link to={l.to} className="text-fog-400 transition-colors hover:text-fog-50">
 										{l.label}
@@ -74,25 +81,25 @@ export default function Footer() {
 						<ul className="mt-5 space-y-4 text-sm">
 							<li>
 								<a
-									href="tel:+79969141414"
+									href={PHONES.main.href}
 									className="tnum flex items-center gap-2.5 font-semibold text-fog-50 transition-colors hover:text-accent-200"
 								>
 									<Phone className="h-4 w-4 text-accent-400" />
-									+7 (996) 914-14-14
+									{PHONES.main.label}
 								</a>
 							</li>
 							<li>
 								<a
-									href="tel:+79142767520"
+									href={PHONES.extra.href}
 									className="tnum flex items-center gap-2.5 text-fog-400 transition-colors hover:text-fog-50"
 								>
 									<Phone className="h-4 w-4 opacity-0" />
-									+7 (914) 276-75-20
+									{PHONES.extra.label}
 								</a>
 							</li>
 							<li className="flex items-start gap-2.5 text-fog-400">
 								<Clock className="mt-0.5 h-4 w-4 shrink-0 text-accent-400" />
-								Ежедневно, 9:00–18:00 (YAKT)
+								{HOURS.label} (по Якутску)
 							</li>
 						</ul>
 					</div>
@@ -100,23 +107,28 @@ export default function Footer() {
 					<div>
 						<h3 className="text-[11px] tracking-[0.2em] text-fog-500 uppercase">Производство</h3>
 						<a
-							href="https://2gis.ru/yakutsk/search/%D0%A7%D1%83%D1%81%D0%BE%D0%B2%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%2075%2F3"
+							href={ADDRESS.routeUrl}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="mt-5 flex items-start gap-2.5 text-sm text-fog-400 transition-colors hover:text-fog-50"
 						>
 							<Pin className="mt-0.5 h-4 w-4 shrink-0 text-accent-400" />
 							<span>
-								г. Якутск,
+								{ADDRESS.city},
 								<br />
-								ул. Чусовского, 75/3
+								{ADDRESS.street}
 							</span>
 						</a>
 					</div>
 				</div>
 
 				<div className="flex flex-col gap-3 border-t border-white/8 py-7 text-xs text-fog-500 sm:flex-row sm:items-center sm:justify-between">
-					<p>© {YEAR} ЯКТ СОКОЛ. Производство снегоболотоходов, Якутск.</p>
+					<p>
+							© {YEAR} {BRAND}. Производство снегоболотоходов, Якутск.{' '}
+							<Link to="/privacy" className="underline-offset-2 transition-colors hover:text-fog-50 hover:underline">
+								Политика конфиденциальности
+							</Link>
+						</p>
 					<p className="max-w-md sm:text-right">
 						Информация на сайте не является публичной офертой. Характеристики могут
 						изменяться производителем.

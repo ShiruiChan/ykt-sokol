@@ -1,6 +1,7 @@
 import Reveal from './Reveal';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Clock, Phone, Pin } from './Icons';
+import { ADDRESS, HOURS, PHONE } from '../config/site';
 
 /**
  * Блок «Контакты и производство». Карта оставлена прежним виджетом-iframe —
@@ -32,7 +33,7 @@ export default function DynamicYandexMap() {
 										адрес
 									</span>
 									<span className="mt-1 block text-fog-50">
-										г. Якутск, ул. Чусовского, 75/3
+										{ADDRESS.full}
 									</span>
 								</div>
 							</li>
@@ -43,10 +44,10 @@ export default function DynamicYandexMap() {
 										телефон
 									</span>
 									<a
-										href="tel:+79969141414"
+										href={PHONE.href}
 										className="tnum mt-1 block text-lg font-semibold text-fog-50 transition-colors hover:text-accent-200"
 									>
-										+7 (996) 914-14-14
+										{PHONE.label}
 									</a>
 								</div>
 							</li>
@@ -56,7 +57,7 @@ export default function DynamicYandexMap() {
 									<span className="block text-[11px] tracking-[0.16em] text-fog-500 uppercase">
 										часы работы
 									</span>
-									<span className="mt-1 block text-fog-50">Ежедневно, 9:00–18:00</span>
+									<span className="mt-1 block text-fog-50">{HOURS.label}</span>
 								</div>
 							</li>
 						</ul>

@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { ArrowUpRight } from '../components/Icons';
 
 const ROUTES = [
@@ -13,8 +11,6 @@ const ROUTES = [
 export default function NotFound() {
 	return (
 		<>
-			<Header />
-
 			<main
 				id="main"
 				className="relative flex flex-1 items-center overflow-hidden bg-ink-950 pt-32 pb-20 md:pt-40"
@@ -77,8 +73,6 @@ export default function NotFound() {
 					</nav>
 				</div>
 			</main>
-
-			<Footer />
 		</>
 	);
 }

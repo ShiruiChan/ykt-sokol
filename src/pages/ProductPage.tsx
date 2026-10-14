@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
-import { products } from '../data/products';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import { products, productBySlug, productPath } from '../data/products';
+import NotFound from './NotFound';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Reveal from '../components/Reveal';
 import {
@@ -190,8 +188,8 @@ function ProductGallery({ product }: { product: Product }) {
 /* ------------------------------ Страница модели ---------------------------- */
 
 export default function ProductPage() {
-	const { id } = useParams<{ id: string }>();
-	const product = products.find((p) => p.id === Number(id));
+	const { slug } = useParams<{ slug: string }>();
+	const product = productBySlug(slug);
 
 	const [selected, setSelected] = useState<Record<number, boolean>>({});
 	const [openCategories, setOpenCategories] = useState<string[]>([]);
@@ -207,7 +205,7 @@ export default function ProductPage() {
 		setSelected({});
 		setStatus('idle');
 		setOpenCategories([]);
-	}, [id]);
+	}, [slug]);
 
 	// Одна подписка на скролл вместо четырёх конфликтующих
 	useEffect(() => {
@@ -235,27 +233,7 @@ export default function ProductPage() {
 
 	const total = (product?.price ?? 0) + selectedList.reduce((sum, a) => sum + a.price, 0);
 
-	if (!product) {
-		return (
-			<>
-				<Header />
-				<main id="main" className="section flex flex-1 items-center bg-ink-950">
-					<div className="shell text-center">
-						<p className="eyebrow justify-center">ошибка 404</p>
-						<h1 className="mt-5 text-title text-fog-50">Такой модели нет</h1>
-						<p className="mt-4 text-fog-400">Возможно, она снята с производства.</p>
-						<Link to="/#catalog" className="btn btn-primary mt-8">
-							Ко всем моделям
-							<span className="btn-dot">
-								<ArrowUpRight className="h-4 w-4" />
-							</span>
-						</Link>
-					</div>
-				</main>
-				<Footer />
-			</>
-		);
-	}
+	if (!product) return <NotFound />;
 
 	const toggleAccessory = (accId: number) =>
 		setSelected((prev) => ({ ...prev, [accId]: !prev[accId] }));
@@ -303,13 +281,6 @@ export default function ProductPage() {
 
 	return (
 		<>
-			<Helmet>
-				<title>{`${product.name} — снегоболотоход ЯКТ СОКОЛ`}</title>
-				<meta name="description" content={product.deskSmall} />
-			</Helmet>
-
-			<Header />
-
 			<main id="main" className="flex-1 bg-ink-950 pt-28 md:pt-32">
 				{/* ---------------------------- Первый экран модели ---------------------------- */}
 				<section className="shell">
@@ -780,7 +751,7 @@ export default function ProductPage() {
 						{others.map((p, i) => (
 							<Reveal key={p.id} delay={i * 0.07}>
 								<Link
-									to={`/product/${p.id}`}
+									to={productPath(p)}
 									className="group block overflow-hidden rounded-lg border border-white/7 bg-ink-850 transition-[border-color,transform] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:border-white/16"
 								>
 									<div className="relative aspect-[4/3] overflow-hidden bg-ink-900">
@@ -851,8 +822,6 @@ export default function ProductPage() {
 					</motion.div>
 				)}
 			</AnimatePresence>
-
-			<Footer />
 		</>
 	);
 }
