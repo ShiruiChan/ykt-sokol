@@ -1,10 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet';
 import { PhotoProvider } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import GalleryCard from '../components/GalleryCard';
 import Reveal from '../components/Reveal';
 import { ChevronDown } from '../components/Icons';
@@ -24,16 +21,6 @@ export default function GalleryPage() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Галерея — снегоболотоходы ЯКТ СОКОЛ</title>
-				<meta
-					name="description"
-					content="Фотографии снегоболотоходов СОКОЛ: производство в Якутске, испытания на бездорожье, снегу и воде."
-				/>
-			</Helmet>
-
-			<Header />
-
 			<main id="main" className="flex-1 bg-ink-950 pt-32 md:pt-40">
 				<div className="shell">
 					<Reveal className="max-w-2xl">
@@ -80,8 +67,6 @@ export default function GalleryPage() {
 
 				<div className="h-20 md:h-28" />
 			</main>
-
-			<Footer />
 		</>
 	);
 }

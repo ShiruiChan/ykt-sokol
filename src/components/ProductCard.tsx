@@ -4,6 +4,7 @@ import Modal from './Modal';
 import ImageGallery from './ImageGallery';
 import { ArrowUpRight, Image as ImageIcon } from './Icons';
 import type { Product } from '../types';
+import { productPath } from '../data/products';
 
 interface Props {
 	product: Product;
@@ -28,7 +29,7 @@ export default function ProductCard({ product }: Props) {
 			<article className="group flex h-full flex-col overflow-hidden rounded-lg border border-white/7 bg-ink-850 transition-[border-color,transform] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:border-white/16">
 				{/* Кадр */}
 				<Link
-					to={`/product/${product.id}`}
+					to={productPath(product)}
 					className="relative block aspect-[4/3] overflow-hidden bg-ink-900"
 					aria-label={`Открыть страницу модели ${product.name}`}
 				>
@@ -98,7 +99,7 @@ export default function ProductCard({ product }: Props) {
 							)}
 						</div>
 
-						<Link to={`/product/${product.id}`} className="btn btn-primary mt-4 w-full">
+						<Link to={productPath(product)} className="btn btn-primary mt-4 w-full">
 							Характеристики и цена
 							<span className="btn-dot">
 								<ArrowUpRight className="h-4 w-4" />
@@ -121,7 +122,7 @@ export default function ProductCard({ product }: Props) {
 						<p className="py-10 text-center text-fog-400">Фотографии готовятся</p>
 					)}
 					<Link
-						to={`/product/${product.id}`}
+						to={productPath(product)}
 						className="btn btn-primary mt-6 w-full sm:w-auto"
 						onClick={() => setIsGalleryOpen(false)}
 					>

@@ -15,7 +15,6 @@
 		"framer-motion": "^12.18.1",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
-		"react-helmet": "^6.1.0",
 		"react-photo-view": "^1.2.7",
 		"react-swipeable": "^7.0.2",
 		"tailwindcss": "^4.1.8",
@@ -24,11 +23,11 @@
 	"devDependencies": {
 		"@types/react": "^19.1.2",
 		"@types/react-dom": "^19.1.2",
-		"@types/react-helmet": "^6.1.11",
 		"@vitejs/plugin-react": "^4.4.1",
 		"globals": "^16.0.0",
 		"react-router-dom": "^7.6.1",
 		"sharp": "^0.33.5",
+		"typescript": "^5.9.3",
 		"vite": "^6.3.5"
 	}
 }

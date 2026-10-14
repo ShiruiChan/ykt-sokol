@@ -173,11 +173,19 @@ export const Image = (p: IconProps) => (
 	</svg>
 );
 
-export const Instagram = (p: IconProps) => (
+/** Чат-пузырь с трубкой — WhatsApp в том же линейном стиле, без чужого логотипа */
+export const WhatsApp = (p: IconProps) => (
 	<svg {...base} {...p}>
-		<rect x="3.5" y="3.5" width="17" height="17" rx="5" />
-		<circle cx="12" cy="12" r="4" />
-		<circle cx="17" cy="7" r="0.9" fill="currentColor" stroke="none" />
+		<path d="M4.5 19.5 5.6 16A8 8 0 1 1 8.4 18.6z" />
+		<path d="M9.2 8.6c.2-.4.6-.5.9-.3l.9 1.4c.1.3 0 .6-.2.8l-.5.5a5.6 5.6 0 0 0 2.7 2.7l.5-.5c.2-.2.5-.3.8-.2l1.4.9c.2.3.1.7-.3.9-1 .8-2.2.8-3.4.2a8 8 0 0 1-3.2-3.2c-.6-1.2-.6-2.4.2-3.4z" />
+	</svg>
+);
+
+/** Бумажный самолётик — Telegram */
+export const Telegram = (p: IconProps) => (
+	<svg {...base} {...p}>
+		<path d="M20.5 4.5 3.5 11l6 2.2 2.3 6.3 3.2-4.3 4.5 3.3z" />
+		<path d="m9.5 13.2 6.5-5" />
 	</svg>
 );
 
