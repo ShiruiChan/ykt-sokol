@@ -7,7 +7,9 @@
 import { create } from 'zustand';
 import Modal from './Modal';
 import ContactForm from './ContactForm';
+import { reachGoal } from './Metrika';
 import { Phone } from './Icons';
+import { PHONE } from '../config/site';
 
 interface RequestState {
 	isOpen: boolean;
@@ -19,7 +21,11 @@ interface RequestState {
 export const useRequestModal = create<RequestState>((set) => ({
 	isOpen: false,
 	subject: 'Заявка с сайта',
-	open: (subject = 'Заявка с сайта') => set({ isOpen: true, subject }),
+	open: (subject = 'Заявка с сайта') => {
+		// Цель в сторе, а не в кнопках — открывашек по сайту много
+		reachGoal('request_open', { subject });
+		set({ isOpen: true, subject });
+	},
 	close: () => set({ isOpen: false }),
 }));
 
@@ -43,13 +49,13 @@ export default function RequestModal() {
 					)}
 				</p>
 
-				<ContactForm subject={subject} compact />
+				<ContactForm subject={subject} variant="modal" />
 
 				<div className="mt-6 flex items-center justify-center gap-2 border-t border-white/8 pt-6 text-sm text-fog-400">
 					<Phone className="h-4 w-4 text-accent-400" />
 					<span>Или сразу позвоните:</span>
-					<a href="tel:+79969141414" className="tnum font-semibold text-fog-50 hover:text-accent-200">
-						+7 (996) 914-14-14
+					<a href={PHONE.href} className="tnum font-semibold text-fog-50 hover:text-accent-200">
+						{PHONE.label}
 					</a>
 				</div>
 			</div>
