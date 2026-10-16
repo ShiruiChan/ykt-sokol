@@ -5,6 +5,10 @@ import ImageGallery from './ImageGallery';
 import { ArrowUpRight, Image as ImageIcon } from './Icons';
 import type { Product } from '../types';
 import { productPath } from '../data/products';
+import ResponsiveImage from './ResponsiveImage';
+
+// Ширина карточки в сетке каталога: 1 / 2 / 3 колонки, shell max 82rem
+const CARD_IMAGE_SIZES = '(min-width: 1280px) 400px, (min-width: 1024px) 31vw, (min-width: 640px) 46vw, 92vw';
 
 interface Props {
 	product: Product;
@@ -34,12 +38,11 @@ export default function ProductCard({ product }: Props) {
 					aria-label={`Открыть страницу модели ${product.name}`}
 				>
 					{hasImages ? (
-						<img
+						<ResponsiveImage
 							src={product.images[0]}
+							sizes={CARD_IMAGE_SIZES}
 							alt={`Снегоболотоход ${product.name}`}
 							className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
-							loading="lazy"
-							decoding="async"
 						/>
 					) : (
 						<div className="hatch grid h-full w-full place-items-center text-fog-500">
