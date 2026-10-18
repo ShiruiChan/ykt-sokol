@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Certificate, Frame, Frost, Plant, Tire, Wrench } from './Icons';
+import { plural, products } from '../data/products';
+
+const COUNT = products.length;
 
 /**
  * Асимметричный бенто вместо трёх одинаковых колонок.
@@ -57,16 +60,19 @@ export default function Features() {
 								<span className="tnum block font-display text-4xl leading-none text-fog-50">
 									288
 								</span>
+								{/* Цифра из новости о передаче квадроциклов военным (news.ts, id 2) */}
 								<span className="mt-1.5 block text-xs text-fog-500">
-									машин отгружено одной партией
+									квадроциклов передано одной партией
 								</span>
 							</div>
 							<div className="hidden h-10 w-px bg-white/10 sm:block" />
 							<div>
 								<span className="tnum block font-display text-4xl leading-none text-fog-50">
-									6
+									{COUNT}
 								</span>
-								<span className="mt-1.5 block text-xs text-fog-500">моделей в линейке</span>
+								<span className="mt-1.5 block text-xs text-fog-500">
+									{plural(COUNT, ['модель', 'модели', 'моделей'])} в линейке
+								</span>
 							</div>
 						</div>
 

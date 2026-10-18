@@ -2,11 +2,105 @@ import { useState } from 'react';
 import { newsList } from '../data/news';
 import Reveal from '../components/Reveal';
 import SmartImage from '../components/SmartImage';
-import { ChevronDown } from '../components/Icons';
+import { ArrowUpRight, ChevronDown } from '../components/Icons';
 import type { NewsItem } from '../types';
 
+// UTC — чтобы дата при пререндере и в браузере не уезжала на день
 const formatDate = (iso: string) =>
-	new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+	new Date(iso).toLocaleDateString('ru-RU', {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+		timeZone: 'UTC',
+	});
+
+const dateParts = (iso: string) => {
+	const d = new Date(iso);
+	return {
+		day: d.toLocaleDateString('ru-RU', { day: 'numeric', timeZone: 'UTC' }),
+		month: d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone: 'UTC' }).replace(/^\d+\s*/, ''),
+		year: d.toLocaleDateString('ru-RU', { year: 'numeric', timeZone: 'UTC' }).replace(/\D/g, ''),
+	};
+};
+
+/** Ссылка на первоисточник; для роликов восстанавливаем адрес из id превью */
+const sourceOf = (item: NewsItem): { url: string; name: string } | null => {
+	if (item.sourceUrl) return { url: item.sourceUrl, name: item.sourceName ?? new URL(item.sourceUrl).hostname.replace(/^www\./, '') };
+	const yt = item.image?.match(/i\.ytimg\.com\/vi\/([\w-]+)\//);
+	if (yt) return { url: `https://www.youtube.com/watch?v=${yt[1]}`, name: item.sourceName ?? 'YouTube' };
+	return null;
+};
+
+/**
+ * Обложка новости. Если превью нет — типографическая карточка:
+ * крупная дата и издание. Честнее штриховой заглушки «здесь была картинка».
+ */
+function Cover({ item, lead = false }: { item: NewsItem; lead?: boolean }) {
+	const radius = lead ? 'rounded-[calc(2rem-0.375rem)]' : 'rounded-md border border-white/7';
+	const aspect = lead ? 'aspect-[16/10]' : 'aspect-[4/3]';
+
+	if (item.image) {
+		return (
+			<SmartImage
+				src={item.image}
+				alt={item.title}
+				className={`${aspect} w-full ${radius} object-cover`}
+				wrapperClassName={`${aspect} w-full ${radius}`}
+			/>
+		);
+	}
+
+	const { day, month, year } = dateParts(item.date);
+	return (
+		<div
+			aria-hidden
+			className={`${aspect} relative flex w-full flex-col justify-between overflow-hidden bg-ink-900 ${radius} ${
+				lead ? 'p-7 md:p-10' : 'p-5'
+			}`}
+		>
+			<div
+				className="absolute inset-0 bg-[radial-gradient(90%_80%_at_100%_0%,color-mix(in_oklab,var(--color-accent-500)_14%,transparent)_0%,transparent_70%)]"
+			/>
+			<span
+				className={`relative font-display tracking-[0.22em] text-accent-200 uppercase ${
+					lead ? 'text-xs' : 'text-[10px]'
+				}`}
+			>
+				{item.sourceName ?? 'пресса'}
+			</span>
+			<span className="relative">
+				<span
+					className={`tnum block font-display leading-[0.85] text-fog-50 ${
+						lead ? 'text-[clamp(5rem,3rem+8vw,9rem)]' : 'text-6xl'
+					}`}
+				>
+					{day}
+				</span>
+				<span
+					className={`mt-2 flex items-baseline justify-between gap-3 border-t border-white/10 pt-3 text-fog-400 ${
+						lead ? 'text-base' : 'text-xs'
+					}`}
+				>
+					<span>{month}</span>
+					<span className="tnum">{year}</span>
+				</span>
+			</span>
+		</div>
+	);
+}
+
+function Source({ item }: { item: NewsItem }) {
+	const src = sourceOf(item);
+	if (!src) return null;
+	return (
+		<div className="mt-4">
+			<a href={src.url} target="_blank" rel="noopener noreferrer" className="link-quiet text-sm">
+				Источник: {src.name}
+				<ArrowUpRight className="h-4 w-4" />
+			</a>
+		</div>
+	);
+}
 
 const byDateDesc = (a: NewsItem, b: NewsItem) => +new Date(b.date) - +new Date(a.date);
 
@@ -75,12 +169,7 @@ export default function News() {
 						<Reveal delay={0.08} as="article" className="mt-14 md:mt-20">
 							<div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
 								<div className="bezel lg:col-span-7">
-									<SmartImage
-										src={lead.image}
-										alt={lead.title}
-										className="aspect-[16/10] w-full rounded-[calc(2rem-0.375rem)] object-cover"
-										wrapperClassName="aspect-[16/10] w-full rounded-[calc(2rem-0.375rem)]"
-									/>
+									<Cover item={lead} lead />
 								</div>
 								<div className="flex flex-col justify-center lg:col-span-5">
 									<div className="flex items-center gap-3 text-xs">
@@ -94,6 +183,7 @@ export default function News() {
 									<h2 className="mt-5 text-heading text-fog-50">{lead.title}</h2>
 									<ReadMore item={lead} />
 									<Tags tags={lead.tags} />
+									<Source item={lead} />
 								</div>
 							</div>
 						</Reveal>
@@ -114,12 +204,7 @@ export default function News() {
 									className="grid gap-5 border-b border-white/8 py-8 sm:grid-cols-12 sm:gap-8"
 								>
 									<div className="sm:col-span-4 lg:col-span-3">
-										<SmartImage
-											src={item.image}
-											alt={item.title}
-											className="aspect-[4/3] w-full rounded-md border border-white/7 object-cover"
-											wrapperClassName="aspect-[4/3] w-full rounded-md border border-white/7"
-										/>
+										<Cover item={item} />
 									</div>
 									<div className="sm:col-span-8 lg:col-span-9">
 										<div className="flex items-center gap-3">
@@ -138,6 +223,7 @@ export default function News() {
 										<div className="max-w-3xl">
 											<ReadMore item={item} />
 											<Tags tags={item.tags} />
+											<Source item={item} />
 										</div>
 									</div>
 								</Reveal>

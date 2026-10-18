@@ -20,14 +20,14 @@ export const products: Product[] = [
 			fuelConsumption: "20 л/100 км",
 			maxSpeed: "До 49 км/ч",
 			extendedSpecs: {
-				wheelFormula: "4х4",
+				wheelFormula: "4×4",
 				weight: "до 750 кг",
 				fullWeight: "до 900 кг",
 				enginePower: "80.1 кВт / 109 л.с. (6000 об/мин)",
 				torque: "144 Н·м (4200 об/мин)",
 				slope: "30°",
 				lateralStability: "35°",
-				suspension: "Передняя и задняя зависимая, мост УАЗ «Тимкен» (ПЧ 4.625), телескопические амортизаторы на четвертьэлептических рессорах",
+				suspension: "Передняя и задняя зависимая, мост УАЗ «Тимкен» (ПЧ 4.625), телескопические амортизаторы на четвертьэллиптических рессорах",
 				steering: "Мотоциклетного типа с гидроусилителем",
 				brakeSystem: "Гидравлическая, двухконтурная, с вакуумным усилителем",
 				parkingBrake: "Трансмиссионная, механическая",
@@ -37,7 +37,7 @@ export const products: Product[] = [
 			}
 		},
 		defaultKit: [
-			{ name: "Снегоболотоход", quantity: "1 шт." },
+			{ name: "Снегоболотоход СОКОЛ ПИКАП 1.5", quantity: "1 шт." },
 			{ name: "Комплект ЗИП", quantity: "1 комплект" },
 			{ name: "Ключ зажигания", quantity: "2 шт." },
 			{ name: "Паспорт изделия", quantity: "1 шт." },
@@ -54,14 +54,12 @@ export const products: Product[] = [
 					name: "Светодиодная балка (72 Вт)",
 					description: "Мощное освещение для экстремальных условий.",
 					price: 6000,
-					image: "/images/led-bar.webp",
 				},
 				{
 					id: 2,
 					name: "Светотехника (указатели поворотов, стоп-сигнал, габаритные огни)",
 					description: "Комплект светотехники для безопасности и соответствия требованиям.",
 					price: 26000,
-					image: "/images/accessory-lights.webp",
 				},
 			],
 			"Безопасность": [
@@ -70,7 +68,6 @@ export const products: Product[] = [
 					name: "Электрическая лебёдка",
 					description: "Для спасения и буксировки",
 					price: 34000,
-					image: "/images/winches.webp",
 				},
 			],
 			"Багажное оборудование": [
@@ -79,35 +76,30 @@ export const products: Product[] = [
 					name: "Дополнительные канистры (2 шт.)",
 					description: "Для топлива и инструментов",
 					price: 11000,
-					image: "/images/canisters.webp",
 				},
 				{
 					id: 5,
 					name: "Фаркоп",
 					description: "Для прицепа или груза",
 					price: 12000,
-					image: "/images/trailer-hitch.webp",
 				},
 				{
 					id: 6,
 					name: "Прицеп плавающий к снегоболотоходу",
 					description: "Плавающий прицеп для перевозки грузов",
 					price: 180000,
-					image: "/images/floating-trailer.webp",
 				},
 				{
 					id: 7,
 					name: "Тент складной на плавающий прицеп",
 					description: "Защита груза от осадков",
 					price: 40000,
-					image: "/images/trailer-tent.webp",
 				},
 				{
 					id: 8,
 					name: "Прицеп для перевозки снегоболотохода",
 					description: "Одноосный прицеп для транспортировки по дорогам общего пользования",
 					price: 210000,
-					image: "/images/transport-trailer.webp",
 				},
 			],
 			"Комфорт": [
@@ -116,37 +108,32 @@ export const products: Product[] = [
 					name: "Подогрев сиденья",
 					description: "Для комфортной езды зимой",
 					price: 8000,
-					image: "/images/heated-seat.webp",
 				},
 				{
 					id: 10,
 					name: "Расширители арок",
 					description: "Защита от грязи и камней",
 					price: 10000,
-					image: "/images/fender-flares.webp",
 				},
 				{
 					id: 11,
 					name: "Ветровое стекло",
 					description: "Защита от ветра и осадков",
 					price: 6500,
-					image: "/images/windshield.webp",
 				},
 			],
 			"Дополнительно": [
 				{
 					id: 12,
-					name: "Крепление лебедки на переднем багажнике",
-					description: "Для установки лебедки на передний багажник",
+					name: "Крепление лебёдки на переднем багажнике",
+					description: "Для установки лебёдки на передний багажник",
 					price: 5000,
-					image: "/images/winch-mount.webp",
 				},
 				{
 					id: 13,
 					name: "Защита подножек от грязи (пластик ПНД 4 мм)",
 					description: "Защита подножек от грязи",
 					price: 4000,
-					image: "/images/footrest-protection.webp",
 				},
 			],
 		},
@@ -170,14 +157,14 @@ export const products: Product[] = [
 			fuelConsumption: "21 л/100 км",
 			maxSpeed: "До 49 км/ч",
 			extendedSpecs: {
-				wheelFormula: "4х4",
+				wheelFormula: "4×4",
 				weight: "до 950 кг",
 				fullWeight: "до 1150 кг",
 				enginePower: "103 кВт / 140 л.с. (6400 об/мин)",
 				torque: "192 Н·м (4000 об/мин)",
 				slope: "30°",
 				lateralStability: "35°",
-				suspension: "Передняя и задняя зависимая, мост типа Спайсер с принудительной электро блокировкой (ПЧ 4.625), телескопические амортизаторы на четвертьэлептических рессорах",
+				suspension: "Передняя и задняя зависимая, мост типа Спайсер с принудительной электроблокировкой (ПЧ 4.625), телескопические амортизаторы на четвертьэллиптических рессорах",
 				steering: "Мотоциклетного типа с гидроусилителем",
 				brakeSystem: "Гидравлическая, двухконтурная, с вакуумным усилителем",
 				parkingBrake: "Трансмиссионная, механическая",
@@ -187,7 +174,7 @@ export const products: Product[] = [
 			}
 		},
 		defaultKit: [
-			{ name: "Квадроцикл «Якт-СОКОЛ»", quantity: "1 шт." },
+			{ name: "Снегоболотоход СОКОЛ ПИКАП 1.8", quantity: "1 шт." },
 			{ name: "Комплект ЗИП", quantity: "1 комплект" },
 			{ name: "Ключ зажигания", quantity: "2 шт." },
 			{ name: "Паспорт изделия", quantity: "1 шт." },
@@ -195,7 +182,7 @@ export const products: Product[] = [
 			{ name: "Сервисная книжка", quantity: "1 шт." },
 			{ name: "Руководство по эксплуатации", quantity: "1 шт." },
 			{ name: "Ведомость ЗИП", quantity: "1 шт." },
-			{ name: "Эксплуатационная документация на покупные узлы", quantity: "1 комплект" }
+			{ name: "Эксплуатационная документация на покупные изделия", quantity: "1 комплект" }
 		],
 		accessories: {
 			"Освещение": [
@@ -204,14 +191,12 @@ export const products: Product[] = [
 					name: "Светодиодная балка (72 Вт)",
 					description: "Мощное освещение для экстремальных условий.",
 					price: 6000,
-					image: "/images/led-bar.webp",
 				},
 				{
 					id: 12,
 					name: "Светотехника (указатели поворотов, стоп-сигнал, габаритные огни)",
 					description: "Комплект светотехники для безопасности и соответствия требованиям.",
 					price: 26000,
-					image: "/images/accessory-lights.webp",
 				},
 			],
 			"Безопасность": [
@@ -220,7 +205,6 @@ export const products: Product[] = [
 					name: "Электрическая лебёдка",
 					description: "Для спасения и буксировки",
 					price: 34000,
-					image: "/images/winches.webp",
 				},
 			],
 			"Багажное оборудование": [
@@ -229,35 +213,30 @@ export const products: Product[] = [
 					name: "Дополнительные канистры (2 шт.)",
 					description: "Для топлива и инструментов",
 					price: 11000,
-					image: "/images/canisters.webp",
 				},
 				{
 					id: 15,
 					name: "Фаркоп",
 					description: "Для прицепа или груза",
 					price: 12000,
-					image: "/images/trailer-hitch.webp",
 				},
 				{
 					id: 16,
 					name: "Прицеп плавающий к снегоболотоходу",
 					description: "Плавающий прицеп для перевозки грузов",
 					price: 180000,
-					image: "/images/floating-trailer.webp",
 				},
 				{
 					id: 17,
 					name: "Тент складной на плавающий прицеп",
 					description: "Защита груза от осадков",
 					price: 40000,
-					image: "/images/trailer-tent.webp",
 				},
 				{
 					id: 18,
 					name: "Прицеп для перевозки снегоболотохода",
 					description: "Одноосный прицеп для транспортировки по дорогам общего пользования",
 					price: 210000,
-					image: "/images/transport-trailer.webp",
 				},
 			],
 			"Комфорт": [
@@ -266,37 +245,32 @@ export const products: Product[] = [
 					name: "Подогрев сиденья",
 					description: "Для комфортной езды зимой",
 					price: 8000,
-					image: "/images/heated-seat.webp",
 				},
 				{
 					id: 20,
 					name: "Расширители арок",
 					description: "Защита от грязи и камней",
 					price: 10000,
-					image: "/images/fender-flares.webp",
 				},
 				{
 					id: 21,
 					name: "Ветровое стекло",
 					description: "Защита от ветра и осадков",
 					price: 6500,
-					image: "/images/windshield.webp",
 				},
 			],
 			"Дополнительно": [
 				{
 					id: 22,
-					name: "Крепление лебедки на переднем багажнике",
-					description: "Для установки лебедки на передний багажник",
+					name: "Крепление лебёдки на переднем багажнике",
+					description: "Для установки лебёдки на передний багажник",
 					price: 5000,
-					image: "/images/winch-mount.webp",
 				},
 				{
 					id: 23,
 					name: "Защита подножек от грязи (пластик ПНД 4 мм)",
 					description: "Защита подножек от грязи",
 					price: 4000,
-					image: "/images/footrest-protection.webp",
 				},
 			],
 		},
@@ -320,14 +294,14 @@ export const products: Product[] = [
 			fuelConsumption: "20 л/100 км",
 			maxSpeed: "До 49 км/ч",
 			extendedSpecs: {
-				wheelFormula: "4х4",
+				wheelFormula: "4×4",
 				weight: "до 750 кг",
 				fullWeight: "до 900 кг",
 				enginePower: "80.1 кВт / 109 л.с. (6000 об/мин)",
 				torque: "144 Н·м (4200 об/мин)",
 				slope: "30°",
 				lateralStability: "35°",
-				suspension: "Передняя и задняя зависимая, мосты Джимни, телескопические амортизаторы на четвертьэлептических рессорах",
+				suspension: "Передняя и задняя зависимая, мосты Джимни, телескопические амортизаторы на четвертьэллиптических рессорах",
 				steering: "Мотоциклетного типа с гидроусилителем",
 				brakeSystem: "Гидравлическая, двухконтурная, с вакуумным усилителем",
 				parkingBrake: "Трансмиссионная, механическая",
@@ -337,7 +311,7 @@ export const products: Product[] = [
 			}
 		},
 		defaultKit: [
-			{ name: "Квадроцикл «Якт-СОКОЛ»", quantity: "1 шт." },
+			{ name: "Снегоболотоход СОКОЛ + (Джимни)", quantity: "1 шт." },
 			{ name: "Комплект ЗИП", quantity: "1 комплект" },
 			{ name: "Ключ зажигания", quantity: "2 шт." },
 			{ name: "Паспорт изделия", quantity: "1 шт." },
@@ -345,7 +319,7 @@ export const products: Product[] = [
 			{ name: "Сервисная книжка", quantity: "1 шт." },
 			{ name: "Руководство по эксплуатации", quantity: "1 шт." },
 			{ name: "Ведомость ЗИП", quantity: "1 шт." },
-			{ name: "Эксплуатационная документация на покупные узлы", quantity: "1 комплект" },
+			{ name: "Эксплуатационная документация на покупные изделия", quantity: "1 комплект" },
 		],
 		accessories: {
 			"Освещение": [
@@ -354,7 +328,6 @@ export const products: Product[] = [
 					name: "Светодиодная балка (72 Вт)",
 					description: "Мощное освещение для экстремальных условий.",
 					price: 25000,
-					image: "/images/led-bar.webp",
 				},
 			],
 			"Безопасность": [
@@ -363,14 +336,12 @@ export const products: Product[] = [
 					name: "Электрическая лебёдка",
 					description: "Для спасения и буксировки",
 					price: 20000,
-					image: "/images/winches.webp",
 				},
 				{
 					id: 33,
-					name: "Жестко заблокированный дифференциал",
+					name: "Жёстко заблокированный дифференциал",
 					description: "Для максимального сцепления",
 					price: 25000,
-					image: "/images/diff-lock.webp",
 				},
 			],
 			"Багажное оборудование": [
@@ -379,21 +350,18 @@ export const products: Product[] = [
 					name: "Фаркоп",
 					description: "Для прицепа или груза",
 					price: 12000,
-					image: "/images/trailer-hitch.webp",
 				},
 				{
 					id: 35,
 					name: "Дополнительные канистры",
 					description: "Для топлива и инструментов",
 					price: 18000,
-					image: "/images/canisters.webp",
 				},
 				{
 					id: 36,
 					name: "Шланг подкачки (1 шт., 3.5 м)",
 					description: "Для подкачки шин",
 					price: 5000,
-					image: "/images/tube-pump.webp",
 				},
 			],
 			"Комфорт": [
@@ -402,14 +370,12 @@ export const products: Product[] = [
 					name: "Подогрев ручек и сиденья",
 					description: "Для комфортной езды зимой",
 					price: 18000,
-					image: "/images/heated-seat-and-handles.webp",
 				},
 				{
 					id: 38,
 					name: "Расширители арок",
 					description: "Защита от грязи и камней",
 					price: 15000,
-					image: "/images/fender-flares.webp",
 				},
 			],
 		},
@@ -433,14 +399,14 @@ export const products: Product[] = [
 			fuelConsumption: "20 л/100 км",
 			maxSpeed: "До 49 км/ч",
 			extendedSpecs: {
-				wheelFormula: "4х4",
+				wheelFormula: "4×4",
 				weight: "до 750 кг",
 				fullWeight: "до 900 кг",
 				enginePower: "80.1 кВт / 109 л.с. (6000 об/мин)",
 				torque: "144 Н·м (4200 об/мин)",
 				slope: "30°",
 				lateralStability: "35°",
-				suspension: "Передняя и задняя зависимая, мост УАЗ «Тимкен» с принудительной блокировкой дифференциала (ПЧ 4.625), телескопические амортизаторы на четвертьэлептических рессорах",
+				suspension: "Передняя и задняя зависимая, мост УАЗ «Тимкен» с принудительной блокировкой дифференциала (ПЧ 4.625), телескопические амортизаторы на четвертьэллиптических рессорах",
 				steering: "Мотоциклетного типа с гидроусилителем",
 				brakeSystem: "Гидравлическая, двухконтурная, с вакуумным усилителем",
 				parkingBrake: "Трансмиссионная, механическая",
@@ -450,7 +416,7 @@ export const products: Product[] = [
 			}
 		},
 		defaultKit: [
-			{ name: "Квадроцикл «Якт-СОКОЛ»", quantity: "1 шт." },
+			{ name: "Снегоболотоход СОКОЛ + (Тимкен)", quantity: "1 шт." },
 			{ name: "Комплект ЗИП", quantity: "1 комплект" },
 			{ name: "Ключ зажигания", quantity: "2 шт." },
 			{ name: "Паспорт изделия", quantity: "1 шт." },
@@ -458,7 +424,7 @@ export const products: Product[] = [
 			{ name: "Сервисная книжка", quantity: "1 шт." },
 			{ name: "Руководство по эксплуатации", quantity: "1 шт." },
 			{ name: "Ведомость ЗИП", quantity: "1 шт." },
-			{ name: "Эксплуатационная документация на покупные узлы", quantity: "1 комплект" },
+			{ name: "Эксплуатационная документация на покупные изделия", quantity: "1 комплект" },
 		],
 		accessories: {
 			"Освещение": [
@@ -467,7 +433,6 @@ export const products: Product[] = [
 					name: "Светодиодная балка (72 Вт)",
 					description: "Мощное освещение для экстремальных условий.",
 					price: 25000,
-					image: "/images/led-bar.webp",
 				},
 			],
 			"Безопасность": [
@@ -476,14 +441,12 @@ export const products: Product[] = [
 					name: "Электрическая лебёдка",
 					description: "Для спасения и буксировки",
 					price: 20000,
-					image: "/images/winches.webp",
 				},
 				{
 					id: 33,
-					name: "Жестко заблокированный дифференциал",
+					name: "Жёстко заблокированный дифференциал",
 					description: "Для максимального сцепления",
 					price: 25000,
-					image: "/images/diff-lock.webp",
 				},
 			],
 			"Багажное оборудование": [
@@ -492,21 +455,18 @@ export const products: Product[] = [
 					name: "Фаркоп",
 					description: "Для прицепа или груза",
 					price: 12000,
-					image: "/images/trailer-hitch.webp",
 				},
 				{
 					id: 35,
 					name: "Дополнительные канистры",
 					description: "Для топлива и инструментов",
 					price: 18000,
-					image: "/images/canisters.webp",
 				},
 				{
 					id: 36,
 					name: "Шланг подкачки (1 шт., 3.5 м)",
 					description: "Для подкачки шин",
 					price: 5000,
-					image: "/images/tube-pump.webp",
 				},
 			],
 			"Комфорт": [
@@ -515,14 +475,12 @@ export const products: Product[] = [
 					name: "Подогрев ручек и сиденья",
 					description: "Для комфортной езды зимой",
 					price: 18000,
-					image: "/images/heated-seat-and-handles.webp",
 				},
 				{
 					id: 38,
 					name: "Расширители арок",
 					description: "Защита от грязи и камней",
 					price: 15000,
-					image: "/images/fender-flares.webp",
 				},
 			],
 		},
@@ -532,7 +490,7 @@ export const products: Product[] = [
 		slug: "sokol-pro-plus",
 		name: "СОКОЛ ПРО+",
 		description:
-			"Профессиональный трехместный снегоболотоход нового поколения. Максимальная проходимость, комфортная посадка, мощный двигатель и богатая заводская комплектация делают его универсальным решением для отдыха и работы. Уже в базе — всё необходимое для полноценного использования: свет, багажники, сигнализация и многое другое. СОКОЛ ПРО+ — уверенность на любом маршруте.",
+			"Профессиональный трёхместный снегоболотоход нового поколения. Максимальная проходимость, комфортная посадка, мощный двигатель и богатая заводская комплектация делают его универсальным решением для отдыха и работы. Уже в базе — всё необходимое для полноценного использования: свет, багажники, сигнализация и многое другое. СОКОЛ ПРО+ — уверенность на любом маршруте.",
 		deskSmall: "Трёхместный снегоболотоход с мощным двигателем и полной заводской комплектацией.",
 		price: 1800000,
 		images: [],
@@ -546,14 +504,14 @@ export const products: Product[] = [
 			fuelConsumption: "21 л/100 км",
 			maxSpeed: "До 49 км/ч",
 			extendedSpecs: {
-				wheelFormula: "4х4",
+				wheelFormula: "4×4",
 				weight: "до 950 кг",
 				fullWeight: "до 1150 кг",
 				enginePower: "103 кВт / 140 л.с. (6400 об/мин)",
 				torque: "192 Н·м (4000 об/мин)",
 				slope: "30°",
 				lateralStability: "35°",
-				suspension: "Передняя и задняя зависимая, мост типа Спайсер с принудительной электро блокировкой (ПЧ 4.625), телескопические амортизаторы на четвертьэлептических рессорах",
+				suspension: "Передняя и задняя зависимая, мост типа Спайсер с принудительной электроблокировкой (ПЧ 4.625), телескопические амортизаторы на четвертьэллиптических рессорах",
 				steering: "Мотоциклетного типа с гидроусилителем",
 				brakeSystem: "Гидравлическая, двухконтурная, с вакуумным усилителем",
 				parkingBrake: "Трансмиссионная, механическая",
@@ -563,7 +521,7 @@ export const products: Product[] = [
 			}
 		},
 		defaultKit: [
-			{ name: "Снегоболотоход (СОКОЛ ПРО+)", quantity: "1 шт." },
+			{ name: "Снегоболотоход СОКОЛ ПРО+", quantity: "1 шт." },
 			{ name: "Комплект ЗИП", quantity: "1 комплект" },
 			{ name: "Ключ зажигания", quantity: "2 шт." },
 			{ name: "Паспорт изделия", quantity: "1 шт." },
@@ -588,7 +546,6 @@ export const products: Product[] = [
 					name: "Светодиодная балка (72 Вт)",
 					description: "Мощное освещение для экстремальных условий.",
 					price: 25000,
-					image: "/images/led-bar.webp",
 				},
 			],
 			"Безопасность": [
@@ -597,14 +554,12 @@ export const products: Product[] = [
 					name: "Электрическая лебёдка",
 					description: "Для спасения и буксировки",
 					price: 20000,
-					image: "/images/winches.webp",
 				},
 				{
 					id: 41,
-					name: "Жестко заблокированный дифференциал",
+					name: "Жёстко заблокированный дифференциал",
 					description: "Для максимального сцепления",
 					price: 25000,
-					image: "/images/diff-lock.webp",
 				},
 			],
 			"Багажное оборудование": [
@@ -613,21 +568,18 @@ export const products: Product[] = [
 					name: "Фаркоп",
 					description: "Для прицепа или груза",
 					price: 12000,
-					image: "/images/trailer-hitch.webp",
 				},
 				{
 					id: 43,
 					name: "Дополнительные канистры",
 					description: "Для топлива и инструментов",
 					price: 18000,
-					image: "/images/canisters.webp",
 				},
 				{
 					id: 44,
 					name: "Шланг подкачки (1 шт., 3.5 м)",
 					description: "Для подкачки шин",
 					price: 5000,
-					image: "/images/tube-pump.webp",
 				},
 			],
 			"Комфорт": [
@@ -636,14 +588,12 @@ export const products: Product[] = [
 					name: "Подогрев ручек и сиденья",
 					description: "Для комфортной езды зимой",
 					price: 18000,
-					image: "/images/heated-seat-and-handles.webp",
 				},
 				{
 					id: 46,
 					name: "Расширители арок",
 					description: "Защита от грязи и камней",
 					price: 15000,
-					image: "/images/fender-flares.webp",
 				},
 			],
 		},
@@ -693,3 +643,15 @@ export const products: Product[] = [
 export const productBySlug = (slug?: string) => products.find((p) => p.slug === slug);
 
 export const productPath = (p: Pick<Product, "slug">) => `/models/${p.slug}`;
+
+/**
+ * Русское склонение по числу: plural(6, ['модель', 'модели', 'моделей']).
+ * Лежит рядом с данными, потому что нужно везде, где выводится число моделей.
+ */
+export const plural = (n: number, [one, few, many]: [string, string, string]) => {
+	const m10 = n % 10;
+	const m100 = n % 100;
+	if (m10 === 1 && m100 !== 11) return one;
+	if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+	return many;
+};

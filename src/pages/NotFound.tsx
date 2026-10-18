@@ -3,7 +3,9 @@ import { ArrowUpRight } from '../components/Icons';
 
 const ROUTES = [
 	{ to: '/', label: 'Главная', hint: 'модели и цены' },
-	{ to: '/gallery', label: 'Галерея', hint: '65 кадров с испытаний' },
+	{ to: '/compare', label: 'Сравнение', hint: 'все модели в одной таблице' },
+	{ to: '/service', label: 'Покупка', hint: 'доставка, документы, оплата' },
+	{ to: '/gallery', label: 'Галерея', hint: 'цех и испытания' },
 	{ to: '/news', label: 'Новости', hint: 'что происходит в цехе' },
 	{ to: '/cert', label: 'Документы', hint: 'сертификаты и ПСМ' },
 ];

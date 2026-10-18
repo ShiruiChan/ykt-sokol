@@ -4,7 +4,8 @@ export type Accessory = {
 	name: string;
 	description: string;
 	price: number; // важно: число, а не строка!
-	image: string;
+	/** Фото аксессуара. Пока снимков нет — поле не заполняется и не выводится */
+	image?: string;
 };
 
 export type Spec = {
@@ -62,8 +63,13 @@ export type NewsItem = {
 	title: string;
 	content: string;
 	date: string;
-	image: string;
+	/** Превью. Нет — карточка рисуется типографикой, без заглушки */
+	image?: string;
 	summary?: string;
+	/** Ссылка на первоисточник публикации */
+	sourceUrl?: string;
+	/** Название издания или канала */
+	sourceName?: string;
 	tags?: string[];
 	isPinned?: boolean;
 };
