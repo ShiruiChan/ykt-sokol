@@ -1,12 +1,41 @@
-# React + Vite
+# ЯКТ СОКОЛ — сайт производителя снегоболотоходов
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + Vite 6 + Tailwind 4 + framer-motion. Деплой — Vercel.
 
-Currently, two official plugins are available:
+## Команды
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev          # локальная разработка, http://localhost:5173
+npm run typecheck    # проверка типов
+npm run build        # сборка + пререндер всех страниц + sitemap.xml/robots.txt
+npm run preview      # посмотреть собранный dist (с чистыми URL, как на Vercel)
+npm run optimize:images
+```
 
-## Expanding the ESLint configuration
+## Как устроено
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Пререндер.** `npm run build` собирает клиент, затем серверный бандл
+  (`src/entry-server.tsx`) и запускает `scripts/prerender.mjs`: каждая страница
+  превращается в готовый HTML с мета-тегами, а клиент «оживляет» его через
+  `hydrateRoot`. Поисковики получают текст без выполнения JS.
+- **Мета-теги** всех страниц — в `src/seo/meta.ts`. Новый адрес добавляется в
+  `STATIC_PAGES` — и автоматически попадает в пререндер и sitemap.
+- **Контакты, адрес, навигация** — `src/config/site.ts`. При переезде на свой
+  домен меняется только `SITE_URL`.
+- **Модели** — `src/data/products.ts`, адрес страницы `/models/<slug>`.
+  Старые адреса `/product/<id>` перенаправляются (vercel.json и клиент).
+- **Заявки** — `api/request.ts` (Vercel Function → Telegram-бот). Пока бот не
+  настроен, клиент автоматически отправляет заявку резервным каналом (EmailJS).
+
+## Переменные окружения
+
+Шаблон — `.env.example`. В Vercel → Settings → Environment Variables:
+
+| Переменная | Где используется |
+|---|---|
+| `TELEGRAM_BOT_TOKEN` | токен бота от @BotFather — сервер |
+| `TELEGRAM_CHAT_ID` | чат/группа, куда приходят заявки — сервер |
+| `VITE_YM_ID` | номер счётчика Яндекс.Метрики — клиент |
+
+`.env` в репозиторий не коммитится.

@@ -1,7 +1,18 @@
 import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { m, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, ChevronDown } from './Icons';
+import { responsiveSource } from '../data/image-variants';
+
+const wide = responsiveSource('/images/hero/reeds.webp');
+const square = responsiveSource('/images/pickup-1.8/1.webp');
+
+const HERO_WIDE_MEDIA = '(min-aspect-ratio: 5/4)';
+// Кадр 1920×887 под cover упирается в высоту экрана, пока экран уже панорамы:
+// тогда реальная ширина ≈ 217vh; +4% на стартовый scale параллакса
+const HERO_WIDE_SIZES = '(min-aspect-ratio: 2165/1000) 104vw, 225vh';
+// На портретном экране квадрат тоже упирается в высоту
+const HERO_SQUARE_SIZES = '(min-aspect-ratio: 1/1) 104vw, 104vh';
 
 /** Цифры, которые продают: берём из реальных характеристик линейки */
 const FACTS = [
@@ -35,20 +46,34 @@ export default function Hero() {
 			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-10 md:pb-14"
 		>
 			{/* Кадр техники в среде — главный аргумент первого экрана */}
-			<motion.div
+			<m.div
 				className="absolute inset-0"
 				style={reduce ? undefined : { y: imageY, scale: imageScale }}
 			>
-				<img
-					src="/images/pickup-1.8/1.webp"
-					alt="Снегоболотоход СОКОЛ ПИКАП 1.8 на таёжной просеке"
-					className="h-full w-full object-cover object-[60%_center] brightness-110 contrast-[1.05]"
-					fetchPriority="high"
-					decoding="async"
-					width={1024}
-					height={1024}
-				/>
-			</motion.div>
+				{/* Арт-дирекция: широкий кадр на горизонтальных экранах, квадратный на портретных —
+				    иначе cover вырезает из панорамы узкую полосу без машины. Медиа и sizes
+				    продублированы в preload в index.html — менять вместе. */}
+				<picture>
+					<source
+						media={HERO_WIDE_MEDIA}
+						srcSet={wide.srcSet}
+						sizes={HERO_WIDE_SIZES}
+						width={wide.width}
+						height={wide.height}
+					/>
+					<img
+						src={square.src}
+						srcSet={square.srcSet}
+						sizes={HERO_SQUARE_SIZES}
+						alt="Снегоболотоход СОКОЛ на бездорожье"
+						className="h-full w-full object-cover object-[60%_center] brightness-110 contrast-[1.05]"
+						fetchPriority="high"
+						decoding="async"
+						width={square.width}
+						height={square.height}
+					/>
+				</picture>
+			</m.div>
 
 			{/* Затемнение: снизу глухое, сверху лёгкое — читаемость шапки и текста */}
 			<div
@@ -59,13 +84,18 @@ export default function Hero() {
 				aria-hidden
 				className="absolute inset-0 bg-[radial-gradient(130%_90%_at_25%_95%,transparent_45%,rgba(8,10,10,0.55)_100%)]"
 			/>
+			{/* Широкий кадр пёстрый слева, где стоит заголовок, — приглушаем эту сторону */}
+			<div
+				aria-hidden
+				className="absolute inset-0 hidden bg-[linear-gradient(to_right,rgba(8,10,10,0.78)_0%,rgba(8,10,10,0.45)_40%,transparent_70%)] md:block"
+			/>
 
-			<motion.div
+			<m.div
 				className="shell relative"
 				style={reduce ? undefined : { opacity: contentOpacity }}
 			>
 				<div className="max-w-3xl">
-					<motion.p
+					<m.p
 						className="eyebrow"
 						initial={reduce ? false : { opacity: 0, y: 12 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -73,9 +103,9 @@ export default function Hero() {
 					>
 						<span className="h-px w-8 bg-accent-400/70" />
 						Якутск · собственное производство
-					</motion.p>
+					</m.p>
 
-					<motion.h1
+					<m.h1
 						className="mt-5 font-display text-display text-fog-50 uppercase"
 						initial={reduce ? false : { opacity: 0, y: 26 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -84,9 +114,9 @@ export default function Hero() {
 						Пройдёт там,
 						<br />
 						<span className="text-accent-200">где дорог нет</span>
-					</motion.h1>
+					</m.h1>
 
-					<motion.p
+					<m.p
 						className="mt-7 max-w-xl text-lede text-fog-200"
 						initial={reduce ? false : { opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -94,9 +124,9 @@ export default function Hero() {
 					>
 						Снегоболотоходы СОКОЛ 4×4 из Якутска: полный привод, клиренс до 500 мм и шины
 						низкого давления. Машина идёт по снегу, болоту и воде — и возвращается обратно.
-					</motion.p>
+					</m.p>
 
-					<motion.div
+					<m.div
 						className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
 						initial={reduce ? false : { opacity: 0, y: 18 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -114,11 +144,11 @@ export default function Hero() {
 								<ChevronDown className="h-4 w-4" />
 							</span>
 						</button>
-					</motion.div>
+					</m.div>
 				</div>
 
 				{/* Полоса фактов — цифры вместо обещаний */}
-				<motion.dl
+				<m.dl
 					className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 md:mt-16 md:grid-cols-4 md:backdrop-blur-md"
 					initial={reduce ? false : { opacity: 0, y: 24 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -138,8 +168,8 @@ export default function Hero() {
 							</dd>
 						</div>
 					))}
-				</motion.dl>
-			</motion.div>
+				</m.dl>
+			</m.div>
 		</section>
 	);
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from './Icons';
 
 interface ImageGalleryProps {
@@ -47,7 +47,7 @@ export default function ImageGallery({ images, alt = 'Снегоболотохо
 				className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-ink-900"
 			>
 				<AnimatePresence mode="wait" initial={false}>
-					<motion.img
+					<m.img
 						key={images[index]}
 						src={images[index]}
 						alt={`${alt} — фото ${index + 1} из ${images.length}`}

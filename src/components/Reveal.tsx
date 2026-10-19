@@ -4,7 +4,7 @@
  * отключается полностью — контент показывается сразу.
  */
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 
 interface RevealProps {
 	children: ReactNode;
@@ -24,7 +24,7 @@ export default function Reveal({
 	as = 'div',
 }: RevealProps) {
 	const reduce = useReducedMotion();
-	const Tag = motion[as];
+	const Tag = m[as];
 
 	if (reduce) {
 		const Plain = as;

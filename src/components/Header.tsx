@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Phone, Telegram, WhatsApp } from './Icons';
 import { ADDRESS, BRAND, HOURS, MESSENGERS, NAV, PHONE } from '../config/site';
@@ -88,7 +88,7 @@ export default function Header() {
 									{({ isActive }) => (
 										<>
 											{isActive && (
-												<motion.span
+												<m.span
 													layoutId="nav-pill"
 													className="absolute inset-0 rounded-full bg-white/8"
 													transition={{ duration: reduce ? 0 : 0.45, ease: [0.32, 0.72, 0, 1] }}
@@ -156,7 +156,7 @@ export default function Header() {
 			{/* Полноэкранное мобильное меню с каскадом ссылок */}
 			<AnimatePresence>
 				{isMenuOpen && (
-					<motion.div
+					<m.div
 						className="fixed inset-0 z-55 flex flex-col bg-ink-950/96 backdrop-blur-2xl lg:hidden"
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -165,7 +165,7 @@ export default function Header() {
 					>
 						<nav className="mt-24 flex flex-1 flex-col overflow-y-auto px-6" aria-label="Мобильная">
 							{NAV.map((item, i) => (
-								<motion.div
+								<m.div
 									key={item.to}
 									initial={reduce ? false : { opacity: 0, y: 24 }}
 									animate={{ opacity: 1, y: 0 }}
@@ -186,11 +186,11 @@ export default function Header() {
 											0{i + 1}
 										</span>
 									</NavLink>
-								</motion.div>
+								</m.div>
 							))}
 						</nav>
 
-						<motion.div
+						<m.div
 							className="space-y-3 px-6 pb-10"
 							initial={reduce ? false : { opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -226,8 +226,8 @@ export default function Header() {
 							<p className="pt-2 text-center text-xs text-fog-500">
 								{ADDRESS.full} · {HOURS.short}
 							</p>
-						</motion.div>
-					</motion.div>
+						</m.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 		</>

@@ -35,12 +35,17 @@ export function applyMeta(meta: PageMeta) {
 	setMeta('property', 'og:type', meta.type === 'product' ? 'product' : 'website');
 	setMeta('property', 'og:image', image.startsWith('http') ? image : absoluteUrl(image));
 
-	const canonical = upsert('link[rel="canonical"]', () => {
-		const l = document.createElement('link');
-		l.rel = 'canonical';
-		return l;
-	});
-	canonical.setAttribute('href', url);
+	// У 404 canonical быть не должно — иначе поисковик примет мусорный адрес за настоящий
+	if (meta.noindex) {
+		document.head.querySelector('link[rel="canonical"]')?.remove();
+	} else {
+		const canonical = upsert('link[rel="canonical"]', () => {
+			const l = document.createElement('link');
+			l.rel = 'canonical';
+			return l;
+		});
+		canonical.setAttribute('href', url);
+	}
 
 	document.head.querySelectorAll('script[data-seo-jsonld]').forEach((s) => s.remove());
 	for (const data of meta.jsonLd ?? []) {
