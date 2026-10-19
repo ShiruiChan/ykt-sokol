@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
@@ -17,7 +17,9 @@ import {
 	Image as ImageIcon,
 	categoryIcon,
 } from '../components/Icons';
-import { sendRequest } from '../utils/emailjs';
+import ContactForm, { type RequestOrder } from '../components/ContactForm';
+import { PHONE } from '../config/site';
+import { useBottomBar } from '../utils/dockOffset';
 import type { Accessory, Product } from '../types';
 
 /* -------------------------------------------------------------------------- */
@@ -105,7 +107,7 @@ function ProductGallery({ product }: { product: Product }) {
 				<div className="bezel">
 					<div className="relative overflow-hidden rounded-[calc(2rem-0.375rem)] bg-ink-900">
 						<PhotoView key={images[index]} src={images[index]}>
-							<motion.img
+							<m.img
 								src={images[index]}
 								alt={`${product.name} — фото ${index + 1} из ${images.length}`}
 								className="aspect-[4/3] w-full cursor-zoom-in object-cover"
@@ -194,16 +196,13 @@ export default function ProductPage() {
 	const [selected, setSelected] = useState<Record<number, boolean>>({});
 	const [openCategories, setOpenCategories] = useState<string[]>([]);
 	const [openGroups, setOpenGroups] = useState<string[]>([SPEC_GROUPS[0].title]);
-	const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 	const [showMobileBar, setShowMobileBar] = useState(false);
 
 	const formRef = useRef<HTMLDivElement>(null);
-	const emailFormRef = useRef<HTMLFormElement>(null);
 
 	// Сброс выбора при переходе на другую модель
 	useEffect(() => {
 		setSelected({});
-		setStatus('idle');
 		setOpenCategories([]);
 	}, [slug]);
 
@@ -233,6 +232,13 @@ export default function ProductPage() {
 
 	const total = (product?.price ?? 0) + selectedList.reduce((sum, a) => sum + a.price, 0);
 
+	// Плавающая кнопка связи поднимается над панелью сметы, пока та видна
+	const setBottomBar = useBottomBar((st) => st.setVisible);
+	useEffect(() => {
+		setBottomBar(showMobileBar);
+	}, [showMobileBar, setBottomBar]);
+	useEffect(() => () => setBottomBar(false), [setBottomBar]);
+
 	if (!product) return <NotFound />;
 
 	const toggleAccessory = (accId: number) =>
@@ -251,30 +257,12 @@ export default function ProductPage() {
 	const scrollToForm = () =>
 		formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		const form = emailFormRef.current;
-		if (!form) return;
-
-		setStatus('sending');
-		try {
-			await sendRequest({
-				from_name: (form.from_name as HTMLInputElement).value,
-				contact: (form.contact as HTMLInputElement).value,
-				comments: (form.comments as HTMLTextAreaElement).value || '—',
-				product_name: product.name,
-				product_price: product.price.toLocaleString('ru-RU'),
-				accessories:
-					selectedList.map((a) => `${a.name}: ${a.price.toLocaleString('ru-RU')} ₽`).join('\n') ||
-					'Нет выбранных аксессуаров',
-				total_price: total.toLocaleString('ru-RU'),
-			});
-			setStatus('sent');
-			form.reset();
-			setSelected({});
-		} catch {
-			setStatus('error');
-		}
+	// Смета уходит вместе с контактом — менеджер видит ту же сумму, что и клиент
+	const order: RequestOrder = {
+		model: product.name,
+		price: product.price,
+		accessories: selectedList.map((a) => ({ name: a.name, price: a.price })),
+		total,
 	};
 
 	const others = products.filter((p) => p.id !== product.id).slice(0, 3);
@@ -338,8 +326,8 @@ export default function ProductPage() {
 										<ArrowUpRight className="h-4 w-4" />
 									</span>
 								</button>
-								<a href="tel:+79969141414" className="btn btn-ghost mt-3 w-full">
-									<span className="tnum">+7 (996) 914-14-14</span>
+								<a href={PHONE.href} className="btn btn-ghost mt-3 w-full">
+									<span className="tnum">{PHONE.label}</span>
 								</a>
 							</div>
 						</div>
@@ -416,7 +404,7 @@ export default function ProductPage() {
 
 										<AnimatePresence initial={false}>
 											{isOpen && (
-												<motion.div
+												<m.div
 													initial={{ height: 0, opacity: 0 }}
 													animate={{ height: 'auto', opacity: 1 }}
 													exit={{ height: 0, opacity: 0 }}
@@ -431,7 +419,7 @@ export default function ProductPage() {
 															</div>
 														))}
 													</div>
-												</motion.div>
+												</m.div>
 											)}
 										</AnimatePresence>
 									</div>
@@ -511,7 +499,7 @@ export default function ProductPage() {
 
 									<AnimatePresence initial={false}>
 										{isOpen && (
-											<motion.div
+											<m.div
 												initial={{ height: 0, opacity: 0 }}
 												animate={{ height: 'auto', opacity: 1 }}
 												exit={{ height: 0, opacity: 0 }}
@@ -556,7 +544,7 @@ export default function ProductPage() {
 														);
 													})}
 												</div>
-											</motion.div>
+											</m.div>
 										)}
 									</AnimatePresence>
 								</div>
@@ -580,101 +568,14 @@ export default function ProductPage() {
 									Предоплата не требуется до согласования.
 								</p>
 
-								{status === 'sent' ? (
-									<div className="animate-fadeIn mt-9 rounded-lg border border-accent-500/30 bg-accent-900/40 p-8">
-										<div className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-accent-500 text-white">
-											<Check className="h-6 w-6" />
-										</div>
-										<p className="text-lg font-semibold text-fog-50">Заявка принята</p>
-										<p className="mt-2 text-sm text-fog-400">
-											Перезвоним в рабочее время — с 9:00 до 18:00 по Якутску.
-										</p>
-										<button
-											type="button"
-											onClick={() => setStatus('idle')}
-											className="link-quiet mt-6"
-										>
-											Отправить ещё одну
-										</button>
-									</div>
-								) : (
-									<form
-										ref={emailFormRef}
-										onSubmit={handleSubmit}
-										className="mt-9 space-y-5 rounded-lg border border-white/8 bg-ink-850 p-6 md:p-8"
-									>
-										<div className="grid gap-5 sm:grid-cols-2">
-											<div>
-												<label htmlFor="pp-name" className="field-label">
-													ФИО
-												</label>
-												<input
-													id="pp-name"
-													type="text"
-													name="from_name"
-													autoComplete="name"
-													placeholder="Айсен Николаев"
-													className="field"
-													required
-												/>
-											</div>
-											<div>
-												<label htmlFor="pp-contact" className="field-label">
-													Телефон
-												</label>
-												<input
-													id="pp-contact"
-													type="tel"
-													name="contact"
-													inputMode="tel"
-													autoComplete="tel"
-													placeholder="+7 (914) 276-75-20"
-													className="field tnum"
-													required
-												/>
-											</div>
-										</div>
-										<div>
-											<label htmlFor="pp-comments" className="field-label">
-												Комментарий
-												<span className="ml-2 font-normal tracking-normal text-fog-500">
-													необязательно
-												</span>
-											</label>
-											<textarea
-												id="pp-comments"
-												name="comments"
-												rows={4}
-												placeholder="Сроки, доставка, дополнительные пожелания"
-												className="field resize-none"
-											/>
-										</div>
-
-										{status === 'error' && (
-											<p className="rounded-sm border border-[#a8543f]/50 bg-[#2a1512] px-4 py-3 text-sm text-[#e5a894]">
-												Не удалось отправить заявку. Попробуйте ещё раз или позвоните:{' '}
-												<a href="tel:+79969141414" className="underline">
-													+7 (996) 914-14-14
-												</a>
-											</p>
-										)}
-
-										<button
-											type="submit"
-											disabled={status === 'sending'}
-											className="btn btn-primary w-full sm:w-auto"
-										>
-											{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
-											<span className="btn-dot">
-												<ArrowUpRight className="h-4 w-4" />
-											</span>
-										</button>
-
-										<p className="text-xs leading-relaxed text-fog-500">
-											Нажимая кнопку, вы соглашаетесь на обработку персональных данных.
-										</p>
-									</form>
-								)}
+									<ContactForm
+										key={product.id}
+										variant="page"
+										subject={product.name}
+										order={order}
+										onSent={() => setSelected({})}
+										className="mt-9"
+									/>
 							</div>
 
 							{/* Смета */}
@@ -792,7 +693,7 @@ export default function ProductPage() {
 			{/* Мобильная панель со сметой и переходом к форме */}
 			<AnimatePresence>
 				{showMobileBar && (
-					<motion.div
+					<m.div
 						initial={{ y: 80 }}
 						animate={{ y: 0 }}
 						exit={{ y: 80 }}
@@ -819,7 +720,7 @@ export default function ProductPage() {
 								</span>
 							</button>
 						</div>
-					</motion.div>
+					</m.div>
 				)}
 			</AnimatePresence>
 		</>

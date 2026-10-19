@@ -1,13 +1,16 @@
 {
 	"name": "ykt-sokol",
 	"private": true,
-	"version": "0.0.0",
+	"version": "2.1.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
-		"preview": "vite preview",
-		"optimize:images": "node scripts/optimize-images.mjs"
+		"build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
+		"build:spa": "vite build",
+		"preview": "npx serve@14 dist",
+		"typecheck": "tsc --noEmit -p .",
+		"optimize:images": "node scripts/optimize-images.mjs",
+		"images:variants": "node scripts/build-image-variants.mjs"
 	},
 	"dependencies": {
 		"@emailjs/browser": "^4.4.1",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { LazyMotion, m, useReducedMotion } from 'framer-motion';
 import ScrollToTop from './scripts/ScrollToTop';
 import Seo from './seo/Seo';
 import Header from './components/Header';
@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
 import RequestModal from './components/RequestModal';
 import Metrika from './components/Metrika';
+import ContactDock from './components/ContactDock';
 import { products, productPath } from './data/products';
 
 const Home = React.lazy(() => import('./pages/Home'));
@@ -19,6 +20,8 @@ const Compare = React.lazy(() => import('./pages/Compare'));
 const Service = React.lazy(() => import('./pages/Service'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
+
+const loadMotionFeatures = () => import('./motion-features').then((mod) => mod.default);
 
 /**
  * Общая оболочка всех страниц. Шапка и подвал живут здесь и не
@@ -33,7 +36,7 @@ function Layout() {
 		<>
 			<Header />
 			<React.Suspense fallback={<LoadingSpinner />}>
-				<motion.div
+				<m.div
 					key={pathname}
 					className="flex flex-1 flex-col"
 					initial={reduce ? false : { opacity: 0, y: 12 }}
@@ -41,7 +44,7 @@ function Layout() {
 					transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
 				>
 					<Outlet />
-				</motion.div>
+				</m.div>
 			</React.Suspense>
 			<Footer />
 		</>
@@ -57,7 +60,8 @@ function LegacyProductRedirect() {
 
 export default function App() {
 	return (
-		<>
+		// strict: случайный motion.* вместо m.* сразу упадёт, а не притащит весь пакет обратно
+		<LazyMotion features={loadMotionFeatures} strict>
 			<Seo />
 			<Metrika />
 			<ScrollToTop />
@@ -80,8 +84,11 @@ export default function App() {
 			{/* Модалка заявки живёт над маршрутами — открывается из любой точки сайта */}
 			<RequestModal />
 
+			{/* Быстрая связь на мобильных: WhatsApp, Telegram, звонок */}
+			<ContactDock />
+
 			{/* Плёночное зерно поверх интерфейса */}
 			<div className="grain" aria-hidden />
-		</>
+		</LazyMotion>
 	);
 }

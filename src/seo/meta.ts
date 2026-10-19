@@ -5,6 +5,7 @@
  */
 import { products, productBySlug, productPath } from '../data/products';
 import type { Product } from '../types';
+import { FAQ } from '../data/faq';
 import { ADDRESS, BRAND, HOURS, PHONE, SITE_URL, absoluteUrl } from '../config/site';
 
 export interface PageMeta {
@@ -94,6 +95,17 @@ export const STATIC_PAGES: Record<string, Omit<PageMeta, 'path'>> = {
 		title: `Доставка, гарантия и оплата — ${BRAND}`,
 		description:
 			'Как купить снегоболотоход СОКОЛ: доставка по Якутии и России, гарантия и сервис, оплата для частных лиц и организаций, постановка на учёт.',
+		jsonLd: [
+			{
+				'@context': 'https://schema.org',
+				'@type': 'FAQPage',
+				mainEntity: FAQ.map((f) => ({
+					'@type': 'Question',
+					name: f.q,
+					acceptedAnswer: { '@type': 'Answer', text: f.a },
+				})),
+			},
+		],
 	},
 	'/news': {
 		title: `Новости — ${BRAND}`,
