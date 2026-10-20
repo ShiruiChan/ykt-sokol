@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { LazyMotion, m, useReducedMotion } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 import ScrollToTop from './scripts/ScrollToTop';
 import Seo from './seo/Seo';
 import Header from './components/Header';
@@ -64,6 +65,8 @@ export default function App() {
 		<LazyMotion features={loadMotionFeatures} strict>
 			<Seo />
 			<Metrika />
+			{/* Vercel Web Analytics: переходы между страницами SPA отслеживает сама */}
+			<Analytics />
 			<ScrollToTop />
 
 			<Routes>
