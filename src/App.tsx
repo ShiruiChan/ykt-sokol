@@ -52,11 +52,26 @@ function Layout() {
 	);
 }
 
+/**
+ * Снятые с продажи модели → ближайшая актуальная. Дублирует redirects
+ * в vercel.json: там — 301 для поисковиков, здесь — переходы внутри SPA.
+ */
+const RETIRED_IDS: Record<number, string> = { 3: 'sokol-plus-timken' };
+const RETIRED_SLUGS: Record<string, string> = { 'sokol-plus-jimny': 'sokol-plus-timken' };
+
 /** Старые адреса /product/:id ведут на новые /models/:slug */
 function LegacyProductRedirect() {
 	const { id } = useParams();
 	const product = products.find((p) => p.id === Number(id));
-	return <Navigate to={product ? productPath(product) : '/'} replace />;
+	const retired = RETIRED_IDS[Number(id)];
+	const to = product ? productPath(product) : retired ? productPath({ slug: retired }) : '/';
+	return <Navigate to={to} replace />;
+}
+
+function ModelRoute() {
+	const { slug = '' } = useParams();
+	const target = RETIRED_SLUGS[slug];
+	return target ? <Navigate to={productPath({ slug: target })} replace /> : <ProductPage />;
 }
 
 export default function App() {
@@ -72,7 +87,7 @@ export default function App() {
 			<Routes>
 				<Route element={<Layout />}>
 					<Route index element={<Home />} />
-					<Route path="models/:slug" element={<ProductPage />} />
+					<Route path="models/:slug" element={<ModelRoute />} />
 					<Route path="product/:id" element={<LegacyProductRedirect />} />
 					<Route path="compare" element={<Compare />} />
 					<Route path="service" element={<Service />} />

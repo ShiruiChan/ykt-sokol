@@ -9,8 +9,8 @@ export type Accessory = {
 };
 
 export type Spec = {
-	size: string;
-	height: string;
+	size?: string;
+	height?: string;
 	engine?: string;
 	clearance?: string;
 	transmission?: string;

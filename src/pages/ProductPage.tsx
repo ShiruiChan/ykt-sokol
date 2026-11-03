@@ -266,6 +266,9 @@ export default function ProductPage() {
 	};
 
 	const others = products.filter((p) => p.id !== product.id).slice(0, 3);
+	// У новых моделей данные публикуются постепенно: пустые блоки не показываем
+	const hasSpecs = SPEC_GROUPS.some((g) => g.rows.some(([, get]) => Boolean(get(product))));
+	const hasAccessories = Object.keys(product.accessories).length > 0;
 
 	return (
 		<>
@@ -347,8 +350,11 @@ export default function ProductPage() {
 				</section>
 
 				{/* ---------------------------- Технические данные ---------------------------- */}
+				{(hasSpecs || product.defaultKit.length > 0) && (
 				<section className="border-y border-white/8 bg-ink-900">
 					<div className="section shell">
+						{hasSpecs && (
+						<>
 						<Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 							<div>
 								<p className="eyebrow">
@@ -427,8 +433,12 @@ export default function ProductPage() {
 							})}
 						</div>
 
+						</>
+						)}
+
 						{/* Комплект поставки */}
-						<Reveal className="mt-12 grid gap-8 lg:grid-cols-12">
+						{product.defaultKit.length > 0 && (
+						<Reveal className={`grid gap-8 lg:grid-cols-12 ${hasSpecs ? 'mt-12' : ''}`}>
 							<div className="lg:col-span-4">
 								<h3 className="text-heading text-fog-50">Комплект поставки</h3>
 								<p className="mt-3 text-sm text-fog-400">
@@ -447,10 +457,13 @@ export default function ProductPage() {
 								))}
 							</ul>
 						</Reveal>
+						)}
 					</div>
 				</section>
+				)}
 
 				{/* ------------------------------- Аксессуары -------------------------------- */}
+				{hasAccessories && (
 				<section className="section shell">
 					<Reveal>
 						<p className="eyebrow">
@@ -552,6 +565,7 @@ export default function ProductPage() {
 						})}
 					</div>
 				</section>
+				)}
 
 				{/* --------------------------- Заявка + смета -------------------------------- */}
 				<section className="border-t border-white/8 bg-ink-900">

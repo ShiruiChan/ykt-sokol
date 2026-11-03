@@ -7,7 +7,8 @@
   "redirects": [
     { "source": "/product/1", "destination": "/models/pickup-1-5", "permanent": true },
     { "source": "/product/2", "destination": "/models/pickup-1-8", "permanent": true },
-    { "source": "/product/3", "destination": "/models/sokol-plus-jimny", "permanent": true },
+    { "source": "/product/3", "destination": "/models/sokol-plus-timken", "permanent": true },
+    { "source": "/models/sokol-plus-jimny", "destination": "/models/sokol-plus-timken", "permanent": true },
     { "source": "/product/4", "destination": "/models/sokol-plus-timken", "permanent": true },
     { "source": "/product/5", "destination": "/models/sokol-pro-plus", "permanent": true },
     { "source": "/product/6", "destination": "/models/lis", "permanent": true }
