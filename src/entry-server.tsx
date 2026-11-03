@@ -8,7 +8,7 @@ import { prerenderToNodeStream } from 'react-dom/static';
 import { StaticRouter } from 'react-router';
 import App from './App';
 
-export { ALL_PATHS, getMeta } from './seo/meta';
+export { ALL_PATHS, NOINDEX_PATHS, getMeta } from './seo/meta';
 export { SITE_URL } from './config/site';
 
 export async function render(url: string): Promise<string> {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
@@ -199,10 +199,13 @@ export default function ProductPage() {
 	const [showMobileBar, setShowMobileBar] = useState(false);
 
 	const formRef = useRef<HTMLDivElement>(null);
+	const { search } = useLocation();
 
-	// Сброс выбора при переходе на другую модель
+	// Сброс выбора при переходе на другую модель. Возврат из КП
+	// (?opts=1,5) восстанавливает ту же комплектацию
 	useEffect(() => {
-		setSelected({});
+		const ids = new URLSearchParams(search).get('opts')?.split(',').map(Number) ?? [];
+		setSelected(Object.fromEntries(ids.filter((n) => Number.isInteger(n) && n > 0).map((n) => [n, true])));
 		setOpenCategories([]);
 	}, [slug]);
 
@@ -579,18 +582,19 @@ export default function ProductPage() {
 								</p>
 								<h2 className="mt-5 text-title text-fog-50">Оформить заявку</h2>
 								<p className="mt-5 max-w-lg text-fog-400">
-									Инженер перезвонит, уточнит комплектацию и назовёт срок изготовления.
-									Предоплата не требуется до согласования.
+									Сформируйте КП — менеджер свяжется и согласует комплектацию. Предоплата
+									50&nbsp;000&nbsp;₽ после согласования.
 								</p>
 
-									<ContactForm
-										key={product.id}
-										variant="page"
-										subject={product.name}
-										order={order}
-										onSent={() => setSelected({})}
-										className="mt-9"
-									/>
+								<ContactForm
+									key={product.id}
+									variant="page"
+									subject={product.name}
+									order={order}
+									kp={{ product, optionIds: selectedList.map((a) => a.id) }}
+									onSent={() => setSelected({})}
+									className="mt-9"
+								/>
 							</div>
 
 							{/* Смета */}
@@ -728,8 +732,9 @@ export default function ProductPage() {
 								type="button"
 								onClick={scrollToForm}
 								className="btn btn-primary shrink-0 py-3 pr-3 pl-5 text-sm"
+								aria-label="Оформить коммерческое предложение"
 							>
-								Оформить
+								Оформить КП
 								<span className="btn-dot h-7 w-7">
 									<ArrowUpRight className="h-3.5 w-3.5" />
 								</span>

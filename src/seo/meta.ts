@@ -128,6 +128,18 @@ export const STATIC_PAGES: Record<string, Omit<PageMeta, 'path'>> = {
 	},
 };
 
+/**
+ * Служебные страницы: пререндерятся (чтобы адрес отдавал 200, а не 404),
+ * но закрыты от индексации и в sitemap не попадают.
+ */
+export const NOINDEX_PAGES: Record<string, Omit<PageMeta, 'path'>> = {
+	'/kp': {
+		title: `Коммерческое предложение — ${BRAND}`,
+		description: 'Коммерческое предложение по выбранной комплектации снегоболотохода.',
+		noindex: true,
+	},
+};
+
 const NOT_FOUND: Omit<PageMeta, 'path'> = {
 	title: `Страница не найдена — ${BRAND}`,
 	description: 'Такой страницы нет. Перейдите в каталог моделей или свяжитесь с нами.',
@@ -152,6 +164,9 @@ export function getMeta(pathname: string): PageMeta {
 	const page = STATIC_PAGES[path];
 	if (page) return { ...page, path };
 
+	const service = NOINDEX_PAGES[path];
+	if (service) return { ...service, path };
+
 	const model = path.match(/^\/models\/([^/]+)$/);
 	if (model) {
 		const product = productBySlug(model[1]);
@@ -163,5 +178,8 @@ export function getMeta(pathname: string): PageMeta {
 
 /** Все адреса, которые надо пререндерить и положить в sitemap. */
 export const ALL_PATHS = [...Object.keys(STATIC_PAGES), ...products.map(productPath)];
+
+/** Адреса, которые пререндерятся, но не входят в sitemap (noindex). */
+export const NOINDEX_PATHS = Object.keys(NOINDEX_PAGES);
 
 export { DEFAULT_IMAGE };

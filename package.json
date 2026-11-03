@@ -9,6 +9,7 @@
 		"build:spa": "vite build",
 		"preview": "npx serve@14 dist",
 		"typecheck": "tsc --noEmit -p .",
+		"test": "node --test src/utils/*.test.mjs",
 		"optimize:images": "node scripts/optimize-images.mjs",
 		"images:variants": "node scripts/build-image-variants.mjs"
 	},

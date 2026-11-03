@@ -10,14 +10,21 @@ const MAX_BODY = 16_000;
 const MAX_ACCESSORIES = 60;
 
 const LIMITS = {
-	name: 100,
+	/** ФИО или название организации */
+	name: 150,
 	contact: 100,
 	comment: 2000,
 	model: 200,
 	subject: 200,
-	page: 300,
+	// Ссылка на документ КП несёт id опций — запас под длинную комплектацию
+	page: 500,
 	accessory: 200,
 } as const;
+
+/** КП-20261103-7KQ2 — формат номера из src/utils/kp.ts */
+const KP_NUMBER_RE = /^КП-\d{8}-[2-9A-HJ-NP-Z]{4}$/;
+/** ИНН организации — 10 цифр, ИП/физлица — 12 */
+const INN_RE = /^(\d{10}|\d{12})$/;
 
 interface Accessory {
 	name: string;
@@ -33,6 +40,8 @@ interface CleanRequest {
 	price: number | null;
 	accessories: Accessory[];
 	total: number | null;
+	inn: string;
+	kpNumber: string;
 	page: string;
 }
 
@@ -60,6 +69,8 @@ function validate(raw: Record<string, unknown>): Validation {
 	const subject = text(raw.subject);
 	const model = text(raw.model);
 	const page = text(raw.page);
+	const inn = text(raw.inn).replace(/\s/g, '');
+	const kpNumber = text(raw.kpNumber);
 
 	if (name.length < 2) errors.name = 'required';
 	else if (name.length > LIMITS.name) errors.name = 'too_long';
@@ -74,6 +85,8 @@ function validate(raw: Record<string, unknown>): Validation {
 	if (subject.length > LIMITS.subject) errors.subject = 'too_long';
 	if (model.length > LIMITS.model) errors.model = 'too_long';
 	if (page.length > LIMITS.page) errors.page = 'too_long';
+	if (inn && !INN_RE.test(inn)) errors.inn = 'invalid';
+	if (kpNumber && !KP_NUMBER_RE.test(kpNumber)) errors.kpNumber = 'invalid';
 
 	const accessories: Accessory[] = [];
 	if (raw.accessories !== undefined) {
@@ -106,6 +119,8 @@ function validate(raw: Record<string, unknown>): Validation {
 			price: money(raw.price),
 			accessories,
 			total: money(raw.total),
+			inn,
+			kpNumber,
 			page,
 		},
 	};
@@ -118,7 +133,10 @@ const rub = (n: number) => `${n.toLocaleString('ru-RU')} ₽`;
 
 /** Текст сообщения: сначала что хотят купить, затем кому перезвонить */
 function formatMessage(r: CleanRequest) {
-	const lines: string[] = ['<b>Новая заявка с сайта</b>', ''];
+	const lines: string[] = [
+		r.kpNumber ? `<b>Сформировано ${escapeHtml(r.kpNumber)}</b>` : '<b>Новая заявка с сайта</b>',
+		'',
+	];
 
 	if (r.model) lines.push(`<b>Модель:</b> ${escapeHtml(r.model)}`);
 	else if (r.subject) lines.push(`<b>Тема:</b> ${escapeHtml(r.subject)}`);
@@ -133,10 +151,11 @@ function formatMessage(r: CleanRequest) {
 	if (r.total !== null) lines.push(`<b>Итого:</b> ${rub(r.total)}`);
 
 	if (lines.length > 2) lines.push('');
-	lines.push(`<b>Имя:</b> ${escapeHtml(r.name)}`);
+	lines.push(`<b>${r.kpNumber ? 'Покупатель' : 'Имя'}:</b> ${escapeHtml(r.name)}`);
 	lines.push(`<b>Контакт:</b> ${escapeHtml(r.contact)}`);
+	if (r.inn) lines.push(`<b>ИНН:</b> ${escapeHtml(r.inn)}`);
 	if (r.comment) lines.push(`<b>Комментарий:</b> ${escapeHtml(r.comment)}`);
-	if (r.page) lines.push('', `<b>Страница:</b> ${escapeHtml(r.page)}`);
+	if (r.page) lines.push('', `<b>${r.kpNumber ? 'Документ КП' : 'Страница'}:</b> ${escapeHtml(r.page)}`);
 
 	return lines.join('\n');
 }
