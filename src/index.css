@@ -422,6 +422,244 @@
 	}
 }
 
+/* ------------------------ Коммерческое предложение ------------------------ */
+
+/* Прямоугольная кнопка для деловых экранов (документ КП) */
+.btn-rect {
+	border-radius: var(--radius-xs);
+}
+
+/*
+ * Лист КП — строгий деловой документ: чёрное на белом, без акцентов.
+ * На экране — «бумага» на тёмном фоне, в печати — чистая страница A4.
+ */
+.kp-paper {
+	background: #fff;
+	border-radius: var(--radius-xs);
+	box-shadow: var(--shadow-plate);
+	padding: clamp(1.25rem, 4vw, 3rem);
+	overflow-x: auto;
+}
+
+.kp-sheet {
+	color: #111;
+	font-size: 13px;
+	line-height: 1.45;
+	font-feature-settings: 'tnum';
+	font-variant-numeric: tabular-nums;
+	min-width: 34rem;
+}
+
+.kp-sheet h1,
+.kp-sheet h2 {
+	color: #111;
+	text-wrap: balance;
+}
+
+.kp-head {
+	display: flex;
+	justify-content: space-between;
+	gap: 1.5rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid #111;
+}
+
+.kp-brand {
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+.kp-muted {
+	color: #555;
+	font-size: 12px;
+}
+
+.kp-right {
+	text-align: right;
+	white-space: nowrap;
+}
+
+.kp-title {
+	margin: 1.5rem 0 1.25rem;
+	font-size: 18px;
+	font-weight: 700;
+	text-align: center;
+	letter-spacing: 0;
+	line-height: 1.3;
+}
+
+.kp-parties {
+	display: grid;
+	grid-template-columns: 7.5rem 1fr;
+	gap: 0.5rem 1rem;
+	margin-bottom: 1.25rem;
+}
+
+.kp-parties dt {
+	font-weight: 600;
+}
+
+.kp-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.kp-table th,
+.kp-table td {
+	border: 1px solid #111;
+	padding: 0.35rem 0.5rem;
+	vertical-align: top;
+	text-align: left;
+}
+
+.kp-table th {
+	font-weight: 600;
+	background: #f2f2f2;
+}
+
+.kp-table .kp-num {
+	text-align: right;
+	white-space: nowrap;
+}
+
+.kp-table tfoot td {
+	border: 0;
+	padding-top: 0.5rem;
+	font-weight: 700;
+}
+
+.kp-table tfoot td:last-child {
+	border: 1px solid #111;
+}
+
+.kp-sum {
+	margin-top: 0.75rem;
+}
+
+.kp-sum strong {
+	font-weight: 700;
+}
+
+.kp-block {
+	margin-top: 1.25rem;
+	break-inside: avoid;
+}
+
+.kp-block h2 {
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0;
+	margin-bottom: 0.4rem;
+}
+
+.kp-kit {
+	columns: 2;
+	column-gap: 2rem;
+	list-style: disc;
+	padding-left: 1.1rem;
+}
+
+.kp-terms {
+	list-style: decimal;
+	padding-left: 1.25rem;
+}
+
+.kp-terms li + li {
+	margin-top: 0.2rem;
+}
+
+.kp-pre {
+	white-space: pre-wrap;
+}
+
+.kp-foot {
+	margin-top: 2rem;
+	padding-top: 0.6rem;
+	border-top: 1px solid #bbb;
+}
+
+/*
+ * Печать КП («Скачать PDF»): только лист документа. Класс kp-route
+ * вешает страница /kp, поэтому печать остального сайта не меняется.
+ */
+@media print {
+	@page {
+		size: A4;
+		margin: 14mm 12mm;
+	}
+
+	html.kp-route,
+	html.kp-route body {
+		background: #fff !important;
+		color: #000 !important;
+	}
+
+	/* Шапка, подвал, ContactDock, модалки, зерно — всё, что не содержит лист */
+	html.kp-route body > :not(#root),
+	html.kp-route #root > :not(:has(.kp-sheet)),
+	html.kp-route .kp-toolbar {
+		display: none !important;
+	}
+
+	/* Анимированная обёртка маршрута не должна сдвигать лист */
+	html.kp-route #root > :has(.kp-sheet) {
+		transform: none !important;
+		opacity: 1 !important;
+	}
+
+	html.kp-route #root {
+		min-height: 0;
+	}
+
+	html.kp-route .kp-main {
+		padding: 0 !important;
+		background: #fff !important;
+	}
+
+	html.kp-route .kp-main .shell {
+		max-width: none;
+		padding: 0;
+	}
+
+	html.kp-route .kp-paper {
+		max-width: none;
+		margin: 0;
+		padding: 0;
+		box-shadow: none;
+		border-radius: 0;
+		overflow: visible;
+	}
+
+	.kp-sheet {
+		min-width: 0;
+		color: #000;
+		font-size: 10pt;
+		line-height: 1.4;
+	}
+
+	.kp-title {
+		margin: 1.1rem 0 1rem;
+	}
+
+	.kp-block {
+		margin-top: 0.9rem;
+	}
+
+	.kp-foot {
+		margin-top: 1.25rem;
+	}
+
+	.kp-table th {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	.kp-table tr {
+		break-inside: avoid;
+	}
+}
+
 /* ------------------------------- Анимации --------------------------------- */
 
 @keyframes sokol-fade-in {

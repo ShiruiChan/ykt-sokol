@@ -1,9 +1,11 @@
 import { useId, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { sendRequest, RequestValidationError, type RequestAccessory } from '../utils/request';
+import { isValidInn, kpUrl, makeKpCode, parseKp, saveBuyer, sendKp } from '../utils/kp';
 import { PHONE } from '../config/site';
+import type { Product } from '../types';
 import { reachGoal } from './Metrika';
-import { ArrowUpRight, Check } from './Icons';
+import { ArrowUpRight, Check, Phone } from './Icons';
 
 /** Данные сметы со страницы модели — уходят вместе с контактом */
 export interface RequestOrder {
@@ -13,11 +15,23 @@ export interface RequestOrder {
 	total: number;
 }
 
+/** Режим коммерческого предложения: форма собирает КП по текущей смете */
+export interface KpSource {
+	product: Product;
+	/** id выбранных опций в порядке страницы */
+	optionIds: number[];
+}
+
 interface ContactFormProps {
 	/** Что именно интересует клиента — уходит в заявку */
 	subject?: string;
 	/** Смета со страницы модели */
 	order?: RequestOrder;
+	/**
+	 * Основной сценарий страницы модели — «Сформировать КП»: ФИО/организация,
+	 * телефон, ИНН. Обычная заявка «перезвоните мне» остаётся второй кнопкой.
+	 */
+	kp?: KpSource;
 	/** Подпись над полями */
 	note?: string;
 	/**
@@ -36,11 +50,12 @@ type Status = 'idle' | 'sending' | 'sent' | 'error';
 const PHONE_RE = /^[+()\d\s-]{10,20}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-const EMPTY = { name: '', contact: '', comments: '', website: '' };
+const EMPTY = { name: '', contact: '', inn: '', comments: '', website: '' };
 
 export default function ContactForm({
 	subject = 'Заявка с сайта',
 	order,
+	kp,
 	note,
 	variant,
 	compact = false,
@@ -57,6 +72,9 @@ export default function ContactForm({
 	const [values, setValues] = useState(EMPTY);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [status, setStatus] = useState<Status>('idle');
+	const navigate = useNavigate();
+	const isKp = Boolean(kp);
+	const nameMax = isKp ? 150 : 100;
 
 	const update = (field: keyof typeof values) => (e: { target: { value: string } }) => {
 		setValues((v) => ({ ...v, [field]: e.target.value }));
@@ -71,10 +89,19 @@ export default function ContactForm({
 	const validate = () => {
 		const next: Record<string, string> = {};
 		const name = values.name.trim();
-		if (name.length < 2) next.name = 'Укажите, как к вам обращаться';
-		else if (name.length > 100) next.name = 'Слишком длинно — хватит имени';
+		if (name.length < 2)
+			next.name = isKp ? 'Укажите ФИО или название организации' : 'Укажите, как к вам обращаться';
+		else if (name.length > nameMax) next.name = 'Слишком длинно — сократите';
 		const contact = values.contact.trim();
-		if (!contact) next.contact = 'Нужен телефон или почта для ответа';
+		if (isKp) {
+			// В КП нужен именно телефон: менеджер звонит согласовать комплектацию
+			if (!contact) next.contact = 'Нужен телефон для связи';
+			else if (!PHONE_RE.test(contact) || contact.replace(/\D/g, '').length < 10)
+				next.contact = 'Проверьте номер — например, +7 914 276-75-20';
+			const inn = values.inn.replace(/\s/g, '');
+			if (inn && !isValidInn(inn))
+				next.inn = 'Проверьте ИНН: 10 цифр у организации, 12 — у ИП';
+		} else if (!contact) next.contact = 'Нужен телефон или почта для ответа';
 		else if (!PHONE_RE.test(contact) && !EMAIL_RE.test(contact))
 			next.contact = 'Похоже на опечатку — проверьте номер или адрес';
 		if (values.comments.length > 2000) next.comments = 'Комментарий длиннее 2000 символов';
@@ -92,6 +119,7 @@ export default function ContactForm({
 				name: values.name.trim(),
 				contact: values.contact.trim(),
 				comment: values.comments.trim(),
+				inn: values.inn.replace(/\s/g, '') || undefined,
 				subject: order ? undefined : subject,
 				...(order ?? {}),
 				website: values.website,
@@ -107,6 +135,7 @@ export default function ContactForm({
 				if (err.errors.name) next.name = 'Проверьте имя';
 				if (err.errors.contact) next.contact = 'Проверьте телефон или почту';
 				if (err.errors.comment) next.comments = 'Комментарий слишком длинный';
+				if (err.errors.inn) next.inn = 'Проверьте ИНН';
 				setErrors(next);
 			}
 			setStatus('error');
@@ -115,6 +144,36 @@ export default function ContactForm({
 				reason: err instanceof RequestValidationError ? 'validation' : 'delivery',
 			});
 		}
+	};
+
+	/**
+	 * «Сформировать КП»: документ открывается сразу, заявка менеджеру
+	 * уходит в фоне — сбой сети не мешает клиенту получить КП.
+	 */
+	const handleKp = (e: FormEvent) => {
+		e.preventDefault();
+		if (!kp || status === 'sending' || !validate()) return;
+
+		const code = makeKpCode();
+		const url = kpUrl(kp.product, kp.optionIds, code);
+		const doc = parseKp(url.slice(url.indexOf('?')));
+		if (!doc) return;
+
+		const buyer = {
+			name: values.name.trim(),
+			phone: values.contact.trim(),
+			inn: values.inn.replace(/\s/g, ''),
+			comment: values.comments.trim(),
+		};
+		saveBuyer(code, buyer);
+		void sendKp(doc, buyer, values.website);
+		reachGoal('kp_created', {
+			model: doc.product.name,
+			options: doc.options.length,
+			total: doc.total,
+			org: Boolean(buyer.inn),
+		});
+		navigate(url);
 	};
 
 	if (status === 'sent') {
@@ -153,15 +212,15 @@ export default function ContactForm({
 	const nameField = (
 		<div>
 			<label htmlFor={id('name')} className="field-label">
-				Как к вам обращаться
+				{isKp ? 'ФИО или название организации' : 'Как к вам обращаться'}
 			</label>
 			<input
 				id={id('name')}
 				name="from_name"
 				type="text"
-				autoComplete="name"
-				placeholder="Айсен Николаев"
-				maxLength={100}
+				autoComplete={isKp ? 'off' : 'name'}
+				placeholder={isKp ? 'Николаев Айсен Петрович или ООО «Север»' : 'Айсен Николаев'}
+				maxLength={nameMax}
 				className="field"
 				value={values.name}
 				onChange={update('name')}
@@ -175,16 +234,16 @@ export default function ContactForm({
 	const contactField = (
 		<div>
 			<label htmlFor={id('contact')} className="field-label">
-				Телефон или почта
+				{isKp ? 'Телефон' : 'Телефон или почта'}
 			</label>
 			<input
 				id={id('contact')}
 				name="contact"
-				type="text"
+				type={isKp ? 'tel' : 'text'}
 				inputMode="tel"
 				autoComplete="tel"
 				placeholder="+7 (914) 276-75-20"
-				maxLength={100}
+				maxLength={isKp ? 20 : 100}
 				className="field tnum"
 				value={values.contact}
 				onChange={update('contact')}
@@ -195,9 +254,33 @@ export default function ContactForm({
 		</div>
 	);
 
+	const innField = isKp && (
+		<div>
+			<label htmlFor={id('inn')} className="field-label">
+				ИНН организации
+				<span className="ml-2 font-normal tracking-normal text-fog-500">необязательно</span>
+			</label>
+			<input
+				id={id('inn')}
+				name="inn"
+				type="text"
+				inputMode="numeric"
+				autoComplete="off"
+				placeholder="10 или 12 цифр"
+				maxLength={14}
+				className="field tnum"
+				value={values.inn}
+				onChange={update('inn')}
+				aria-invalid={Boolean(errors.inn)}
+				aria-describedby={errors.inn ? id('inn-err') : undefined}
+			/>
+			{errorText('inn')}
+		</div>
+	);
+
 	return (
 		<form
-			onSubmit={handleSubmit}
+			onSubmit={isKp ? handleKp : handleSubmit}
 			noValidate
 			className={`${isCompact ? 'space-y-5' : 'space-y-6'} ${
 				isPage ? 'rounded-lg border border-white/8 bg-ink-850 p-6 md:p-8' : ''
@@ -205,7 +288,15 @@ export default function ContactForm({
 		>
 			{note && <p className="text-sm text-fog-400">{note}</p>}
 
-			{isPage ? (
+			{isKp ? (
+				<>
+					{nameField}
+					<div className="grid gap-5 sm:grid-cols-2">
+						{contactField}
+						{innField}
+					</div>
+				</>
+			) : isPage ? (
 				<div className="grid gap-5 sm:grid-cols-2">
 					{nameField}
 					{contactField}
@@ -225,10 +316,12 @@ export default function ContactForm({
 				<textarea
 					id={id('comments')}
 					name="comments"
-					rows={isCompact ? 3 : 4}
+					rows={isCompact || isKp ? 3 : 4}
 					maxLength={2000}
 					placeholder={
-						order
+						isKp
+							? 'Куда доставить, к какому сроку, что ещё важно учесть'
+							: order
 							? 'Сроки, доставка, дополнительные пожелания'
 							: 'Какая модель интересует, сроки, комплектация'
 					}
@@ -267,19 +360,47 @@ export default function ContactForm({
 				</p>
 			)}
 
-			<button
-				type="submit"
-				className={`btn btn-primary w-full ${isPage ? 'sm:w-auto' : ''}`}
-				disabled={status === 'sending'}
-			>
-				{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
-				<span className="btn-dot">
-					<ArrowUpRight className="h-4 w-4" />
-				</span>
-			</button>
+			{isKp ? (
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+					<button type="submit" className="btn btn-primary w-full sm:w-auto">
+						Сформировать КП
+						<span className="btn-dot">
+							<ArrowUpRight className="h-4 w-4" />
+						</span>
+					</button>
+					{/* Вторая дорожка — просто звонок без документа */}
+					<button
+						type="button"
+						onClick={handleSubmit}
+						className="btn btn-ghost w-full sm:w-auto"
+						disabled={status === 'sending'}
+					>
+						<Phone className="h-4 w-4" />
+						{status === 'sending' ? 'Отправляем…' : 'Просто перезвоните мне'}
+					</button>
+				</div>
+			) : (
+				<button
+					type="submit"
+					className={`btn btn-primary w-full ${isPage ? 'sm:w-auto' : ''}`}
+					disabled={status === 'sending'}
+				>
+					{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
+					<span className="btn-dot">
+						<ArrowUpRight className="h-4 w-4" />
+					</span>
+				</button>
+			)}
+
+			{isKp && (
+				<p className="text-sm text-fog-400">
+					КП откроется сразу — его можно сохранить в PDF. Копия уйдёт менеджеру, он перезвонит и
+					согласует комплектацию.
+				</p>
+			)}
 
 			<p className={`text-xs leading-relaxed text-fog-500 ${isPage ? '' : 'text-center'}`}>
-				Нажимая кнопку, вы соглашаетесь на обработку персональных данных на условиях{' '}
+				{isKp ? 'Нажимая любую из кнопок' : 'Нажимая кнопку'}, вы соглашаетесь на обработку персональных данных на условиях{' '}
 				{/* В новой вкладке — чтобы не потерять заполненные поля */}
 				<Link
 					to="/privacy"

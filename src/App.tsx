@@ -20,6 +20,7 @@ const Documents = React.lazy(() => import('./pages/Cert'));
 const Compare = React.lazy(() => import('./pages/Compare'));
 const Service = React.lazy(() => import('./pages/Service'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
+const Kp = React.lazy(() => import('./pages/Kp'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 const loadMotionFeatures = () => import('./motion-features').then((mod) => mod.default);
@@ -80,6 +81,8 @@ export default function App() {
 					<Route path="gallery" element={<Gallery />} />
 					<Route path="cert" element={<Documents />} />
 					<Route path="privacy" element={<Privacy />} />
+					{/* Коммерческое предложение: noindex, в sitemap не попадает */}
+					<Route path="kp" element={<Kp />} />
 					<Route path="*" element={<NotFound />} />
 				</Route>
 			</Routes>

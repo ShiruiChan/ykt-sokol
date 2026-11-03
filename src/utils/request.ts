@@ -30,6 +30,10 @@ export interface RequestPayload {
 	price?: number;
 	accessories?: RequestAccessory[];
 	total?: number;
+	/** ИНН покупателя — для КП организации */
+	inn?: string;
+	/** Номер сформированного коммерческого предложения: КП-20261103-7KQ2 */
+	kpNumber?: string;
 	/** Адрес страницы, с которой ушла заявка */
 	page?: string;
 	/** Honeypot: заполняют только боты */
@@ -61,8 +65,17 @@ function sendViaEmailJs(p: RequestPayload) {
 	return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
 		from_name: p.name,
 		contact: p.contact,
-		comments: p.comment || '—',
-		product_name: p.model || p.subject || 'Заявка с сайта',
+		// В шаблоне нет полей под КП — номер и ИНН дописываем к комментарию
+		comments:
+			[
+				p.kpNumber && `Сформировано ${p.kpNumber}`,
+				p.inn && `ИНН: ${p.inn}`,
+				p.comment,
+				p.kpNumber && p.page && `Документ: ${p.page}`,
+			]
+				.filter(Boolean)
+				.join('\n') || '—',
+		product_name: (p.kpNumber && p.subject) || p.model || p.subject || 'Заявка с сайта',
 		product_price: p.price !== undefined ? rub(p.price) : '—',
 		accessories:
 			p.accessories?.map((a) => `${a.name}: ${rub(a.price)} ₽`).join('\n') ||

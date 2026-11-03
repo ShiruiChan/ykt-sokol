@@ -15,7 +15,7 @@ const ROOT = path.resolve(new URL('.', import.meta.url).pathname, '..');
 const DIST = path.join(ROOT, 'dist');
 const SSR_DIR = path.join(ROOT, 'dist-ssr');
 
-const { render, ALL_PATHS, getMeta, SITE_URL } = await import(
+const { render, ALL_PATHS, NOINDEX_PATHS, getMeta, SITE_URL } = await import(
 	pathToFileURL(path.join(SSR_DIR, 'entry-server.js')).href
 );
 
@@ -78,6 +78,10 @@ async function renderPage(url, file) {
 for (const url of ALL_PATHS) {
 	// cleanUrls в vercel.json: /gallery отдаётся из gallery.html
 	await renderPage(url, url === '/' ? 'index.html' : `${url.slice(1)}.html`);
+}
+// Служебные страницы (КП): 200 с noindex, в sitemap их нет
+for (const url of NOINDEX_PATHS) {
+	await renderPage(url, `${url.slice(1)}.html`);
 }
 // Любой неизвестный адрес → настоящая 404 с noindex
 await renderPage('/404', '404.html');
