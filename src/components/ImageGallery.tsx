@@ -9,7 +9,7 @@ interface ImageGalleryProps {
 	alt?: string;
 }
 
-export default function ImageGallery({ images, alt = 'Снегоболотоход СОКОЛ' }: ImageGalleryProps) {
+export default function ImageGallery({ images, alt = 'Снегоболотоход ЯКТ-СОКОЛ' }: ImageGalleryProps) {
 	const [index, setIndex] = useState(0);
 	const [direction, setDirection] = useState(1);
 	const reduce = useReducedMotion();
