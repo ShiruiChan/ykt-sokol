@@ -10,11 +10,8 @@ import type { Product } from '../types';
 /*  Данные строк                                                              */
 /* -------------------------------------------------------------------------- */
 
-/** «В разработке» и пустые строки — это отсутствие данных, а не значение */
-const clean = (v?: string) => {
-	const s = v?.trim();
-	return s && !/^в разработке$/i.test(s) ? s : undefined;
-};
+/** Пустые строки — это отсутствие данных, а не значение */
+const clean = (v?: string) => v?.trim() || undefined;
 
 /** Первое целое число из строки; для подсветки лучшего значения */
 const numberIn = (v: string | undefined, re: RegExp) => {
@@ -94,7 +91,8 @@ const bestIds = (row: Row) => {
 
 const BEST = ROWS.map(bestIds);
 
-const inDevelopment = (p: Product) => !clean(p.specs.engine) && !clean(p.specs.clearance);
+/** Характеристики модели ещё не опубликованы */
+const noSpecs = (p: Product) => !clean(p.specs.engine) && !clean(p.specs.clearance);
 
 /* -------------------------------------------------------------------------- */
 /*  Ячейки                                                                    */
@@ -130,9 +128,9 @@ function ModelHead({ product }: { product: Product }) {
 						<ImageIcon className="h-7 w-7 opacity-60" />
 					</span>
 				)}
-				{inDevelopment(product) && (
+				{noSpecs(product) && (
 					<span className="absolute top-2 left-2 rounded-xs bg-ink-950/85 px-2 py-1 text-[10px] font-semibold tracking-[0.14em] text-accent-200 uppercase">
-						в разработке
+						данные уточняются
 					</span>
 				)}
 			</span>
@@ -194,7 +192,7 @@ export default function Compare() {
 					    позиционируются от Reveal и раздвигают страницу. */}
 					<div className="relative overflow-x-auto overscroll-x-contain rounded-lg border border-white/8 bg-ink-900">
 						<table className="w-full min-w-[60rem] border-collapse text-sm">
-							<caption className="sr-only">Сравнение характеристик моделей СОКОЛ</caption>
+							<caption className="sr-only">Сравнение характеристик моделей ЯКТ-СОКОЛ</caption>
 							<thead>
 								<tr className="border-b border-white/8">
 									<th scope="col" className={`${STICKY} py-5 align-bottom`}>
@@ -232,7 +230,7 @@ export default function Compare() {
 						</table>
 					</div>
 					<p className="mt-4 text-xs text-fog-500">
-						Прочерк — данных пока нет: модель в разработке или параметр не опубликован. Полные
+						Прочерк — данных пока нет: параметр ещё не опубликован. Полные
 						характеристики — на странице каждой модели.
 					</p>
 				</Reveal>
@@ -244,7 +242,7 @@ export default function Compare() {
 					<div>
 						<p className="font-semibold text-fog-50">Не можете выбрать?</p>
 						<p className="mt-1 text-sm text-fog-400">
-							Расскажите, где и как будете ездить — инженер подберёт модель и комплектацию.
+							Расскажите, где и как будете ездить — менеджер подберёт модель и комплектацию.
 						</p>
 					</div>
 					<button

@@ -266,6 +266,15 @@ export default function ProductPage() {
 	};
 
 	const others = products.filter((p) => p.id !== product.id).slice(0, 3);
+	// У новых моделей данные публикуются постепенно: пустые блоки не показываем
+	const hasSpecs = SPEC_GROUPS.some((g) => g.rows.some(([, get]) => Boolean(get(product))));
+	const hasAccessories = Object.keys(product.accessories).length > 0;
+	const keyFacts = [
+		{ k: 'Клиренс', v: product.specs.clearance },
+		{ k: 'Мощность', v: shortPower(product.specs.extendedSpecs?.enginePower) },
+		{ k: 'Мест', v: product.specs.seats },
+		{ k: 'На плаву', v: product.specs.extendedSpecs?.waterSpeed },
+	].filter((x) => x.v);
 
 	return (
 		<>
@@ -291,15 +300,9 @@ export default function ProductPage() {
 							<p className="mt-6 text-fog-400">{product.deskSmall}</p>
 
 							{/* Ключевые цифры */}
+							{keyFacts.length > 0 && (
 							<dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/8 bg-white/8">
-								{[
-									{ k: 'Клиренс', v: product.specs.clearance },
-									{ k: 'Мощность', v: shortPower(product.specs.extendedSpecs?.enginePower) },
-									{ k: 'Мест', v: product.specs.seats },
-									{ k: 'На плаву', v: product.specs.extendedSpecs?.waterSpeed },
-								]
-									.filter((x) => x.v)
-									.map((x) => (
+								{keyFacts.map((x) => (
 										<div key={x.k} className="bg-ink-900 px-4 py-4">
 											<dt className="text-[11px] tracking-[0.14em] text-fog-500 uppercase">
 												{x.k}
@@ -308,6 +311,7 @@ export default function ProductPage() {
 										</div>
 									))}
 							</dl>
+							)}
 
 							{/* Цена и целевое действие */}
 							<div className="mt-8 rounded-lg border border-white/8 bg-ink-850 p-6">
@@ -347,8 +351,11 @@ export default function ProductPage() {
 				</section>
 
 				{/* ---------------------------- Технические данные ---------------------------- */}
+				{(hasSpecs || product.defaultKit.length > 0) && (
 				<section className="border-y border-white/8 bg-ink-900">
 					<div className="section shell">
+						{hasSpecs && (
+						<>
 						<Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 							<div>
 								<p className="eyebrow">
@@ -427,8 +434,12 @@ export default function ProductPage() {
 							})}
 						</div>
 
+						</>
+						)}
+
 						{/* Комплект поставки */}
-						<Reveal className="mt-12 grid gap-8 lg:grid-cols-12">
+						{product.defaultKit.length > 0 && (
+						<Reveal className={`grid gap-8 lg:grid-cols-12 ${hasSpecs ? 'mt-12' : ''}`}>
 							<div className="lg:col-span-4">
 								<h3 className="text-heading text-fog-50">Комплект поставки</h3>
 								<p className="mt-3 text-sm text-fog-400">
@@ -447,10 +458,13 @@ export default function ProductPage() {
 								))}
 							</ul>
 						</Reveal>
+						)}
 					</div>
 				</section>
+				)}
 
 				{/* ------------------------------- Аксессуары -------------------------------- */}
+				{hasAccessories && (
 				<section className="section shell">
 					<Reveal>
 						<p className="eyebrow">
@@ -552,6 +566,7 @@ export default function ProductPage() {
 						})}
 					</div>
 				</section>
+				)}
 
 				{/* --------------------------- Заявка + смета -------------------------------- */}
 				<section className="border-t border-white/8 bg-ink-900">

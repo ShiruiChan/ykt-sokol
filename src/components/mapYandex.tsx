@@ -76,7 +76,7 @@ export default function DynamicYandexMap() {
 							    приводим его к тёмной теме инверсией с возвратом оттенков. */}
 							<iframe
 								src="https://yandex.ru/map-widget/v1/?um=constructor%3A254de833350520bd7e4f5e1bfc20d3607f3b01fac102f13db1df68fc1696db89&amp;source=constructor"
-								title="Карта проезда к производству ЯКТ СОКОЛ, Якутск, Чусовского 75/3"
+								title="Карта проезда к производству ЯКТ-СОКОЛ, Якутск, Чусовского 75/3"
 								loading="lazy"
 								allowFullScreen
 								className="h-[340px] w-full border-0 md:h-full md:min-h-[460px]"

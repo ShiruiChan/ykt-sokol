@@ -44,7 +44,7 @@ export default function Features() {
 					<Reveal className="lg:col-span-5">
 						<p className="eyebrow">
 							<span className="h-px w-8 bg-accent-400/70" />
-							Почему берут СОКОЛ
+							Почему берут ЯКТ-СОКОЛ
 						</p>
 						<h2 className="mt-5 text-title text-fog-50">
 							Техника, собранная теми,
@@ -94,12 +94,12 @@ export default function Features() {
 							<figure className="relative overflow-hidden rounded-[calc(2rem-0.375rem)]">
 								<img
 									src="/images/lis/1.webp"
-									alt="Снегоболотоход СОКОЛ ЛИС на грунтовой дороге в сосновом лесу"
+									alt="Снегоболотоход ЯКТ-СОКОЛ ЛИС с закрытой кабиной на снегу"
 									className="aspect-[16/10] w-full object-cover"
 									loading="lazy"
 									decoding="async"
-									width={1024}
-									height={640}
+									width={1000}
+									height={462}
 								/>
 								<div
 									aria-hidden
@@ -107,11 +107,11 @@ export default function Features() {
 								/>
 								<figcaption className="absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4">
 									<span className="font-display text-lg tracking-wide text-fog-50 uppercase">
-										СОКОЛ ЛИС
+										ЯКТ-СОКОЛ ЛИС
 									</span>
 									<span className="flex items-center gap-2 text-xs text-fog-400">
 										<Tire className="h-4 w-4 text-accent-200" />
-										шины низкого давления 1300×700
+										шины низкого давления
 									</span>
 								</figcaption>
 							</figure>
@@ -152,7 +152,7 @@ export default function Features() {
 						</div>
 					</div>
 					<Link to="/cert" className="link-quiet shrink-0">
-						Сертификаты и ПСМ
+						Сертификаты и патент
 						<ArrowUpRight className="h-4 w-4" />
 					</Link>
 				</Reveal>

@@ -26,7 +26,7 @@ const GALLERY_QUALITY = 78;
 const GALLERY_THUMBS = [600, 1200];
 const GALLERY_MIN_GAIN = 0.85;
 
-const MODEL_DIRS = ["images/lis", "images/pickup-1.5", "images/pickup-1.8", "images/sokol-plus"];
+const MODEL_DIRS = ["images/lis", "images/pickup-1.5", "images/pickup-1.8", "images/sokol-plus", "images/sokol-pro-plus"];
 const MODEL_WIDTHS = [480, 960];
 
 // Горизонтальный кадр для широких экранов; квадратный pickup-1.8/1 остаётся для портретных

@@ -14,14 +14,6 @@ const HERO_WIDE_SIZES = '(min-aspect-ratio: 2165/1000) 104vw, 225vh';
 // На портретном экране квадрат тоже упирается в высоту
 const HERO_SQUARE_SIZES = '(min-aspect-ratio: 1/1) 104vw, 104vh';
 
-/** Цифры, которые продают: берём из реальных характеристик линейки */
-const FACTS = [
-	{ value: '500', unit: 'мм', label: 'дорожный просвет' },
-	{ value: '140', unit: 'л.с.', label: 'двигатель Toyota' },
-	{ value: '4×4', unit: '', label: 'постоянный полный' },
-	{ value: '−50', unit: '°C', label: 'рабочая температура' },
-];
-
 export default function Hero() {
 	const ref = useRef<HTMLElement>(null);
 	const reduce = useReducedMotion();
@@ -43,7 +35,7 @@ export default function Hero() {
 	return (
 		<section
 			ref={ref}
-			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-10 md:pb-14"
+			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-16 md:pb-24"
 		>
 			{/* Кадр техники в среде — главный аргумент первого экрана */}
 			<m.div
@@ -65,7 +57,7 @@ export default function Hero() {
 						src={square.src}
 						srcSet={square.srcSet}
 						sizes={HERO_SQUARE_SIZES}
-						alt="Снегоболотоход СОКОЛ на бездорожье"
+						alt="Снегоболотоход ЯКТ-СОКОЛ на бездорожье"
 						className="h-full w-full object-cover object-[60%_center] brightness-110 contrast-[1.05]"
 						fetchPriority="high"
 						decoding="async"
@@ -122,7 +114,7 @@ export default function Hero() {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
 					>
-						Снегоболотоходы СОКОЛ 4×4 из Якутска: полный привод, клиренс до 500 мм и шины
+						Снегоболотоходы ЯКТ-СОКОЛ 4×4 из Якутска: полный привод, клиренс до 500 мм и шины
 						низкого давления. Машина идёт по снегу, болоту и воде — и возвращается обратно.
 					</m.p>
 
@@ -146,29 +138,6 @@ export default function Hero() {
 						</button>
 					</m.div>
 				</div>
-
-				{/* Полоса фактов — цифры вместо обещаний */}
-				<m.dl
-					className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/8 bg-white/8 md:mt-16 md:grid-cols-4 md:backdrop-blur-md"
-					initial={reduce ? false : { opacity: 0, y: 24 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.9, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-				>
-					{FACTS.map((f) => (
-						<div key={f.label} className="bg-ink-950/88 px-5 py-5 md:bg-ink-950/70 md:px-6 md:py-6">
-							<dt className="sr-only">{f.label}</dt>
-							<dd>
-								<span className="tnum font-display text-3xl leading-none text-fog-50 md:text-4xl">
-									{f.value}
-								</span>
-								{f.unit && (
-									<span className="ml-1.5 text-sm font-medium text-accent-200">{f.unit}</span>
-								)}
-								<span className="mt-2 block text-xs leading-snug text-fog-500">{f.label}</span>
-							</dd>
-						</div>
-					))}
-				</m.dl>
 			</m.div>
 		</section>
 	);
