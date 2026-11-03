@@ -35,7 +35,7 @@ export default function Hero() {
 	return (
 		<section
 			ref={ref}
-			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-10 md:pb-14"
+			className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-ink-950 pt-32 pb-16 md:pb-24"
 		>
 			{/* Кадр техники в среде — главный аргумент первого экрана */}
 			<m.div

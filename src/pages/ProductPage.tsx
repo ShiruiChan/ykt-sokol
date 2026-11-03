@@ -269,6 +269,12 @@ export default function ProductPage() {
 	// У новых моделей данные публикуются постепенно: пустые блоки не показываем
 	const hasSpecs = SPEC_GROUPS.some((g) => g.rows.some(([, get]) => Boolean(get(product))));
 	const hasAccessories = Object.keys(product.accessories).length > 0;
+	const keyFacts = [
+		{ k: 'Клиренс', v: product.specs.clearance },
+		{ k: 'Мощность', v: shortPower(product.specs.extendedSpecs?.enginePower) },
+		{ k: 'Мест', v: product.specs.seats },
+		{ k: 'На плаву', v: product.specs.extendedSpecs?.waterSpeed },
+	].filter((x) => x.v);
 
 	return (
 		<>
@@ -294,15 +300,9 @@ export default function ProductPage() {
 							<p className="mt-6 text-fog-400">{product.deskSmall}</p>
 
 							{/* Ключевые цифры */}
+							{keyFacts.length > 0 && (
 							<dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/8 bg-white/8">
-								{[
-									{ k: 'Клиренс', v: product.specs.clearance },
-									{ k: 'Мощность', v: shortPower(product.specs.extendedSpecs?.enginePower) },
-									{ k: 'Мест', v: product.specs.seats },
-									{ k: 'На плаву', v: product.specs.extendedSpecs?.waterSpeed },
-								]
-									.filter((x) => x.v)
-									.map((x) => (
+								{keyFacts.map((x) => (
 										<div key={x.k} className="bg-ink-900 px-4 py-4">
 											<dt className="text-[11px] tracking-[0.14em] text-fog-500 uppercase">
 												{x.k}
@@ -311,6 +311,7 @@ export default function ProductPage() {
 										</div>
 									))}
 							</dl>
+							)}
 
 							{/* Цена и целевое действие */}
 							<div className="mt-8 rounded-lg border border-white/8 bg-ink-850 p-6">
