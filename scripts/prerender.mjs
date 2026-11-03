@@ -101,7 +101,7 @@ ${ALL_PATHS.map(
 await writeFile(path.join(DIST, 'sitemap.xml'), sitemap);
 await writeFile(
 	path.join(DIST, 'robots.txt'),
-	`User-agent: *\nAllow: /\nDisallow: /api/\n\nHost: ${SITE_URL}\nSitemap: ${SITE_URL}/sitemap.xml\n`
+	`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\n\nHost: ${SITE_URL}\nSitemap: ${SITE_URL}/sitemap.xml\n`
 );
 console.log(`✔ sitemap.xml (${ALL_PATHS.length} адресов), robots.txt`);
 

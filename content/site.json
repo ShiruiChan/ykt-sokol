@@ -1,0 +1,29 @@
+{
+	"phones": {
+		"main": {
+			"href": "tel:+79969141414",
+			"label": "+7 (996) 914-14-14"
+		},
+		"extra": {
+			"href": "tel:+79142767520",
+			"label": "+7 (914) 276-75-20"
+		}
+	},
+	"address": {
+		"city": "г. Якутск",
+		"street": "ул. Чусовского, 75/3",
+		"full": "г. Якутск, ул. Чусовского, 75/3",
+		"short": "Чусовского, 75/3",
+		"routeUrl": "https://2gis.ru/yakutsk/search/%D0%A7%D1%83%D1%81%D0%BE%D0%B2%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%2075%2F3"
+	},
+	"hours": {
+		"label": "Ежедневно, 9:00–18:00",
+		"short": "ежедневно 9:00–18:00",
+		"opens": "09:00",
+		"closes": "18:00"
+	},
+	"messengers": {
+		"whatsapp": "https://wa.me/79969141414",
+		"telegram": "https://t.me/+79969141414"
+	}
+}

@@ -5,18 +5,24 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
+		"build": "node scripts/pull-content.mjs && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
 		"build:spa": "vite build",
 		"preview": "npx serve@14 dist",
-		"typecheck": "tsc --noEmit -p .",
-		"test": "node --test src/utils/*.test.mjs",
+		"typecheck": "tsc --noEmit -p . && tsc --noEmit -p tsconfig.api.json",
+		"test": "node --test src/utils/*.test.mjs scripts/*.test.mjs",
 		"optimize:images": "node scripts/optimize-images.mjs",
-		"images:variants": "node scripts/build-image-variants.mjs"
+		"images:variants": "node scripts/build-image-variants.mjs",
+		"content:pull": "node scripts/pull-content.mjs",
+		"db:migrate": "node scripts/db-migrate.mjs",
+		"db:seed": "node scripts/db-seed.mjs",
+		"admin:check": "node scripts/admin-dev.mjs --check"
 	},
 	"dependencies": {
 		"@emailjs/browser": "^4.4.1",
+		"@neondatabase/serverless": "^1.2.0",
 		"@tailwindcss/vite": "^4.1.8",
 		"@vercel/analytics": "^2.0.1",
+		"@vercel/blob": "^2.8.2",
 		"framer-motion": "^12.18.1",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",

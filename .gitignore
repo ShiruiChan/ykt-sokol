@@ -15,3 +15,6 @@ dist-ssr
 *.log
 .idea
 .vscode
+
+# локальный журнал админки (файловый режим)
+.admin-dev
