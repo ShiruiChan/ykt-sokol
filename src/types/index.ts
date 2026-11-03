@@ -73,3 +73,39 @@ export type NewsItem = {
 	tags?: string[];
 	isPinned?: boolean;
 };
+/** Частый вопрос. Ответ — простая строка: из неё же собирается разметка FAQPage */
+export type FaqItem = {
+	q: string;
+	a: string;
+	/** Показывать в коротком блоке на главной */
+	home?: boolean;
+};
+
+/** Документ на странице «Документы» (PDF) */
+export type DocumentItem = {
+	id: string;
+	url: string;
+	title: string;
+	description?: string;
+};
+
+export interface PhoneContact {
+	/** Для ссылки tel: — только цифры и плюс */
+	href: string;
+	/** Как показываем людям */
+	label: string;
+}
+
+/** Контакты, адрес и часы — content/site.json */
+export type SiteContent = {
+	phones: { main: PhoneContact; extra: PhoneContact };
+	address: { city: string; street: string; full: string; short: string; routeUrl: string };
+	hours: {
+		label: string;
+		short: string;
+		/** Для schema.org, ЧЧ:ММ */
+		opens: string;
+		closes: string;
+	};
+	messengers: { whatsapp: string; telegram: string };
+};

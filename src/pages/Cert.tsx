@@ -1,44 +1,10 @@
-import DocumentCard, { type DocumentItem } from '../components/DocumentCard';
+import DocumentCard from '../components/DocumentCard';
+import { DOCUMENTS } from '../data/documents';
 import Reveal from '../components/Reveal';
 import { useRequestModal } from '../components/RequestModal';
 import { ArrowUpRight } from '../components/Icons';
 
-/**
- * Документы лежат статикой в /public/documents. Список фиксированный —
- * искусственная задержка и «загрузка» из прежней версии убраны:
- * скрывать мгновенно доступный контент за спиннером незачем.
- */
-const DOCUMENTS: DocumentItem[] = [
-	{
-		id: 'doc-3',
-		url: '/documents/document-3.pdf',
-		title: 'Сертификат соответствия ЕАЭС: ПИКАП 1.5 и 1.8',
-		description:
-			'№ ЕАЭС RU C-RU.НА46.В.05341/22. Снегоболотоходы «Якт-Сокол пикап 1,5» и «Якт-Сокол пикап 1,8» соответствуют ТР ТС 010/2011. Действует до 22.12.2027.',
-	},
-	{
-		id: 'doc-2',
-		url: '/documents/document-2.pdf',
-		title: 'Сертификат соответствия ЕАЭС: Якт-Сокол+ и ПРО+',
-		description:
-			'№ ЕАЭС RU C-RU.АЯ04.В.01075/24. Снегоболотоходы «Якт-Сокол+» и «Якт-Сокол ПРО+» соответствуют ТР ТС 010/2011. Действует до 25.12.2029.',
-	},
-	{
-		id: 'doc-4',
-		url: '/documents/document-4.pdf',
-		title: 'Сертификат соответствия ЕАЭС на двигатели',
-		description:
-			'№ ЕАЭС KG417/055.CN.02.04305. Двигатели JL478QEE, 1ZZ-FE и G4FC соответствуют ТР ТС 018/2011. Действует до 16.04.2029.',
-	},
-	{
-		id: 'doc-1',
-		url: '/documents/document-1.pdf',
-		title: 'Патент на полезную модель № 232440',
-		description:
-			'«Рама снегоболотохода». Патентообладатель — ООО «Якт-Сокол», дата регистрации — 11.03.2025.',
-	},
-];
-
+/** Список документов — снимок content/documents.json, правится в админ-панели */
 export default function Documents() {
 	const openRequest = useRequestModal((s) => s.open);
 

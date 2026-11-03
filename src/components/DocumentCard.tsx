@@ -2,12 +2,9 @@ import { useState } from 'react';
 import Modal from './Modal';
 import { ArrowUpRight, Certificate } from './Icons';
 
-export interface DocumentItem {
-	id: string;
-	url: string;
-	title: string;
-	description?: string;
-}
+import type { DocumentItem } from '../types';
+
+export type { DocumentItem };
 
 interface DocumentCardProps {
 	document: DocumentItem;
