@@ -94,7 +94,7 @@ export default function Features() {
 							<figure className="relative overflow-hidden rounded-[calc(2rem-0.375rem)]">
 								<img
 									src="/images/lis/2.webp"
-									alt="Снегоболотоход ЯКТС с закрытой кабиной на снегу"
+									alt="Снегоболотоход ЯКТС Лис с закрытой кабиной на снегу"
 									className="aspect-[16/10] w-full object-cover"
 									loading="lazy"
 									decoding="async"
@@ -107,7 +107,7 @@ export default function Features() {
 								/>
 								<figcaption className="absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4">
 									<span className="font-display text-lg tracking-wide text-fog-50">
-										ЯКТС
+										ЯКТС Лис
 									</span>
 									<span className="flex items-center gap-2 text-xs text-fog-400">
 										<Tire className="h-4 w-4 text-accent-200" />
