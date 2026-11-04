@@ -57,7 +57,7 @@ export default function Hero() {
 						src={square.src}
 						srcSet={square.srcSet}
 						sizes={HERO_SQUARE_SIZES}
-						alt="Снегоболотоход ЯКТ-СОКОЛ на бездорожье"
+						alt="Снегоболотоход ЯКТСокол на бездорожье"
 						className="h-full w-full object-cover object-[60%_center] brightness-110 contrast-[1.05]"
 						fetchPriority="high"
 						decoding="async"
@@ -114,7 +114,7 @@ export default function Hero() {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
 					>
-						Снегоболотоходы ЯКТ-СОКОЛ 4×4 из Якутска: полный привод, клиренс до 500 мм и шины
+						Снегоболотоходы ЯКТСокол 4×4 из Якутска: полный привод, клиренс до 500 мм и шины
 						низкого давления. Машина идёт по снегу, болоту и воде — и возвращается обратно.
 					</m.p>
 

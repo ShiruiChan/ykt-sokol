@@ -8,7 +8,7 @@ import siteData from '../../content/site.json';
 /** Боевой адрес сайта. При переезде на свой домен меняется только эта строка. */
 export const SITE_URL = 'https://ykt-sokol.vercel.app';
 
-export const BRAND = 'ЯКТ-СОКОЛ';
+export const BRAND = 'ЯКТСокол';
 
 export const absoluteUrl = (path = '/') => `${SITE_URL}${path === '/' ? '/' : path}`;
 

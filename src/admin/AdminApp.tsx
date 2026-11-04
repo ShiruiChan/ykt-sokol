@@ -52,7 +52,7 @@ function Login({ configured, onDone }: { configured: boolean; onDone: () => void
 	return (
 		<main className="grid min-h-dvh place-items-center px-4 py-10">
 			<form onSubmit={submit} className="adm-panel w-full max-w-sm p-6" aria-labelledby="login-title">
-				<p className="eyebrow">ЯКТ-СОКОЛ</p>
+				<p className="eyebrow">ЯКТСокол</p>
 				<h1 id="login-title" className="mt-3 text-xl font-bold text-fog-50">
 					Админ-панель
 				</h1>
@@ -227,7 +227,7 @@ export default function AdminApp() {
 				<header className="border-b border-white/8 bg-ink-900">
 					<div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
 						<div className="flex items-center gap-3">
-							<span className="font-display text-sm tracking-[0.18em] text-fog-50">ЯКТ-СОКОЛ</span>
+							<span className="font-display text-sm tracking-[0.18em] text-fog-50">ЯКТСокол</span>
 							<span className="text-xs text-fog-500">админ-панель</span>
 						</div>
 						<div className="flex flex-wrap items-center gap-2">

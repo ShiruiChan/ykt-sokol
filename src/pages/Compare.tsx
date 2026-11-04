@@ -134,7 +134,7 @@ function ModelHead({ product }: { product: Product }) {
 					</span>
 				)}
 			</span>
-			<span className="mt-3 block font-display text-sm leading-tight tracking-[0.02em] text-fog-50 uppercase md:text-base">
+			<span className="mt-3 block font-display text-sm leading-tight tracking-[0.02em] text-fog-50 md:text-base">
 				{product.name}
 			</span>
 			<span className="mt-1.5 inline-flex items-center gap-1 text-xs text-fog-500 transition-colors group-hover:text-accent-200">
@@ -192,7 +192,7 @@ export default function Compare() {
 					    позиционируются от Reveal и раздвигают страницу. */}
 					<div className="relative overflow-x-auto overscroll-x-contain rounded-lg border border-white/8 bg-ink-900">
 						<table className="w-full min-w-[60rem] border-collapse text-sm">
-							<caption className="sr-only">Сравнение характеристик моделей ЯКТ-СОКОЛ</caption>
+							<caption className="sr-only">Сравнение характеристик моделей ЯКТСокол</caption>
 							<thead>
 								<tr className="border-b border-white/8">
 									<th scope="col" className={`${STICKY} py-5 align-bottom`}>

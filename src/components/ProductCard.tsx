@@ -58,7 +58,7 @@ export default function ProductCard({ product }: Props) {
 						className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,10,0.85)_0%,transparent_50%)]"
 					/>
 
-					<h3 className="absolute right-5 bottom-4 left-5 font-display text-xl leading-tight tracking-[0.02em] text-fog-50 uppercase">
+					<h3 className="absolute right-5 bottom-4 left-5 font-display text-xl leading-tight tracking-[0.02em] text-fog-50">
 						{product.name}
 					</h3>
 				</Link>

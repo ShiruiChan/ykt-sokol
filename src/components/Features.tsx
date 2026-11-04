@@ -44,7 +44,7 @@ export default function Features() {
 					<Reveal className="lg:col-span-5">
 						<p className="eyebrow">
 							<span className="h-px w-8 bg-accent-400/70" />
-							Почему берут ЯКТ-СОКОЛ
+							Почему берут ЯКТСокол
 						</p>
 						<h2 className="mt-5 text-title text-fog-50">
 							Техника, собранная теми,
@@ -93,8 +93,8 @@ export default function Features() {
 						<Reveal delay={0.08} className="bezel">
 							<figure className="relative overflow-hidden rounded-[calc(2rem-0.375rem)]">
 								<img
-									src="/images/lis/1.webp"
-									alt="Снегоболотоход ЯКТ-СОКОЛ ЛИС с закрытой кабиной на снегу"
+									src="/images/lis/2.webp"
+									alt="Снегоболотоход ЯКТС с закрытой кабиной на снегу"
 									className="aspect-[16/10] w-full object-cover"
 									loading="lazy"
 									decoding="async"
@@ -106,8 +106,8 @@ export default function Features() {
 									className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,10,0.92)_0%,transparent_55%)]"
 								/>
 								<figcaption className="absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4">
-									<span className="font-display text-lg tracking-wide text-fog-50 uppercase">
-										ЯКТ-СОКОЛ ЛИС
+									<span className="font-display text-lg tracking-wide text-fog-50">
+										ЯКТС
 									</span>
 									<span className="flex items-center gap-2 text-xs text-fog-400">
 										<Tire className="h-4 w-4 text-accent-200" />

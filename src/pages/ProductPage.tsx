@@ -296,7 +296,7 @@ export default function ProductPage() {
 								<span className="h-px w-8 bg-accent-400/70" />
 								снегоболотоход 4×4
 							</p>
-							<h1 className="mt-5 font-display text-title tracking-[0.01em] text-fog-50 uppercase">
+							<h1 className="mt-5 font-display text-title tracking-[0.01em] text-fog-50">
 								{product.name}
 							</h1>
 
@@ -619,7 +619,7 @@ export default function ProductPage() {
 											</span>
 										)}
 										<div className="min-w-0">
-											<p className="truncate font-display text-sm tracking-wide text-fog-50 uppercase">
+											<p className="truncate font-display text-sm tracking-wide text-fog-50">
 												{product.name}
 											</p>
 											<p className="tnum mt-1 text-sm font-semibold text-fog-200">
@@ -691,7 +691,7 @@ export default function ProductPage() {
 									</div>
 									<div className="flex items-center justify-between gap-4 p-5">
 										<div className="min-w-0">
-											<p className="truncate font-display text-base tracking-wide text-fog-50 uppercase">
+											<p className="truncate font-display text-base tracking-wide text-fog-50">
 												{p.name}
 											</p>
 											<p className="tnum mt-1 text-sm text-fog-400">

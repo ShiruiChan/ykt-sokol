@@ -41,7 +41,7 @@ function headFor(meta) {
 		`<meta property="og:type" content="${meta.type === 'product' ? 'product' : 'website'}" />`,
 		`<meta property="og:image" content="${esc(image)}" />`,
 		`<meta property="og:locale" content="ru_RU" />`,
-		`<meta property="og:site_name" content="ЯКТ-СОКОЛ" />`,
+		`<meta property="og:site_name" content="ЯКТСокол" />`,
 		`<meta name="twitter:card" content="summary_large_image" />`,
 		...(meta.jsonLd ?? []).map(
 			(d) =>
