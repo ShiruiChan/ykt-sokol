@@ -12,7 +12,9 @@ const EMAILJS_SERVICE_ID = 'service_f50pda5';
 const EMAILJS_TEMPLATE_ID = 'template_jo8mi7s';
 
 const ENDPOINT = '/api/request';
-const TIMEOUT_MS = 10_000;
+// Сервер ждёт Telegram до 8 с плюс холодный старт функции. Меньший таймаут
+// приводил к дублю: клиент уходил в EmailJS, а заявка всё равно доходила в Telegram
+const TIMEOUT_MS = 15_000;
 
 export interface RequestAccessory {
 	name: string;
@@ -30,6 +32,8 @@ export interface RequestPayload {
 	price?: number;
 	accessories?: RequestAccessory[];
 	total?: number;
+	/** Количество машин в КП; итог total уже умножен на него */
+	quantity?: number;
 	/** ИНН покупателя — для КП организации */
 	inn?: string;
 	/** Номер сформированного коммерческого предложения: КП-20261103-7KQ2 */
@@ -41,6 +45,16 @@ export interface RequestPayload {
 }
 
 export type SendChannel = 'api' | 'emailjs' | 'honeypot';
+
+/** Сервер отказал не из-за сбоя (лимит, размер, чужой источник) — дублировать в почту нельзя */
+export class RequestRejectedError extends Error {
+	reason: string;
+	constructor(reason: string) {
+		super(reason);
+		this.name = 'RequestRejectedError';
+		this.reason = reason;
+	}
+}
 
 /** Сервер отклонил данные — показываем ошибку, резервный канал не поможет */
 export class RequestValidationError extends Error {
@@ -75,7 +89,10 @@ function sendViaEmailJs(p: RequestPayload) {
 			]
 				.filter(Boolean)
 				.join('\n') || '—',
-		product_name: (p.kpNumber && p.subject) || p.model || p.subject || 'Заявка с сайта',
+		product_name:
+			[(p.kpNumber && p.subject) || p.model || p.subject || 'Заявка с сайта', p.quantity && p.quantity > 1 && `× ${p.quantity} шт.`]
+				.filter(Boolean)
+				.join(' '),
 		product_price: p.price !== undefined ? rub(p.price) : '—',
 		accessories:
 			p.accessories?.map((a) => `${a.name}: ${rub(a.price)} ₽`).join('\n') ||
@@ -104,7 +121,7 @@ async function sendViaApi(p: RequestPayload): Promise<ApiResult> {
 		window.clearTimeout(timer);
 	}
 
-	let body: { ok?: boolean; errors?: Record<string, string> } | null = null;
+	let body: { ok?: boolean; reason?: string; errors?: Record<string, string> } | null = null;
 	try {
 		body = await res.json();
 	} catch {
@@ -112,6 +129,9 @@ async function sendViaApi(p: RequestPayload): Promise<ApiResult> {
 	}
 
 	if (res.status === 400 && body) throw new RequestValidationError(body.errors);
+	// Ответ нашей функции с осмысленным отказом: 403 — чужой сайт, 413 — слишком большая, 429 — лимит
+	if ((res.status === 403 || res.status === 413 || res.status === 429) && body)
+		throw new RequestRejectedError(body.reason ?? String(res.status));
 	if (res.ok && body?.ok) return 'sent';
 	// 404/405 — функции нет, 503 — не настроен бот, 5xx — Telegram недоступен
 	return 'fallback';
@@ -127,6 +147,8 @@ export async function sendRequest(payload: RequestPayload): Promise<SendChannel>
 	};
 
 	if ((await sendViaApi(data)) === 'sent') return 'api';
+	// На локальной разработке резервный канал не включаем: тест не должен стать реальным лидом
+	if (import.meta.env.DEV) throw new Error('dev: /api/request недоступен, EmailJS на dev отключён');
 	await sendViaEmailJs(data);
 	return 'emailjs';
 }

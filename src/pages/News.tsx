@@ -25,7 +25,16 @@ const dateParts = (iso: string) => {
 
 /** Ссылка на первоисточник; для роликов восстанавливаем адрес из id превью */
 const sourceOf = (item: NewsItem): { url: string; name: string } | null => {
-	if (item.sourceUrl) return { url: item.sourceUrl, name: item.sourceName ?? new URL(item.sourceUrl).hostname.replace(/^www\./, '') };
+	if (item.sourceUrl) {
+		// Админка разрешает и корневые пути (/documents/…): у них нет хоста, new URL() без базы бросает
+		let host = '';
+		try {
+			host = new URL(item.sourceUrl).hostname.replace(/^www\./, '');
+		} catch {
+			host = '';
+		}
+		return { url: item.sourceUrl, name: item.sourceName ?? (host || 'Источник') };
+	}
 	const yt = item.image?.match(/i\.ytimg\.com\/vi\/([\w-]+)\//);
 	if (yt) return { url: `https://www.youtube.com/watch?v=${yt[1]}`, name: item.sourceName ?? 'YouTube' };
 	return null;

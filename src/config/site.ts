@@ -10,7 +10,9 @@ export const SITE_URL = 'https://ykt-sokol.vercel.app';
 
 export const BRAND = 'ЯКТСокол';
 
-export const absoluteUrl = (path = '/') => `${SITE_URL}${path === '/' ? '/' : path}`;
+/** Относительный путь → полный адрес; уже полный (картинки из Vercel Blob) не трогаем */
+export const absoluteUrl = (path = '/') =>
+	/^https?:\/\//.test(path) ? path : `${SITE_URL}${path === '/' ? '/' : path}`;
 
 export type { PhoneContact };
 

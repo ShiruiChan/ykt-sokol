@@ -28,6 +28,9 @@ export interface KpBuyer {
 export interface KpDocument {
 	product: Product;
 	options: Accessory[];
+	/** Сколько машин в этой комплектации (1–99) */
+	qty: number;
+	/** Итог за все машины */
 	total: number;
 	/** Код из адреса: 20261103-7KQ2 */
 	code: string;
@@ -62,16 +65,26 @@ export function kpDateFromCode(code: string): Date | null {
 	const m = CODE_RE.exec(code);
 	if (!m) return null;
 	const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-	return date.getDate() === Number(m[3]) ? date : null;
+	// Date «перекатывает» 13-й месяц и 32-е число — такой код считаем повреждённым
+	return date.getDate() === Number(m[3]) && date.getMonth() === Number(m[2]) - 1 ? date : null;
 }
 
 export const formatDate = (d: Date) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
 
 /* --------------------------------- Адрес --------------------------------- */
 
-export function kpUrl(product: Product, optionIds: number[], code: string): string {
+export const KP_MAX_QTY = 99;
+
+/** Количество из ввода или адреса: целое 1–99, всё остальное — 1 */
+export const clampQty = (v: unknown) => {
+	const n = Number(v);
+	return Number.isInteger(n) && n >= 1 && n <= KP_MAX_QTY ? n : 1;
+};
+
+export function kpUrl(product: Product, optionIds: number[], code: string, qty = 1): string {
 	const params = new URLSearchParams({ model: product.slug });
 	if (optionIds.length) params.set('opts', optionIds.join(','));
+	if (qty > 1) params.set('q', String(clampQty(qty)));
 	params.set('n', code);
 	return `${KP_PATH}?${params.toString()}`;
 }
@@ -94,9 +107,10 @@ export function parseKp(search: string): KpDocument | null {
 	const options = Object.values(product.accessories)
 		.flat()
 		.filter((a) => ids.has(a.id));
-	const total = product.price + options.reduce((sum, a) => sum + a.price, 0);
+	const qty = clampQty(params.get('q') ?? 1);
+	const total = (product.price + options.reduce((sum, a) => sum + a.price, 0)) * qty;
 
-	return { product, options, total, code, number: kpNumber(code), date };
+	return { product, options, qty, total, code, number: kpNumber(code), date };
 }
 
 /* ---------------------------- Данные покупателя -------------------------- */
@@ -154,12 +168,13 @@ export function kpPayload(doc: KpDocument, buyer: KpBuyer, website = ''): Reques
 		inn: buyer.inn || undefined,
 		kpNumber: doc.number,
 		subject: `КП: ${doc.product.name}`,
-		model: doc.product.name,
+		model: doc.qty > 1 ? `${doc.product.name} × ${doc.qty} шт.` : doc.product.name,
+		quantity: doc.qty,
 		price: doc.product.price,
 		accessories: doc.options.map((a) => ({ name: a.name, price: a.price })),
 		total: doc.total,
 		// Ссылка на документ без персональных данных — менеджер откроет тот же расчёт
-		page: absoluteUrl(kpUrl(doc.product, doc.options.map((a) => a.id), doc.code)),
+		page: absoluteUrl(kpUrl(doc.product, doc.options.map((a) => a.id), doc.code, doc.qty)),
 		website,
 	};
 }

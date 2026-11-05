@@ -45,8 +45,9 @@ type Row = { name: string; qty: number; unit: string; price: number };
 
 function KpSheet({ doc, buyer }: { doc: KpDocument; buyer: KpBuyer | null }) {
 	const rows: Row[] = [
-		{ name: `Снегоболотоход «${doc.product.name}», базовая комплектация`, qty: 1, unit: 'шт.', price: doc.product.price },
-		...doc.options.map((a) => ({ name: a.name, qty: 1, unit: 'шт.', price: a.price })),
+		{ name: `Снегоболотоход «${doc.product.name}», базовая комплектация`, qty: doc.qty, unit: 'шт.', price: doc.product.price },
+		// Опции ставятся на каждую машину
+		...doc.options.map((a) => ({ name: a.name, qty: doc.qty, unit: 'шт.', price: a.price })),
 	];
 
 	return (
@@ -127,6 +128,8 @@ function KpSheet({ doc, buyer }: { doc: KpDocument; buyer: KpBuyer | null }) {
 				Всего наименований {rows.length}, на сумму {money(doc.total)} руб.
 				<br />
 				<strong>{rublesInWords(doc.total)}</strong>
+				<br />
+				{COMPANY.vat || 'Налоговый режим (НДС) уточняйте у менеджера при согласовании договора.'}
 			</p>
 
 			{doc.product.defaultKit.length > 0 && (

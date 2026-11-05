@@ -31,7 +31,7 @@ export default function Catalog() {
 					</div>
 				</Reveal>
 
-				<div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 md:mt-16">
+				<div className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-6 sm:grid-cols-2 lg:grid-cols-3 md:mt-16">
 					{products.map((product, i) => (
 						<Reveal key={product.id} delay={(i % 3) * 0.08} className="h-full">
 							<ProductCard product={product} />

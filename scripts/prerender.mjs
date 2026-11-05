@@ -66,7 +66,10 @@ const base = stripHead(template);
 async function renderPage(url, file) {
 	const meta = getMeta(url);
 	const appHtml = await render(url);
-	const html = base
+	// Preload кадра первого экрана нужен только главной: на остальных страницах
+	// Hero нет, и сотни КБ с высоким приоритетом отнимают канал у их собственного LCP
+	const page = url === '/' ? base : base.replace(/\s*<!-- Hero:[^>]*-->/, '').replace(/\s*<link rel="preload" as="image"[^>]*>/g, '');
+	const html = page
 		.replace('</head>', `    ${headFor(meta)}\n  </head>`)
 		.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
 	const out = path.join(DIST, file);

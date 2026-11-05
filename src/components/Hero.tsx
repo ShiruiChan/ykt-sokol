@@ -11,8 +11,8 @@ const HERO_WIDE_MEDIA = '(min-aspect-ratio: 5/4)';
 // Кадр 1920×887 под cover упирается в высоту экрана, пока экран уже панорамы:
 // тогда реальная ширина ≈ 217vh; +4% на стартовый scale параллакса
 const HERO_WIDE_SIZES = '(min-aspect-ratio: 2165/1000) 104vw, 225vh';
-// На портретном экране квадрат тоже упирается в высоту
-const HERO_SQUARE_SIZES = '(min-aspect-ratio: 1/1) 104vw, 104vh';
+// Портретный кадр 4:3 (1600×1200) под cover упирается в высоту: ширина ≈ 4/3 × 104vh
+const HERO_SQUARE_SIZES = '(min-aspect-ratio: 4/3) 104vw, 139vh';
 
 export default function Hero() {
 	const ref = useRef<HTMLElement>(null);
@@ -103,7 +103,7 @@ export default function Hero() {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.9, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
 					>
-						Пройдёт там,
+						Пройдёт там,{' '}
 						<br />
 						<span className="text-accent-200">где дорог нет</span>
 					</m.h1>

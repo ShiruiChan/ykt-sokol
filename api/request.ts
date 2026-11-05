@@ -5,6 +5,10 @@
  * Новых зависимостей нет: только fetch и Web Request/Response.
  */
 
+import { clientIp, sameOrigin } from './_lib/http.js';
+import { ipFingerprint } from './_lib/auth.js';
+import { getStore } from './_lib/store.js';
+
 /** Верхняя граница тела запроса — заявке больше не нужно */
 const MAX_BODY = 16_000;
 const MAX_ACCESSORIES = 60;
@@ -40,6 +44,8 @@ interface CleanRequest {
 	price: number | null;
 	accessories: Accessory[];
 	total: number | null;
+	/** Количество машин в КП, 1 — обычный случай */
+	quantity: number;
 	inn: string;
 	kpNumber: string;
 	page: string;
@@ -75,11 +81,13 @@ function validate(raw: Record<string, unknown>): Validation {
 	if (name.length < 2) errors.name = 'required';
 	else if (name.length > LIMITS.name) errors.name = 'too_long';
 
-	// Телефон (минимум 6 цифр) или почта — иначе перезвонить некуда
+	// Телефон (10–15 цифр, как проверяет форма) или почта — иначе перезвонить некуда
 	const digits = contact.replace(/\D/g, '').length;
+	const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact);
+	const isPhone = /^[+()\d\s-]+$/.test(contact) && digits >= 10 && digits <= 15;
 	if (!contact) errors.contact = 'required';
 	else if (contact.length > LIMITS.contact) errors.contact = 'too_long';
-	else if (digits < 6 && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact)) errors.contact = 'invalid';
+	else if (!isEmail && !isPhone) errors.contact = 'invalid';
 
 	if (comment.length > LIMITS.comment) errors.comment = 'too_long';
 	if (subject.length > LIMITS.subject) errors.subject = 'too_long';
@@ -87,6 +95,8 @@ function validate(raw: Record<string, unknown>): Validation {
 	if (page.length > LIMITS.page) errors.page = 'too_long';
 	if (inn && !INN_RE.test(inn)) errors.inn = 'invalid';
 	if (kpNumber && !KP_NUMBER_RE.test(kpNumber)) errors.kpNumber = 'invalid';
+	const quantity = raw.quantity === undefined ? 1 : Number(raw.quantity);
+	if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) errors.quantity = 'invalid';
 
 	const accessories: Accessory[] = [];
 	if (raw.accessories !== undefined) {
@@ -119,6 +129,7 @@ function validate(raw: Record<string, unknown>): Validation {
 			price: money(raw.price),
 			accessories,
 			total: money(raw.total),
+			quantity,
 			inn,
 			kpNumber,
 			page,
@@ -141,6 +152,7 @@ function formatMessage(r: CleanRequest) {
 	if (r.model) lines.push(`<b>Модель:</b> ${escapeHtml(r.model)}`);
 	else if (r.subject) lines.push(`<b>Тема:</b> ${escapeHtml(r.subject)}`);
 	if (r.price !== null) lines.push(`<b>Базовая цена:</b> ${rub(r.price)}`);
+	if (r.quantity > 1) lines.push(`<b>Количество:</b> ${r.quantity} шт.`);
 
 	if (r.accessories.length) {
 		lines.push('<b>Аксессуары:</b>');
@@ -160,11 +172,44 @@ function formatMessage(r: CleanRequest) {
 	return lines.join('\n');
 }
 
+/** Не больше REQUEST_LIMIT заявок с одного IP за окно — защита рабочего чата от спама */
+const REQUEST_LIMIT = 5;
+const REQUEST_WINDOW_SEC = 10 * 60;
+/** Запасной счётчик в памяти функции, если хранилища нет (живёт, пока жив инстанс) */
+const memoryHits = new Map<string, number[]>();
+
+async function overLimit(fp: string): Promise<boolean> {
+	const store = getStore();
+	if (store) {
+		try {
+			const count = await store.countRecent('request', fp, REQUEST_WINDOW_SEC);
+			if (count >= REQUEST_LIMIT) return true;
+			await store.audit('request', fp);
+			return false;
+		} catch (err) {
+			// Сбой БД не должен терять настоящие заявки — уходим на счётчик в памяти
+			console.error('request_limit_store_failed', err instanceof Error ? err.message : 'unknown');
+		}
+	}
+	const now = Date.now();
+	const hits = (memoryHits.get(fp) ?? []).filter((t) => now - t < REQUEST_WINDOW_SEC * 1000);
+	if (hits.length >= REQUEST_LIMIT) return true;
+	hits.push(now);
+	memoryHits.set(fp, hits);
+	if (memoryHits.size > 5000) memoryHits.clear();
+	return false;
+}
+
 export async function POST(request: Request): Promise<Response> {
 	const token = process.env.TELEGRAM_BOT_TOKEN;
 	const chatId = process.env.TELEGRAM_CHAT_ID;
 	// Клиент по этому ответу переключится на резервный канал
 	if (!token || !chatId) return json(503, { ok: false, reason: 'not_configured' });
+
+	// Заявки — только с нашего сайта и только JSON (text/plain с чужого сайта обходит CORS preflight)
+	if (!sameOrigin(request)) return json(403, { ok: false, reason: 'origin' });
+	if (!(request.headers.get('content-type') ?? '').includes('application/json'))
+		return json(415, { ok: false, reason: 'content_type' });
 
 	const declared = Number(request.headers.get('content-length') || 0);
 	if (declared > MAX_BODY) return json(413, { ok: false, reason: 'too_large' });
@@ -185,6 +230,9 @@ export async function POST(request: Request): Promise<Response> {
 
 	const result = validate(raw);
 	if (!result.ok) return json(400, { ok: false, reason: 'validation', errors: result.errors });
+
+	if (await overLimit(ipFingerprint(clientIp(request))))
+		return json(429, { ok: false, reason: 'rate_limited' });
 
 	try {
 		const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {

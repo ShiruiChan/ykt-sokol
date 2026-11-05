@@ -131,7 +131,9 @@ export default function GalleryPage() {
 				onIndexChange={setLightbox}
 				onClose={() => setLightbox(null)}
 				maskOpacity={0.94}
-				bannerVisible={false}
+				// Верхняя панель со счётчиком «N / M» и крестиком: без неё на телефоне
+				// непонятно, как закрыть фото, а на десктопе остаётся только Esc
+				bannerVisible
 			/>
 		</>
 	);

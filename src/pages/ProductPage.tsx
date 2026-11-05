@@ -325,7 +325,9 @@ export default function ProductPage() {
 									{product.price.toLocaleString('ru-RU')} ₽
 								</p>
 								<p className="mt-2 text-sm text-fog-500">
-									Цена с документами и ЗИП. Доставка по России — рассчитывается отдельно.
+									{product.defaultKit.length > 0
+										? 'Цена с документами и ЗИП. Доставка по России — рассчитывается отдельно.'
+										: 'Комплектацию и доставку по России уточнит менеджер.'}
 								</p>
 								<button type="button" onClick={scrollToForm} className="btn btn-primary mt-6 w-full">
 									Оставить заявку
@@ -641,7 +643,9 @@ export default function ProductPage() {
 										</ul>
 									) : (
 										<p className="mt-5 text-sm text-fog-500">
-											Базовая комплектация. Аксессуары можно добавить выше.
+											{hasAccessories
+												? 'Базовая комплектация. Аксессуары можно добавить выше.'
+												: 'Базовая комплектация.'}
 										</p>
 									)}
 

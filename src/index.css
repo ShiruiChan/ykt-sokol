@@ -139,6 +139,8 @@
 @layer base {
 	html {
 		scroll-behavior: smooth;
+		/* Якорные переходы (#catalog, #form-section) не прячут заголовок под фиксированную шапку */
+		scroll-padding-top: 6rem;
 		-webkit-text-size-adjust: 100%;
 	}
 
@@ -296,7 +298,8 @@
 	}
 
 	.btn-primary {
-		background: var(--color-accent-500);
+		/* Чуть темнее accent-500: белый текст 4.65:1 — проходит WCAG AA (на #2f9e52 было 3.42:1) */
+		background: #268544;
 		color: #fff;
 		box-shadow: var(--shadow-accent);
 	}

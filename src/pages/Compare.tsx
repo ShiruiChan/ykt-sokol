@@ -190,18 +190,24 @@ export default function Compare() {
 					{/* Скролл только внутри рамки — сама страница вбок не едет.
 					    relative держит внутри и sr-only подписи: иначе они
 					    позиционируются от Reveal и раздвигают страницу. */}
-					<div className="relative overflow-x-auto overscroll-x-contain rounded-lg border border-white/8 bg-ink-900">
+					<div className="relative overflow-x-auto overscroll-x-contain rounded-lg border border-white/8 bg-ink-900 lg:overflow-visible">
 						<table className="w-full min-w-[60rem] border-collapse text-sm">
 							<caption className="sr-only">Сравнение характеристик моделей ЯКТСокол</caption>
 							<thead>
 								<tr className="border-b border-white/8">
-									<th scope="col" className={`${STICKY} py-5 align-bottom`}>
+									<th scope="col" className={`${STICKY} py-5 align-bottom lg:top-[4.75rem] lg:z-30`}>
 										<span className="text-[11px] font-medium tracking-[0.16em] text-fog-500 uppercase">
 											Параметр
 										</span>
 									</th>
 									{products.map((p) => (
-										<th key={p.id} scope="col" className="w-44 px-3 py-5 text-left align-top font-normal md:px-4">
+										<th
+											key={p.id}
+											scope="col"
+											// На широких экранах таблица помещается целиком — шапку с названиями моделей
+											// закрепляем под шапкой сайта, чтобы при прокрутке не терять столбцы
+											className="w-44 bg-ink-900 px-3 py-5 text-left align-top font-normal md:px-4 lg:sticky lg:top-[4.75rem] lg:z-20 lg:shadow-[0_1px_0_rgb(255_255_255/0.07)]"
+										>
 											<ModelHead product={p} />
 										</th>
 									))}

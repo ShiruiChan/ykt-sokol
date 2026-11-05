@@ -7,6 +7,7 @@ import Seo from './seo/Seo';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
+import ErrorBoundary from './components/ErrorBoundary';
 import RequestModal from './components/RequestModal';
 import Metrika from './components/Metrika';
 import ContactDock from './components/ContactDock';
@@ -37,6 +38,8 @@ function Layout() {
 	return (
 		<>
 			<Header />
+			{/* key: при переходе на другую страницу ошибка прошлой не «залипает» */}
+			<ErrorBoundary key={pathname}>
 			<React.Suspense fallback={<LoadingSpinner />}>
 				<m.div
 					key={pathname}
@@ -48,6 +51,7 @@ function Layout() {
 					<Outlet />
 				</m.div>
 			</React.Suspense>
+			</ErrorBoundary>
 			<Footer />
 		</>
 	);

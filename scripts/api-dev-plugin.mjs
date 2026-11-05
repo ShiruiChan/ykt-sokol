@@ -8,6 +8,9 @@
  * Без DATABASE_URL включается файловый адаптер (ADMIN_CONTENT_STORE=file):
  * админка читает и пишет content/*.json прямо в рабочей копии.
  * На Vercel этот плагин не работает — там только настоящие функции.
+ *
+ * POST /api/request на dev по умолчанию «сухой»: заявка не уходит в Telegram
+ * заказчика, а печатается в терминал. Боевую отправку включает REQUEST_DEV_LIVE=1.
  */
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -82,6 +85,17 @@ export default function apiDevPlugin() {
 				if (pathname === '/admin' || pathname === '/admin/') {
 					req.url = '/admin.html' + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
 					return next();
+				}
+
+				if (pathname === '/api/request' && req.method === 'POST' && process.env.REQUEST_DEV_LIVE !== '1') {
+					const chunks = [];
+					for await (const c of req) chunks.push(c);
+					server.config.logger.info(
+						`  [api] /api/request — dry-run, ${Buffer.concat(chunks).length} байт, в Telegram не отправлено (REQUEST_DEV_LIVE=1 — боевая отправка)`,
+					);
+					res.statusCode = 200;
+					res.setHeader('content-type', 'application/json; charset=utf-8');
+					return res.end(JSON.stringify({ ok: true, dryRun: true }));
 				}
 
 				const file = resolveHandler(root, pathname);

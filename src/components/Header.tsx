@@ -38,7 +38,7 @@ export default function Header() {
 		<>
 			<a
 				href="#main"
-				className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-95 focus:rounded-full focus:bg-accent-500 focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
+				className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-95 focus:rounded-full focus:bg-accent-600 focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
 			>
 				Перейти к содержимому
 			</a>
@@ -122,6 +122,15 @@ export default function Header() {
 								</span>
 							</button>
 
+							{/* Звонок одним касанием на телефонах и планшетах — номер с первого экрана */}
+							<a
+								href={PHONE.href}
+								aria-label={`Позвонить: ${PHONE.label}`}
+								className="grid h-11 w-11 place-items-center rounded-full border border-white/10 text-fog-50 transition-colors hover:bg-white/6 xl:hidden"
+							>
+								<Phone className="h-4 w-4 text-accent-400" />
+							</a>
+
 							{/* Гамбургер, превращающийся в крест */}
 							<button
 								type="button"
@@ -163,7 +172,7 @@ export default function Header() {
 						exit={{ opacity: 0 }}
 						transition={{ duration: reduce ? 0 : 0.3 }}
 					>
-						<nav className="mt-24 flex flex-1 flex-col overflow-y-auto px-6" aria-label="Мобильная">
+						<nav className="mt-20 flex min-h-0 flex-1 flex-col overflow-y-auto px-6 [@media(min-height:740px)]:mt-24" aria-label="Мобильная">
 							{NAV.map((item, i) => (
 								<m.div
 									key={item.to}
@@ -176,7 +185,7 @@ export default function Header() {
 										end={item.to === '/'}
 										onClick={() => setIsMenuOpen(false)}
 										className={({ isActive }) =>
-											`flex items-baseline justify-between border-b border-white/8 py-4 font-display text-2xl tracking-[0.02em] uppercase transition-colors ${
+											`flex items-baseline justify-between border-b border-white/8 py-3 font-display text-xl tracking-[0.02em] uppercase transition-colors [@media(min-height:740px)]:py-4 [@media(min-height:740px)]:text-2xl ${
 												isActive ? 'text-accent-200' : 'text-fog-50'
 											}`
 										}
@@ -191,7 +200,7 @@ export default function Header() {
 						</nav>
 
 						<m.div
-							className="space-y-3 px-6 pb-10"
+							className="space-y-3 px-6 pt-4 pb-6 [@media(min-height:740px)]:pb-10"
 							initial={reduce ? false : { opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.32, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}

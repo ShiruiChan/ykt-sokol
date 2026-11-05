@@ -3,6 +3,7 @@ import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Clock, Phone, Pin, Telegram, WhatsApp } from './Icons';
 import { ADDRESS, BRAND, HOURS, MESSENGERS, NAV, PHONES } from '../config/site';
 
+// Год пререндера может отличаться от года у посетителя — расхождение при гидратации ожидаемо
 const YEAR = new Date().getFullYear();
 
 export default function Footer() {
@@ -124,7 +125,7 @@ export default function Footer() {
 
 				<div className="flex flex-col gap-3 border-t border-white/8 py-7 text-xs text-fog-500 sm:flex-row sm:items-center sm:justify-between">
 					<p>
-							© {YEAR} {BRAND}. Производство снегоболотоходов, Якутск.{' '}
+							© <span suppressHydrationWarning>{YEAR}</span> {BRAND}. Производство снегоболотоходов, Якутск.{' '}
 							<Link to="/privacy" className="underline-offset-2 transition-colors hover:text-fog-50 hover:underline">
 								Политика конфиденциальности
 							</Link>

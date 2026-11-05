@@ -1,7 +1,7 @@
-import { useId, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { sendRequest, RequestValidationError, type RequestAccessory } from '../utils/request';
-import { isValidInn, kpUrl, makeKpCode, parseKp, saveBuyer, sendKp } from '../utils/kp';
+import { KP_MAX_QTY, isValidInn, kpUrl, makeKpCode, parseKp, saveBuyer, sendKp } from '../utils/kp';
 import { PHONE } from '../config/site';
 import type { Product } from '../types';
 import { reachGoal } from './Metrika';
@@ -48,9 +48,17 @@ interface ContactFormProps {
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 const PHONE_RE = /^[+()\d\s-]{10,20}$/;
+/** Телефон: допустимые символы и от 10 до 15 цифр — строка из одних скобок и дефисов не пройдёт */
+const isPhone = (v: string) => {
+	const digits = v.replace(/\D/g, '').length;
+	return PHONE_RE.test(v) && digits >= 10 && digits <= 15;
+};
+const PHONE_EXAMPLE = '+7 900 123-45-67';
+/** Порядок полей для фокуса на первой ошибке */
+const FIELD_ORDER = ['name', 'contact', 'inn', 'qty', 'comments'] as const;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-const EMPTY = { name: '', contact: '', inn: '', comments: '', website: '' };
+const EMPTY = { name: '', contact: '', inn: '', qty: '1', comments: '', website: '' };
 
 export default function ContactForm({
 	subject = 'Заявка с сайта',
@@ -73,6 +81,8 @@ export default function ContactForm({
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [status, setStatus] = useState<Status>('idle');
 	const navigate = useNavigate();
+	// Защита от двойного клика по «Сформировать КП»: каждый клик — отдельный лид у менеджера
+	const kpLock = useRef(false);
 	const isKp = Boolean(kp);
 	const nameMax = isKp ? 150 : 100;
 
@@ -96,16 +106,23 @@ export default function ContactForm({
 		if (isKp) {
 			// В КП нужен именно телефон: менеджер звонит согласовать комплектацию
 			if (!contact) next.contact = 'Нужен телефон для связи';
-			else if (!PHONE_RE.test(contact) || contact.replace(/\D/g, '').length < 10)
-				next.contact = 'Проверьте номер — например, +7 914 276-75-20';
+			else if (!isPhone(contact)) next.contact = `Проверьте номер — например, ${PHONE_EXAMPLE}`;
 			const inn = values.inn.replace(/\s/g, '');
-			if (inn && !isValidInn(inn))
-				next.inn = 'Проверьте ИНН: 10 цифр у организации, 12 — у ИП';
+			if (inn && !/^(\d{10}|\d{12})$/.test(inn))
+				next.inn = 'В ИНН 10 цифр у организации или 12 — у ИП';
+			else if (inn && !isValidInn(inn))
+				next.inn = 'Не сходится контрольная цифра — проверьте ИНН';
+			const qty = Number(values.qty);
+			if (!Number.isInteger(qty) || qty < 1 || qty > KP_MAX_QTY)
+				next.qty = `Количество — от 1 до ${KP_MAX_QTY}`;
 		} else if (!contact) next.contact = 'Нужен телефон или почта для ответа';
-		else if (!PHONE_RE.test(contact) && !EMAIL_RE.test(contact))
+		else if (!isPhone(contact) && !EMAIL_RE.test(contact))
 			next.contact = 'Похоже на опечатку — проверьте номер или адрес';
 		if (values.comments.length > 2000) next.comments = 'Комментарий длиннее 2000 символов';
 		setErrors(next);
+		// Фокус на первое поле с ошибкой: скринридер сразу прочитает её через aria-describedby
+		const first = FIELD_ORDER.find((f) => next[f]);
+		if (first) document.getElementById(id(first))?.focus();
 		return Object.keys(next).length === 0;
 	};
 
@@ -152,12 +169,13 @@ export default function ContactForm({
 	 */
 	const handleKp = (e: FormEvent) => {
 		e.preventDefault();
-		if (!kp || status === 'sending' || !validate()) return;
+		if (!kp || kpLock.current || status === 'sending' || !validate()) return;
 
 		const code = makeKpCode();
-		const url = kpUrl(kp.product, kp.optionIds, code);
+		const url = kpUrl(kp.product, kp.optionIds, code, Number(values.qty));
 		const doc = parseKp(url.slice(url.indexOf('?')));
 		if (!doc) return;
+		kpLock.current = true;
 
 		const buyer = {
 			name: values.name.trim(),
@@ -170,6 +188,7 @@ export default function ContactForm({
 		reachGoal('kp_created', {
 			model: doc.product.name,
 			options: doc.options.length,
+			qty: doc.qty,
 			total: doc.total,
 			org: Boolean(buyer.inn),
 		});
@@ -224,6 +243,7 @@ export default function ContactForm({
 				className="field"
 				value={values.name}
 				onChange={update('name')}
+				aria-required="true"
 				aria-invalid={Boolean(errors.name)}
 				aria-describedby={errors.name ? id('name-err') : undefined}
 			/>
@@ -240,13 +260,15 @@ export default function ContactForm({
 				id={id('contact')}
 				name="contact"
 				type={isKp ? 'tel' : 'text'}
-				inputMode="tel"
-				autoComplete="tel"
-				placeholder="+7 (914) 276-75-20"
+				// В общей форме можно ввести и почту — цифровая клавиатура без «@» тут мешает
+				inputMode={isKp ? 'tel' : 'text'}
+				autoComplete={isKp ? 'tel' : 'on'}
+				placeholder={isKp ? PHONE_EXAMPLE : `${PHONE_EXAMPLE} или mail@example.ru`}
 				maxLength={isKp ? 20 : 100}
 				className="field tnum"
 				value={values.contact}
 				onChange={update('contact')}
+				aria-required="true"
 				aria-invalid={Boolean(errors.contact)}
 				aria-describedby={errors.contact ? id('contact-err') : undefined}
 			/>
@@ -258,7 +280,8 @@ export default function ContactForm({
 		<div>
 			<label htmlFor={id('inn')} className="field-label">
 				ИНН организации
-				<span className="ml-2 font-normal tracking-normal text-fog-500">необязательно</span>
+				{' '}
+					<span className="ml-1 font-normal tracking-normal text-fog-500">необязательно</span>
 			</label>
 			<input
 				id={id('inn')}
@@ -278,6 +301,29 @@ export default function ContactForm({
 		</div>
 	);
 
+	const qtyField = isKp && (
+		<div>
+			<label htmlFor={id('qty')} className="field-label">
+				Количество машин
+			</label>
+			<input
+				id={id('qty')}
+				name="qty"
+				type="number"
+				inputMode="numeric"
+				min={1}
+				max={KP_MAX_QTY}
+				step={1}
+				className="field tnum"
+				value={values.qty}
+				onChange={update('qty')}
+				aria-invalid={Boolean(errors.qty)}
+				aria-describedby={errors.qty ? id('qty-err') : undefined}
+			/>
+			{errorText('qty')}
+		</div>
+	);
+
 	return (
 		<form
 			onSubmit={isKp ? handleKp : handleSubmit}
@@ -294,6 +340,7 @@ export default function ContactForm({
 					<div className="grid gap-5 sm:grid-cols-2">
 						{contactField}
 						{innField}
+						{qtyField}
 					</div>
 				</>
 			) : isPage ? (
@@ -311,7 +358,8 @@ export default function ContactForm({
 			<div>
 				<label htmlFor={id('comments')} className="field-label">
 					Комментарий
-					<span className="ml-2 font-normal tracking-normal text-fog-500">необязательно</span>
+					{' '}
+					<span className="ml-1 font-normal tracking-normal text-fog-500">необязательно</span>
 				</label>
 				<textarea
 					id={id('comments')}
