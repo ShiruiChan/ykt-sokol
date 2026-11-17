@@ -1,11 +1,12 @@
 /**
- * Приём заявок с сайта (Vercel Function).
- * Заявка уходит в Telegram через Bot API — данные не проходят через
- * сторонние почтовые сервисы, а токен бота живёт только на сервере.
- * Новых зависимостей нет: только fetch и Web Request/Response.
+ * Приём заявок с сайта.
+ * Основной канал — Telegram через Bot API, резервный — письмо по SMTP
+ * (api/_lib/mail.ts), если бот не настроен или Telegram не ответил.
+ * Оба канала работают с сервера: токены и пароли в браузер не попадают.
  */
 
 import { clientIp, sameOrigin } from './_lib/http.js';
+import { mailConfigured, sendMail } from './_lib/mail.js';
 import { ipFingerprint } from './_lib/auth.js';
 import { getStore } from './_lib/store.js';
 
@@ -200,11 +201,29 @@ async function overLimit(fp: string): Promise<boolean> {
 	return false;
 }
 
+async function sendTelegram(token: string, chatId: string, text: string): Promise<boolean> {
+	try {
+		const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: true }),
+			signal: AbortSignal.timeout(8000),
+		});
+		if (res.ok) return true;
+		// В лог — только код и описание от Telegram, без данных клиента
+		const detail = await res.text().catch(() => '');
+		console.error('telegram_failed', res.status, detail.slice(0, 300));
+	} catch (err) {
+		console.error('telegram_unreachable', err instanceof Error ? err.message : 'unknown');
+	}
+	return false;
+}
+
 export async function POST(request: Request): Promise<Response> {
 	const token = process.env.TELEGRAM_BOT_TOKEN;
 	const chatId = process.env.TELEGRAM_CHAT_ID;
-	// Клиент по этому ответу переключится на резервный канал
-	if (!token || !chatId) return json(503, { ok: false, reason: 'not_configured' });
+	const telegram = Boolean(token && chatId);
+	if (!telegram && !mailConfigured()) return json(503, { ok: false, reason: 'not_configured' });
 
 	// Заявки — только с нашего сайта и только JSON (text/plain с чужого сайта обходит CORS preflight)
 	if (!sameOrigin(request)) return json(403, { ok: false, reason: 'origin' });
@@ -234,28 +253,16 @@ export async function POST(request: Request): Promise<Response> {
 	if (await overLimit(ipFingerprint(clientIp(request))))
 		return json(429, { ok: false, reason: 'rate_limited' });
 
-	try {
-		const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				chat_id: chatId,
-				text: formatMessage(result.data),
-				parse_mode: 'HTML',
-				disable_web_page_preview: true,
-			}),
-			signal: AbortSignal.timeout(8000),
-		});
-		if (!res.ok) {
-			// В лог — только код и описание от Telegram, без данных клиента
-			const detail = await res.text().catch(() => '');
-			console.error('telegram_failed', res.status, detail.slice(0, 300));
-			return json(502, { ok: false, reason: 'delivery_failed' });
+	const message = formatMessage(result.data);
+	if (telegram && (await sendTelegram(token!, chatId!, message))) return json(200, { ok: true, channel: 'telegram' });
+	if (mailConfigured()) {
+		try {
+			const r = result.data;
+			await sendMail(r.kpNumber ? `Сформировано ${r.kpNumber}` : `Заявка с сайта: ${r.model || r.subject || r.name}`, message);
+			return json(200, { ok: true, channel: 'mail' });
+		} catch (err) {
+			console.error('mail_failed', err instanceof Error ? err.message : 'unknown');
 		}
-	} catch (err) {
-		console.error('telegram_unreachable', err instanceof Error ? err.message : 'unknown');
-		return json(502, { ok: false, reason: 'delivery_failed' });
 	}
-
-	return json(200, { ok: true });
+	return json(502, { ok: false, reason: 'delivery_failed' });
 }

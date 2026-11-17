@@ -19,6 +19,8 @@ export default defineConfig(({ isSsrBuild }) => ({
 		noExternal: ['react-photo-view'],
 	},
 	build: {
+		// Серверным сборкам (dist-ssr, dist-server) картинки из public/ не нужны
+		copyPublicDir: !isSsrBuild,
 		rollupOptions: {
 			// admin.html — отдельная точка входа: код админки не попадает в чанки сайта
 			input: isSsrBuild ? undefined : { main: page('./index.html'), admin: page('./admin.html') },

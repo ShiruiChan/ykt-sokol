@@ -6,7 +6,8 @@
 import { products, productBySlug, productPath } from '../data/products';
 import type { Product } from '../types';
 import { FAQ } from '../data/faq';
-import { ADDRESS, BRAND, HOURS, PHONE, SITE_URL, absoluteUrl } from '../config/site';
+import { ADDRESS, BRAND, BRAND_ALIASES, HOURS, PHONE, SITE_URL, absoluteUrl } from '../config/site';
+import { COMPANY } from '../config/legal';
 
 export interface PageMeta {
 	title: string;
@@ -27,6 +28,8 @@ const ORGANIZATION = {
 	'@type': 'Organization',
 	'@id': `${SITE_URL}/#org`,
 	name: BRAND,
+	alternateName: BRAND_ALIASES,
+	legalName: COMPANY.name,
 	url: absoluteUrl('/'),
 	logo: absoluteUrl('/logo.webp'),
 	telephone: PHONE.label,
@@ -39,10 +42,23 @@ const ORGANIZATION = {
 	},
 };
 
+/** Название сайта для поисковой выдачи (Google берёт его отсюда) */
+const WEBSITE = {
+	'@context': 'https://schema.org',
+	'@type': 'WebSite',
+	'@id': `${SITE_URL}/#website`,
+	name: BRAND,
+	alternateName: BRAND_ALIASES,
+	url: absoluteUrl('/'),
+	inLanguage: 'ru-RU',
+	publisher: { '@id': ORGANIZATION['@id'] },
+};
+
 const LOCAL_BUSINESS = {
 	'@context': 'https://schema.org',
 	'@type': 'AutomotiveBusiness',
 	name: `${BRAND} — производство снегоболотоходов`,
+	alternateName: BRAND_ALIASES,
 	url: absoluteUrl('/'),
 	image: absoluteUrl(DEFAULT_IMAGE),
 	telephone: PHONE.label,
@@ -81,10 +97,10 @@ function productJsonLd(p: Product) {
 /** Страницы с постоянным адресом. Сюда же смотрит генератор sitemap. */
 export const STATIC_PAGES: Record<string, Omit<PageMeta, 'path'>> = {
 	'/': {
-		title: 'ЯКТСокол | Снегоболотоходы производства Якутск',
+		title: 'ЯКТСокол (ЯКТ-Сокол) — снегоболотоходы Сокол, Якутск',
 		description:
-			'ЯКТСокол — производство снегоболотоходов в Якутске. Надёжная вездеходная техника для охоты, рыбалки, бизнеса и путешествий по бездорожью, снегу и болотам.',
-		jsonLd: [ORGANIZATION, LOCAL_BUSINESS],
+			'ЯКТСокол (ООО «ЯКТ-Сокол») — производство снегоболотоходов Сокол в Якутске. Вездеходная техника для охоты, рыбалки, бизнеса и путешествий по бездорожью, снегу и болотам.',
+		jsonLd: [WEBSITE, ORGANIZATION, LOCAL_BUSINESS],
 	},
 	'/compare': {
 		title: `Сравнение моделей снегоболотоходов — ${BRAND}`,

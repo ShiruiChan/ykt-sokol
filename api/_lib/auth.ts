@@ -2,7 +2,7 @@
  * Вход в админку: один пароль владельца (ADMIN_PASSWORD) и подписанная
  * cookie сессии. В cookie — только срок действия и HMAC-подпись
  * (ADMIN_SESSION_SECRET), никаких данных, которые надо прятать.
- * Секреты живут только в переменных окружения Vercel и в бандл не попадают.
+ * Секреты живут только в окружении сервера (/etc/ykt-sokol.env) и в бандл не попадают.
  */
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { fail } from './http.js';

@@ -1,22 +1,22 @@
 /**
- * Локальный запуск функций из api/ внутри `npm run dev` — без `vercel dev`
- * и без логина в Vercel. Обработчики (export GET/POST/PUT) грузятся через
+ * Локальный запуск обработчиков из api/ внутри `npm run dev`. Обработчики (export GET/POST/PUT) грузятся через
  * Vite, поэтому TypeScript и правки подхватываются на лету.
  *
  * Переменные окружения берутся из .env.local / .env (как у Vite, но все,
  * не только VITE_*) и попадают только в серверную часть, не в бандл.
  * Без DATABASE_URL включается файловый адаптер (ADMIN_CONTENT_STORE=file):
  * админка читает и пишет content/*.json прямо в рабочей копии.
- * На Vercel этот плагин не работает — там только настоящие функции.
+ * На сервере этот плагин не работает: там dist-server/index.js за nginx.
+ * Загруженные через админку файлы отдаются из .admin-dev/uploads по /uploads/.
  *
  * POST /api/request на dev по умолчанию «сухой»: заявка не уходит в Telegram
  * заказчика, а печатается в терминал. Боевую отправку включает REQUEST_DEV_LIVE=1.
  */
-import { existsSync } from 'node:fs';
+import { createReadStream, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { loadEnv } from 'vite';
 
-/** URL → файл функции. Повторяет маршрутизацию Vercel для наших путей */
+/** URL → файл функции. Повторяет маршруты server/index.ts */
 function resolveHandler(root, pathname) {
 	const clean = pathname.replace(/\/+$/, '');
 	if (!clean.startsWith('/api/')) return null;
@@ -25,6 +25,22 @@ function resolveHandler(root, pathname) {
 	const dynamic = clean.match(/^\/api\/admin\/content\/[^/]+$/);
 	if (dynamic) return path.join(root, 'api/admin/content/[key].ts');
 	return null;
+}
+
+const UPLOAD_TYPES = { '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.pdf': 'application/pdf' };
+
+/** /uploads/… → файл из папки загрузок (на сервере это делает nginx) */
+function serveUpload(root, pathname, res) {
+	const dir = path.resolve(process.env.UPLOADS_DIR || path.join(process.env.ADMIN_CONTENT_ROOT || root, '.admin-dev', 'uploads'));
+	const file = path.resolve(dir, '.' + decodeURIComponent(pathname.slice('/uploads'.length)));
+	const type = UPLOAD_TYPES[path.extname(file).toLowerCase()];
+	if (!file.startsWith(dir + path.sep) || !type || !existsSync(file) || !statSync(file).isFile()) {
+		res.statusCode = 404;
+		return res.end('Not found');
+	}
+	res.setHeader('content-type', type);
+	res.setHeader('x-content-type-options', 'nosniff');
+	createReadStream(file).pipe(res);
 }
 
 async function toRequest(req) {
@@ -81,7 +97,9 @@ export default function apiDevPlugin() {
 			server.middlewares.use(async (req, res, next) => {
 				const pathname = (req.url ?? '/').split('?')[0];
 
-				// /admin — отдельная страница admin.html (на Vercel так делает cleanUrls)
+				if (pathname.startsWith('/uploads/')) return serveUpload(root, pathname, res);
+
+				// /admin — отдельная страница admin.html (на сервере так делает nginx)
 				if (pathname === '/admin' || pathname === '/admin/') {
 					req.url = '/admin.html' + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
 					return next();

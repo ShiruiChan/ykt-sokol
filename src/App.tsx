@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { LazyMotion, m, useReducedMotion } from 'framer-motion';
-import { Analytics } from '@vercel/analytics/react';
 import ScrollToTop from './scripts/ScrollToTop';
 import Seo from './seo/Seo';
 import Header from './components/Header';
@@ -59,7 +58,7 @@ function Layout() {
 
 /**
  * Снятые с продажи модели → ближайшая актуальная. Дублирует redirects
- * в vercel.json: там — 301 для поисковиков, здесь — переходы внутри SPA.
+ * в deploy/nginx.conf: там — 301 для поисковиков, здесь — переходы внутри SPA.
  */
 const RETIRED_IDS: Record<number, string> = { 3: 'sokol-plus-timken' };
 const RETIRED_SLUGS: Record<string, string> = { 'sokol-plus-jimny': 'sokol-plus-timken' };
@@ -85,8 +84,6 @@ export default function App() {
 		<LazyMotion features={loadMotionFeatures} strict>
 			<Seo />
 			<Metrika />
-			{/* Vercel Web Analytics: переходы между страницами SPA отслеживает сама */}
-			<Analytics />
 			<ScrollToTop />
 
 			<Routes>

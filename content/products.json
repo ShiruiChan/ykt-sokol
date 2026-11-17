@@ -20,8 +20,8 @@
 			"clearance": "400 мм",
 			"transmission": "4-ступенчатая АКПП",
 			"seats": "2 места",
-			"fuelConsumption": "20 л/100 км",
 			"maxSpeed": "До 49 км/ч",
+			"fuelConsumption": "20 л/100 км",
 			"extendedSpecs": {
 				"wheelFormula": "4×4",
 				"weight": "до 750 кг",
@@ -188,8 +188,8 @@
 			"clearance": "500 мм",
 			"transmission": "4-ступенчатая АКПП",
 			"seats": "3 места",
-			"fuelConsumption": "21 л/100 км",
 			"maxSpeed": "До 49 км/ч",
+			"fuelConsumption": "21 л/100 км",
 			"extendedSpecs": {
 				"wheelFormula": "4×4",
 				"weight": "до 950 кг",
@@ -358,8 +358,8 @@
 			"clearance": "400 мм",
 			"transmission": "4-ступенчатая АКПП",
 			"seats": "2 места",
-			"fuelConsumption": "20 л/100 км",
 			"maxSpeed": "До 49 км/ч",
+			"fuelConsumption": "20 л/100 км",
 			"extendedSpecs": {
 				"wheelFormula": "4×4",
 				"weight": "до 750 кг",
@@ -495,8 +495,8 @@
 			"clearance": "500 мм",
 			"transmission": "4-ступенчатая АКПП",
 			"seats": "3 места",
+			"maxSpeed": "До 75 км/ч",
 			"fuelConsumption": "21 л/100 км",
-			"maxSpeed": "До 49 км/ч",
 			"extendedSpecs": {
 				"wheelFormula": "4×4",
 				"weight": "до 950 кг",
@@ -646,7 +646,7 @@
 	{
 		"id": 6,
 		"slug": "lis",
-		"name": "ЯКТС Лис",
+		"name": "ЯКТС 1600",
 		"description": "Снегоболотоход с закрытой кабиной: кабина защищает от ветра, снега и дождя, поэтому машина подходит для поездок в межсезонье и зимой. Характеристики и комплектацию уточнит менеджер — позвоните или оставьте заявку.",
 		"deskSmall": "Снегоболотоход с закрытой кабиной для поездок в любую погоду.",
 		"price": 1800000,

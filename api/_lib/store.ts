@@ -1,13 +1,13 @@
 /**
  * Хранилище содержимого сайта.
  *
- * Прод: только Postgres (Neon) по DATABASE_URL.
+ * Прод: только PostgreSQL по DATABASE_URL.
  * Локальная разработка: файловый адаптер поверх content/*.json —
- * включается флагом ADMIN_CONTENT_STORE=file и только вне Vercel
- * (переменная VERCEL там всегда задана), чтобы на проде запись
- * в файловую систему функции не могла случиться даже по ошибке.
+ * включается флагом ADMIN_CONTENT_STORE=file и никогда при
+ * NODE_ENV=production (боевой сервер), чтобы на проде запись
+ * в рабочую копию не могла случиться даже по ошибке.
  */
-import { neon } from '@neondatabase/serverless';
+import { sqlFor } from './db.js';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ContentKey } from '../../src/admin/schema.js';
@@ -35,7 +35,7 @@ export interface ContentStore {
 }
 
 function postgresStore(url: string): ContentStore {
-	const sql = neon(url);
+	const sql = sqlFor(url);
 	return {
 		kind: 'postgres',
 		async get(key) {
@@ -126,7 +126,7 @@ export function getStore(): ContentStore | null {
 	if (cached !== undefined) return cached;
 	const url = process.env.DATABASE_URL;
 	if (url) cached = postgresStore(url);
-	else if (process.env.ADMIN_CONTENT_STORE === 'file' && !process.env.VERCEL) cached = fileStore(process.env.ADMIN_CONTENT_ROOT || process.cwd());
+	else if (process.env.ADMIN_CONTENT_STORE === 'file' && process.env.NODE_ENV !== 'production') cached = fileStore(process.env.ADMIN_CONTENT_ROOT || process.cwd());
 	else cached = null;
 	return cached;
 }

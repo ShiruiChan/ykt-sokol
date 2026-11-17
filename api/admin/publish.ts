@@ -1,9 +1,11 @@
 /**
- * POST /api/admin/publish — запускает пересборку сайта на Vercel через
- * Deploy Hook (VERCEL_DEPLOY_HOOK_URL). Сборка сама подтянет свежие данные
- * из БД (scripts/pull-content.mjs) и через ~1 минуту сайт обновится.
- * Адрес хука — секрет: в ответы и логи он не попадает.
+ * POST /api/admin/publish — запускает пересборку сайта на сервере:
+ * команду из PUBLISH_COMMAND (на проде — deploy/rebuild.sh). Сборка сама
+ * подтянет свежие данные из БД (scripts/pull-content.mjs), разложит новую
+ * версию рядом и атомарно переключит на неё — через 1–2 минуты сайт обновится.
+ * Команда задаётся только в окружении сервера, из запроса ничего не берётся.
  */
+import { spawn } from 'node:child_process';
 import { requireAdmin } from '../_lib/auth.js';
 import { fail, json, sameOrigin } from '../_lib/http.js';
 import { getStore } from '../_lib/store.js';
@@ -13,18 +15,25 @@ export async function POST(request: Request): Promise<Response> {
 	const denied = requireAdmin(request);
 	if (denied) return denied;
 
-	const hook = process.env.VERCEL_DEPLOY_HOOK_URL;
-	if (!hook) {
-		return fail(503, 'Публикация не настроена: задайте VERCEL_DEPLOY_HOOK_URL в настройках проекта Vercel.', {
+	const command = process.env.PUBLISH_COMMAND;
+	if (!command) {
+		return fail(503, 'Публикация не настроена: задайте PUBLISH_COMMAND на сервере (см. deploy/README.md).', {
 			code: 'publish_not_configured',
 		});
 	}
 
 	try {
-		const res = await fetch(hook, { method: 'POST', signal: AbortSignal.timeout(10_000) });
-		if (!res.ok) return fail(502, `Vercel не принял запрос на публикацию (код ${res.status}). Попробуйте ещё раз.`);
+		await new Promise<void>((resolve, reject) => {
+			// Сборка живёт дольше запроса: отцепляем процесс, вывод пишет сам скрипт
+			const child = spawn('/bin/sh', ['-c', command], { detached: true, stdio: 'ignore' });
+			child.once('error', reject);
+			child.once('spawn', () => {
+				child.unref();
+				resolve();
+			});
+		});
 	} catch {
-		return fail(502, 'Не удалось связаться с Vercel. Попробуйте ещё раз через минуту.');
+		return fail(502, 'Не удалось запустить публикацию. Попробуйте ещё раз через минуту.');
 	}
 
 	try {

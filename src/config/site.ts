@@ -5,12 +5,19 @@
 import type { PhoneContact, SiteContent } from '../types';
 import siteData from '../../content/site.json';
 
-/** Боевой адрес сайта. При переезде на свой домен меняется только эта строка. */
-export const SITE_URL = 'https://ykt-sokol.vercel.app';
+/**
+ * Боевой адрес сайта (без слэша на конце). Задаётся переменной VITE_SITE_URL
+ * в /etc/ykt-sokol.env на сервере; после смены — «Опубликовать» в админке.
+ * Из него строятся canonical, og:url, sitemap.xml и robots.txt.
+ */
+export const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://ykt-sokol.vercel.app').replace(/\/+$/, '');
 
 export const BRAND = 'ЯКТСокол';
 
-/** Относительный путь → полный адрес; уже полный (картинки из Vercel Blob) не трогаем */
+/** Как бренд пишут в поиске — для schema.org alternateName */
+export const BRAND_ALIASES = ['ЯКТ-Сокол', 'ЯКТ Сокол', 'Якт-Сокол', 'Сокол', 'YKT-Sokol', 'ЯКТ-СОКОЛ'];
+
+/** Относительный путь → полный адрес; уже полный (внешняя ссылка) не трогаем */
 export const absoluteUrl = (path = '/') =>
 	/^https?:\/\//.test(path) ? path : `${SITE_URL}${path === '/' ? '/' : path}`;
 

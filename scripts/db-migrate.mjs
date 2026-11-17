@@ -1,30 +1,29 @@
 #!/usr/bin/env node
 /**
- * Создаёт таблицы админки в Postgres (Neon). Повторный запуск безопасен.
+ * Создаёт таблицы админки в PostgreSQL. Повторный запуск безопасен.
  *
  *   DATABASE_URL=postgres://… npm run db:migrate
  *
- * Строку подключения берите в Vercel → Storage → Neon → .env.local
- * (или `vercel env pull`). В лог она не выводится.
+ * На сервере строка подключения лежит в /etc/ykt-sokol.env (см. deploy/README.md).
+ * В лог она не выводится.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { neon } from '@neondatabase/serverless';
+import { connect } from './pg.mjs';
 import { ROOT } from './content-keys.mjs';
 
 const url = process.env.DATABASE_URL;
 if (!url) {
-	console.error('✖ Задайте DATABASE_URL (строка подключения к Neon)');
+	console.error('✖ Задайте DATABASE_URL (строка подключения к PostgreSQL)');
 	process.exit(1);
 }
 
-const sql = neon(url);
+const sql = connect(url);
 const dir = path.join(ROOT, 'db');
 const files = (await readdir(dir)).filter((f) => f.endsWith('.sql')).sort();
 
 for (const file of files) {
 	const text = await readFile(path.join(dir, file), 'utf8');
-	// HTTP-драйвер Neon выполняет по одному выражению за запрос
 	const statements = text
 		.replace(/--.*$/gm, '')
 		.split(';')
@@ -34,3 +33,4 @@ for (const file of files) {
 	console.log(`✔ ${file}: выражений ${statements.length}`);
 }
 console.log('✔ Миграция выполнена');
+await sql.end();

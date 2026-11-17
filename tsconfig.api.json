@@ -5,5 +5,5 @@
 		"types": ["node"],
 		"typeRoots": ["./node_modules/@types"]
 	},
-	"include": ["api"]
+	"include": ["api", "server"]
 }

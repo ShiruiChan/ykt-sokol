@@ -1,13 +1,10 @@
 /**
- * Загрузка фото и PDF в Vercel Blob прямо из браузера.
- * Токен на одну загрузку выдаёт /api/admin/upload (только после входа);
- * сам файл идёт мимо функции, сразу в хранилище.
+ * Загрузка фото и PDF на свой сервер: /api/admin/upload (только после входа)
+ * сохраняет файл в UPLOADS_DIR и возвращает адрес /uploads/…
  *
  * Фото перед загрузкой ужимаются до 2000 px по длинной стороне и
  * перекодируются в WebP: снимок с телефона на 8 МБ превращается в ~300 КБ.
  */
-import { upload } from '@vercel/blob/client';
-
 const MB = 1024 * 1024;
 export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const MAX_IMAGE_BYTES = 15 * MB;
@@ -63,32 +60,25 @@ export function checkFile(file: File, kind: 'image' | 'pdf'): string | null {
 	return null;
 }
 
-/**
- * Библиотека прячет ответ сервера за «Failed to retrieve the client token».
- * Переспрашиваем /api/admin/upload пустым запросом: вход и настройка
- * хранилища проверяются раньше тела, так что придёт понятная причина.
- */
-async function explainFailure(e: unknown): Promise<string> {
-	const msg = e instanceof Error ? e.message : '';
-	if (/client token/i.test(msg)) {
-		try {
-			const res = await fetch('/api/admin/upload', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: '{}',
-			});
-			const data = (await res.json()) as { error?: string };
-			if ((res.status === 401 || res.status === 503) && data.error) return data.error;
-		} catch {
-			/* ниже — общее сообщение */
-		}
-	}
-	if (/content type/i.test(msg)) return 'Неподходящий тип файла';
-	if (/size|too large/i.test(msg)) return 'Файл слишком большой';
-	return 'Не удалось загрузить файл. Проверьте интернет и попробуйте ещё раз.';
+/** Отправка файла на сервер с прогрессом (fetch прогресс отправки не отдаёт) */
+function send(url: string, body: Blob, contentType: string, onProgress?: (percent: number) => void): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', url);
+		xhr.setRequestHeader('content-type', contentType);
+		xhr.responseType = 'json';
+		if (onProgress) xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
+		xhr.onload = () => {
+			const data = (xhr.response ?? {}) as { url?: string; error?: string };
+			if (xhr.status === 200 && data.url) resolve(data.url);
+			else reject(new UploadError(data.error || 'Не удалось загрузить файл. Попробуйте ещё раз.'));
+		};
+		xhr.onerror = () => reject(new UploadError('Не удалось загрузить файл. Проверьте интернет и попробуйте ещё раз.'));
+		xhr.send(body);
+	});
 }
 
-/** Загружает файл и возвращает его постоянный адрес https://…blob.vercel-storage.com/… */
+/** Загружает файл на сервер и возвращает его постоянный адрес /uploads/… */
 export async function uploadFile(
 	file: File,
 	kind: 'image' | 'pdf',
@@ -98,27 +88,14 @@ export async function uploadFile(
 	if (problem) throw new UploadError(problem);
 
 	let body: Blob = file;
-	let pathname = `documents/${baseName(file)}.pdf`;
 	if (kind === 'image') {
 		try {
 			body = await compressImage(file);
 		} catch {
 			body = file;
 		}
-		const ext = body.type === 'image/webp' ? 'webp' : body.type === 'image/png' ? 'png' : 'jpg';
-		pathname = `images/${baseName(file)}.${ext}`;
 	}
 
-	try {
-		const result = await upload(pathname, body, {
-			access: 'public',
-			handleUploadUrl: '/api/admin/upload',
-			clientPayload: kind,
-			contentType: body.type || file.type,
-			onUploadProgress: onProgress ? (p) => onProgress(Math.round(p.percentage)) : undefined,
-		});
-		return result.url;
-	} catch (e) {
-		throw new UploadError(await explainFailure(e));
-	}
+	const query = new URLSearchParams({ kind, name: baseName(file) });
+	return send(`/api/admin/upload?${query}`, body, body.type || file.type, onProgress);
 }

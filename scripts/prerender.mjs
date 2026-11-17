@@ -79,7 +79,7 @@ async function renderPage(url, file) {
 }
 
 for (const url of ALL_PATHS) {
-	// cleanUrls в vercel.json: /gallery отдаётся из gallery.html
+	// Чистые адреса: nginx отдаёт /gallery из gallery.html (deploy/nginx.conf)
 	await renderPage(url, url === '/' ? 'index.html' : `${url.slice(1)}.html`);
 }
 // Служебные страницы (КП): 200 с noindex, в sitemap их нет

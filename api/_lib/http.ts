@@ -1,6 +1,6 @@
 /**
- * Общие помощники для функций /api/admin/*. Файлы в api/_lib Vercel
- * не превращает в отдельные функции (имя начинается с «_»).
+ * Общие помощники для обработчиков /api/*. Маршрутов в api/_lib нет —
+ * только общий код (см. server/index.ts).
  */
 
 export const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>

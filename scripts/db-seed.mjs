@@ -10,22 +10,23 @@
  */
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { neon } from '@neondatabase/serverless';
+import { connect } from './pg.mjs';
 import { CONTENT_DIR, CONTENT_KEYS, shapeError } from './content-keys.mjs';
 
 const url = process.env.DATABASE_URL;
 if (!url) {
-	console.error('✖ Задайте DATABASE_URL (строка подключения к Neon)');
+	console.error('✖ Задайте DATABASE_URL (строка подключения к PostgreSQL)');
 	process.exit(1);
 }
 const force = process.argv.includes('--force');
-const sql = neon(url);
+const sql = connect(url);
 
 for (const key of CONTENT_KEYS) {
 	const data = JSON.parse(await readFile(path.join(CONTENT_DIR, `${key}.json`), 'utf8'));
 	const problem = shapeError(key, data);
 	if (problem) {
 		console.error(`✖ content/${key}.json: ${problem}`);
+		await sql.end();
 		process.exit(1);
 	}
 	const json = JSON.stringify(data);
@@ -42,3 +43,4 @@ for (const key of CONTENT_KEYS) {
 }
 await sql`insert into admin_audit (action, key) values ('seed', ${force ? 'force' : null})`;
 console.log('✔ Сид выполнен');
+await sql.end();

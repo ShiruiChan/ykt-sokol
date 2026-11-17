@@ -1,0 +1,2 @@
+# /etc/sudoers.d/ykt-sokol — deploy.sh перезапускает API без пароля и без прочих прав root
+ykt ALL=(root) NOPASSWD: /usr/bin/systemctl restart ykt-sokol

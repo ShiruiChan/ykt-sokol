@@ -1,0 +1,26 @@
+# /etc/systemd/system/ykt-sokol.service — сервер API (заявки и админка)
+[Unit]
+Description=YKT-Sokol API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+User=ykt
+Group=ykt
+WorkingDirectory=/srv/ykt-sokol/app
+EnvironmentFile=/etc/ykt-sokol.env
+Environment=NODE_ENV=production PORT=3000 HOST=127.0.0.1
+ExecStart=/usr/bin/node dist-server/index.js
+Restart=always
+RestartSec=3
+# Перезапуск не обрывает идущую публикацию (она — отдельный процесс)
+KillMode=process
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/srv/ykt-sokol
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

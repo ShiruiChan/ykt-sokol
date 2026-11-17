@@ -24,12 +24,16 @@ async function main() {
 
 	let rows;
 	try {
-		const { neon } = await import('@neondatabase/serverless');
-		const sql = neon(url);
+		const { connect } = await import('./pg.mjs');
+		const sql = connect(url);
 		const timeout = new Promise((_, reject) =>
 			setTimeout(() => reject(Object.assign(new Error('timeout'), { code: 'TIMEOUT' })), 15_000).unref()
 		);
-		rows = await Promise.race([sql`select key, data, updated_at from content`, timeout]);
+		try {
+			rows = await Promise.race([sql`select key, data, updated_at from content`, timeout]);
+		} finally {
+			sql.end();
+		}
 	} catch (e) {
 		warn(`БД недоступна (${e?.code ?? e?.name ?? 'ошибка'}) — сборка идёт на снимке content/*.json`);
 		return;

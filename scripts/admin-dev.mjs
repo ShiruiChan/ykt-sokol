@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Локальный харнесс админки — без `vercel dev` и без логина в Vercel.
+ * Локальный харнесс админки: тот же API, что на сервере, но через Vite.
  *
  *   node scripts/admin-dev.mjs          — сайт + /admin + функции api/* на http://localhost:5173
  *                                         (то же, что `npm run dev`; данные — content/*.json,
@@ -11,8 +11,8 @@
  *                                         вход, чтение/запись, проверки схемы, публикация.
  *                                         Рабочую копию не меняет, сеть наружу не нужна.
  */
+import { existsSync } from 'node:fs';
 import { cp, mkdtemp, readFile, rm } from 'node:fs/promises';
-import { createServer as createHttpServer } from 'node:http';
 import { createServer as createNetServer } from 'node:net';
 import { randomBytes } from 'node:crypto';
 import os from 'node:os';
@@ -53,7 +53,7 @@ async function runChecks() {
 		ADMIN_PASSWORD: password,
 		ADMIN_SESSION_SECRET: randomBytes(32).toString('base64url'),
 	});
-	for (const k of ['DATABASE_URL', 'VERCEL_DEPLOY_HOOK_URL', 'BLOB_READ_WRITE_TOKEN', 'VERCEL']) delete process.env[k];
+	for (const k of ['DATABASE_URL', 'PUBLISH_COMMAND', 'UPLOADS_DIR']) delete process.env[k];
 
 	const { createServer } = await import('vite');
 	const port = await freePort();
@@ -151,28 +151,42 @@ async function runChecks() {
 
 		console.log('\nПубликация и загрузка');
 		r = await req('POST', '/api/admin/publish', { cookie, body: {} });
-		ok(r.status === 503 && /VERCEL_DEPLOY_HOOK_URL/.test(r.data.error), 'без Deploy Hook → 503 с понятной ошибкой', `(${r.status} ${r.data?.error})`);
+		ok(r.status === 503 && /PUBLISH_COMMAND/.test(r.data.error), 'без команды публикации → 503 с понятной ошибкой', `(${r.status} ${r.data?.error})`);
 		console.log(`    «${r.data?.error}»`);
 
-		let hookHits = 0;
-		const hook = createHttpServer((q, s) => {
-			hookHits += q.method === 'POST' ? 1 : 0;
-			s.writeHead(201, { 'content-type': 'application/json' }).end('{"job":{"id":"test"}}');
-		});
-		await new Promise((res) => hook.listen(0, '127.0.0.1', res));
-		process.env.VERCEL_DEPLOY_HOOK_URL = `http://127.0.0.1:${hook.address().port}/hook`;
+		const marker = path.join(tmp, 'published');
+		process.env.PUBLISH_COMMAND = `touch '${marker}'`;
 		r = await req('POST', '/api/admin/publish', { cookie, body: {} });
-		ok(r.status === 200 && hookHits === 1, 'с Deploy Hook → 200, хук вызван один раз', `(${r.status})`);
-		ok(!JSON.stringify(r.data).includes('127.0.0.1'), 'адрес хука в ответ не попадает');
+		for (let i = 0; i < 20 && !existsSync(marker); i++) await new Promise((res) => setTimeout(res, 50));
+		ok(r.status === 200 && existsSync(marker), 'с PUBLISH_COMMAND → 200, команда запущена', `(${r.status})`);
+		ok(!JSON.stringify(r.data).includes(marker), 'команда в ответ не попадает');
 		r = await req('GET', '/api/admin/status', { cookie });
 		ok(r.data.unpublished === false && r.data.publishConfigured === true, 'статус после публикации: опубликовано');
-		hook.close();
-		delete process.env.VERCEL_DEPLOY_HOOK_URL;
+		delete process.env.PUBLISH_COMMAND;
 
-		r = await req('POST', '/api/admin/upload', { cookie, body: { type: 'blob.generate-client-token', payload: { pathname: 'images/a.webp', clientPayload: 'image', multipart: false } } });
-		ok(r.status === 503 && /BLOB_READ_WRITE_TOKEN/.test(r.data.error), 'загрузка без Blob → 503 с понятной ошибкой', `(${r.status})`);
-		r = await req('POST', '/api/admin/upload', { body: { type: 'blob.generate-client-token', payload: {} } });
+		const upload = (query, bytes, { cookie: c = cookie, type = 'application/octet-stream' } = {}) =>
+			fetch(`${base}/api/admin/upload?${query}`, {
+				method: 'POST',
+				headers: { 'content-type': type, ...(c ? { cookie: c } : {}) },
+				body: bytes,
+			}).then(async (res) => ({ status: res.status, data: await res.json().catch(() => null) }));
+		const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(32)]);
+		r = await upload('kind=image&name=Photo%201', png, { cookie: '' });
 		ok(r.status === 401, 'загрузка без входа → 401', `(${r.status})`);
+		r = await upload('kind=image&name=Photo%201', png, { type: 'image/png' });
+		ok(r.status === 200 && /^\/uploads\/images\/photo-1-[0-9a-f]{8}\.png$/.test(r.data?.url ?? ''), `фото сохранено: ${r.data?.url}`, `(${r.status} ${r.data?.error})`);
+		const saved = r.data?.url ? path.join(tmp, '.admin-dev', r.data.url) : '';
+		ok(saved && existsSync(saved), 'файл лежит в папке загрузок');
+		const served = r.data?.url ? await fetch(base + r.data.url) : null;
+		ok(served?.status === 200 && served.headers.get('content-type') === 'image/png', 'файл отдаётся по /uploads/…', `(${served?.status})`);
+		r = await upload('kind=image&name=evil', Buffer.from('MZ\x90\x00 not an image'), { type: 'image/png' });
+		ok(r.status === 400, 'exe под видом картинки → 400', `(${r.status})`);
+		r = await upload('kind=pdf&name=doc', png, { type: 'application/pdf' });
+		ok(r.status === 400, 'картинка под видом PDF → 400', `(${r.status})`);
+		r = await upload('kind=exe&name=x', png);
+		ok(r.status === 400, 'неизвестный тип → 400', `(${r.status})`);
+		const traversal = await fetch(`${base}/uploads/..%2F..%2Fcontent%2Fsite.json`);
+		ok(traversal.status === 404, 'выход из папки загрузок по /uploads/../ → 404', `(${traversal.status})`);
 
 		console.log('\nЛимит попыток входа');
 		const statuses = [];

@@ -1,6 +1,7 @@
 # ЯКТСокол — сайт производителя снегоболотоходов
 
-React 19 + Vite 6 + Tailwind 4 + framer-motion. Деплой — Vercel.
+React 19 + Vite 6 + Tailwind 4 + framer-motion. Хостинг — свой VPS в России:
+nginx + Node + PostgreSQL. Как поднять сервер — [deploy/README.md](deploy/README.md).
 
 ## Команды
 
@@ -9,10 +10,11 @@ npm install
 npm run dev          # локальная разработка, http://localhost:5173
 npm run typecheck    # проверка типов
 npm run build        # сборка + пререндер всех страниц + sitemap.xml/robots.txt
-npm run preview      # посмотреть собранный dist (с чистыми URL, как на Vercel)
+npm run preview      # посмотреть собранный dist (с чистыми URL)
+npm run build:server # сервер API → dist-server/index.js (npm start — запустить)
 npm run optimize:images
 npm test             # юнит-тесты
-npm run admin:check  # самопроверка API админки (локально, без БД и Vercel)
+npm run admin:check  # самопроверка API админки (локально, без БД)
 npm run db:migrate   # создать таблицы админки в Postgres (нужен DATABASE_URL)
 npm run db:seed      # заполнить БД текущим снимком content/*.json
 ```
@@ -28,27 +30,31 @@ npm run db:seed      # заполнить БД текущим снимком con
 - **Данные сайта** — снимок `content/*.json`: модели, FAQ, новости, документы,
   контакты. Правятся в админ-панели (`/admin`), перед сборкой подтягиваются из
   БД (`scripts/pull-content.mjs`). Типы — `src/types`.
-- **Навигация и адрес сайта** — `src/config/site.ts`. При переезде на свой
-  домен меняется только `SITE_URL`.
+- **Навигация и адрес сайта** — `src/config/site.ts`. Боевой адрес задаёт
+  переменная `VITE_SITE_URL`.
 - **Модели** — `content/products.json`, адрес страницы `/models/<slug>`.
-  Старые адреса `/product/<id>` перенаправляются (vercel.json и клиент).
-- **Заявки** — `api/request.ts` (Vercel Function → Telegram-бот). Пока бот не
-  настроен, клиент автоматически отправляет заявку резервным каналом (EmailJS).
+  Старые адреса `/product/<id>` перенаправляются (`deploy/nginx.conf` и клиент).
+- **API** — обработчики в `api/` (`export POST(request)` на Web Request/Response).
+  На сервере их обслуживает `server/index.ts` за nginx, в `npm run dev` — плагин
+  Vite `scripts/api-dev-plugin.mjs`.
+- **Заявки** — `api/request.ts`: Telegram-бот, а если он не настроен или не
+  ответил — письмо по SMTP (`api/_lib/mail.ts`). Сторонних сервисов в браузере нет.
 
 ## Переменные окружения
 
-Шаблон — `.env.example`. В Vercel → Settings → Environment Variables:
+Шаблон — `.env.example`. На сервере — `/etc/ykt-sokol.env`:
 
 | Переменная | Где используется |
 |---|---|
-| `TELEGRAM_BOT_TOKEN` | токен бота от @BotFather — сервер |
-| `TELEGRAM_CHAT_ID` | чат/группа, куда приходят заявки — сервер |
-| `VITE_YM_ID` | номер счётчика Яндекс.Метрики — клиент |
-| `DATABASE_URL` | Postgres (Neon) для админки и сборки — сервер |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob, загрузка фото и PDF — сервер |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | бот и чат для заявок — сервер |
+| `SMTP_URL`, `MAIL_TO`, `MAIL_FROM` | резервный канал заявок (почта) — сервер |
+| `DATABASE_URL` | PostgreSQL для админки и сборки — сервер |
+| `UPLOADS_DIR` | папка для фото и PDF из админки — сервер |
 | `ADMIN_PASSWORD` | пароль входа в админку — сервер |
 | `ADMIN_SESSION_SECRET` | ключ подписи сессии, ≥ 32 символов — сервер |
-| `VERCEL_DEPLOY_HOOK_URL` | Deploy Hook для кнопки «Опубликовать» — сервер |
+| `PUBLISH_COMMAND` | команда кнопки «Опубликовать» (`deploy/rebuild.sh`) — сервер |
+| `VITE_YM_ID` | номер счётчика Яндекс.Метрики — клиент |
+| `VITE_SITE_URL` | боевой адрес сайта — клиент, canonical и sitemap |
 
 `.env` в репозиторий не коммитится.
 
@@ -64,13 +70,16 @@ npm run db:seed      # заполнить БД текущим снимком con
 
 1. «Сохранить» в разделе → `PUT /api/admin/content/:key`: сервер проверяет данные
    (`src/admin/schema.ts`) и пишет в Postgres (таблица `content`).
-2. «Опубликовать на сайте» → `POST /api/admin/publish` дёргает Deploy Hook.
-   Vercel пересобирает сайт (~1 мин): `scripts/pull-content.mjs` забирает данные
-   из БД в `content/*.json`, дальше обычная сборка с пререндером, sitemap и SEO.
+2. «Опубликовать на сайте» → `POST /api/admin/publish` запускает `PUBLISH_COMMAND`
+   (`deploy/rebuild.sh`). Сервер пересобирает сайт (1–2 мин):
+   `scripts/pull-content.mjs` забирает данные из БД в `content/*.json`, дальше
+   обычная сборка с пререндером, sitemap и SEO, затем атомарное переключение
+   на новую версию.
    Пока не опубликовано, в шапке админки висит «Изменения сохранены, не опубликованы».
-3. Фото и PDF грузятся из браузера прямо в Vercel Blob по одноразовому токену
-   (`/api/admin/upload`): фото JPEG/PNG/WebP до 15 МБ (перед загрузкой ужимаются
-   до 2000 px в WebP), PDF до 20 МБ. На сайте такие фото выводятся без srcset.
+3. Фото и PDF уходят на сервер (`/api/admin/upload`) и сохраняются в
+   `UPLOADS_DIR`, адрес — `/uploads/…`. Фото JPEG/PNG/WebP до 15 МБ (перед
+   загрузкой ужимаются до 2000 px в WebP), PDF до 20 МБ. Тип проверяется по
+   содержимому файла. На сайте такие фото выводятся без srcset.
 4. Без `DATABASE_URL` (или если БД недоступна) сборка идёт на снимке
    `content/*.json` из репозитория и не падает.
 
@@ -81,31 +90,11 @@ IP хранится только как обезличенный HMAC-отпеч
 
 > Удаление модели или смена её адреса (slug) ломает старую ссылку
 > `/models/<старый>` — админка предупреждает об этом. Если модель
-> переименована, добавьте редирект в `vercel.json` → `redirects`.
+> переименована, добавьте редирект в `deploy/nginx.conf`.
 
-### Что настроить в Vercel (один раз)
+### Настройка сервера
 
-1. **База данных.** Vercel → проект → Storage → Create Database → Neon
-   (Marketplace) → подключить к проекту для Production и Preview.
-   `DATABASE_URL` появится в переменных проекта сам.
-2. **Хранилище файлов.** Storage → Create → Blob → подключить к проекту.
-   Появится `BLOB_READ_WRITE_TOKEN`.
-3. **Пароль и ключ сессии.** Settings → Environment Variables:
-   - `ADMIN_PASSWORD` — длинный пароль, который больше нигде не используется;
-   - `ADMIN_SESSION_SECRET` — случайная строка ≥ 32 символов:
-     `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
-     Смена секрета разлогинивает все сессии.
-4. **Deploy Hook.** Settings → Git → Deploy Hooks → Create Hook: имя «admin»,
-   ветка `main`. Скопировать адрес в переменную `VERCEL_DEPLOY_HOOK_URL`
-   (это секрет — не публикуйте его).
-5. **Таблицы и данные.** Локально, со строкой подключения из Vercel
-   (`vercel env pull .env.local` или Storage → Neon → `.env.local`):
-   ```bash
-   DATABASE_URL='postgres://…' npm run db:migrate
-   DATABASE_URL='postgres://…' npm run db:seed
-   ```
-   Сид без `--force` не трогает разделы, которые уже есть в БД.
-6. Сделать Redeploy, чтобы функции увидели новые переменные, открыть `/admin`.
+Пошагово, от покупки домена до HTTPS и бэкапов, — [deploy/README.md](deploy/README.md).
 
 ### Локально
 
@@ -114,8 +103,9 @@ npm run dev          # сайт + /admin + функции api/* (scripts/api-dev
 npm run admin:check  # прогон API: вход, запись, проверки схемы, публикация
 ```
 
-`vercel dev` не нужен. Переменные берутся из `.env.local` (создайте сами по
-`.env.example`, в git он не попадает). Без `DATABASE_URL` включается файловый
-режим: админка пишет прямо в `content/*.json` рабочей копии — изменения видны
-в `git diff`. На Vercel файловый режим отключён, там только Postgres.
+Переменные берутся из `.env.local` (создайте сами по `.env.example`, в git он
+не попадает). Без `DATABASE_URL` включается файловый режим: админка пишет прямо
+в `content/*.json` рабочей копии, изменения видны в `git diff`. Загрузки
+ложатся в `.admin-dev/uploads`. На сервере файловый режим отключён, там только
+Postgres.
 

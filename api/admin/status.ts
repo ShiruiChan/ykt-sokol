@@ -1,12 +1,13 @@
 /**
  * GET /api/admin/status — вошёл ли владелец и что с публикацией:
  * когда последний раз сохраняли и публиковали, настроены ли БД,
- * хранилище файлов и Deploy Hook. Значения переменных не отдаются —
+ * хранилище файлов и команда публикации. Значения переменных не отдаются —
  * только признак «задана / не задана».
  */
 import { authConfigured, isAuthenticated } from '../_lib/auth.js';
 import { json } from '../_lib/http.js';
 import { getStore } from '../_lib/store.js';
+import { uploadsDir } from '../_lib/uploads.js';
 
 export async function GET(request: Request): Promise<Response> {
 	if (!authConfigured()) {
@@ -30,8 +31,8 @@ export async function GET(request: Request): Promise<Response> {
 		authConfigured: true,
 		store: store?.kind ?? null,
 		storeError,
-		publishConfigured: Boolean(process.env.VERCEL_DEPLOY_HOOK_URL),
-		uploadsConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+		publishConfigured: Boolean(process.env.PUBLISH_COMMAND),
+		uploadsConfigured: Boolean(uploadsDir()),
 		lastSaveAt,
 		lastPublishAt,
 		unpublished: Boolean(lastSaveAt && (!lastPublishAt || lastSaveAt > lastPublishAt)),

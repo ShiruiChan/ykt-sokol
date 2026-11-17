@@ -59,7 +59,7 @@ function Login({ configured, onDone }: { configured: boolean; onDone: () => void
 				<p className="mt-1 text-sm text-fog-400">Модели, цены, новости, документы и контакты сайта.</p>
 				{!configured && (
 					<p className="adm-warn mt-4">
-						Вход не настроен: в Vercel нужно задать ADMIN_PASSWORD и ADMIN_SESSION_SECRET (см. README).
+						Вход не настроен: на сервере нужно задать ADMIN_PASSWORD и ADMIN_SESSION_SECRET (см. deploy/README.md).
 					</p>
 				)}
 				<label htmlFor="password" className="adm-label mt-5">
