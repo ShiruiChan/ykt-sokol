@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useCookieConsent } from '../utils/cookieConsent';
 
 /**
  * Яндекс.Метрика. Номер счётчика берётся из VITE_YM_ID — без него
  * компонент ничего не делает, так что локально и на превью статистика
- * не засоряется.
+ * не засоряется. Счётчик загружается только после «Разрешить» в баннере
+ * о cookie (components/CookieBanner.tsx).
  */
 const YM_ID = Number(import.meta.env.VITE_YM_ID) || 0;
+export const YM_ENABLED = YM_ID > 0;
 
 type Ym = ((id: number, method: string, ...args: unknown[]) => void) & { a?: unknown[]; l?: number };
 
@@ -46,9 +49,10 @@ export function reachGoal(goal: string, params?: Record<string, unknown>) {
 export default function Metrika() {
 	const { pathname, search } = useLocation();
 	const first = useRef(true);
+	const granted = useCookieConsent((s) => s.choice === 'granted');
 
 	useEffect(() => {
-		if (!YM_ID) return;
+		if (!YM_ID || !granted) return;
 		load();
 
 		// Клики по телефону и мессенджерам — отдельные цели, без правки каждой ссылки
@@ -61,7 +65,7 @@ export default function Metrika() {
 		};
 		document.addEventListener('click', onClick);
 		return () => document.removeEventListener('click', onClick);
-	}, []);
+	}, [granted]);
 
 	// SPA: просмотр страницы при каждом переходе (первый засчитывает init)
 	useEffect(() => {

@@ -9,6 +9,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import RequestModal from './components/RequestModal';
 import Metrika from './components/Metrika';
+import CookieBanner from './components/CookieBanner';
 import ContactDock from './components/ContactDock';
 import { products, productPath } from './data/products';
 
@@ -20,6 +21,7 @@ const Documents = React.lazy(() => import('./pages/Cert'));
 const Compare = React.lazy(() => import('./pages/Compare'));
 const Service = React.lazy(() => import('./pages/Service'));
 const Privacy = React.lazy(() => import('./pages/Privacy'));
+const Consent = React.lazy(() => import('./pages/Consent'));
 const Kp = React.lazy(() => import('./pages/Kp'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
@@ -97,6 +99,7 @@ export default function App() {
 					<Route path="gallery" element={<Gallery />} />
 					<Route path="cert" element={<Documents />} />
 					<Route path="privacy" element={<Privacy />} />
+					<Route path="consent" element={<Consent />} />
 					{/* Коммерческое предложение: noindex, в sitemap не попадает */}
 					<Route path="kp" element={<Kp />} />
 					<Route path="*" element={<NotFound />} />
@@ -105,6 +108,9 @@ export default function App() {
 
 			{/* Модалка заявки живёт над маршрутами — открывается из любой точки сайта */}
 			<RequestModal />
+
+			{/* Согласие на cookie Метрики: без него счётчик не загружается */}
+			<CookieBanner />
 
 			{/* Быстрая связь на мобильных: WhatsApp, Telegram, звонок */}
 			<ContactDock />

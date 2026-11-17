@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useRequestModal } from './RequestModal';
+import { YM_ENABLED } from './Metrika';
+import { useCookieConsent } from '../utils/cookieConsent';
 import { ArrowUpRight, Clock, Phone, Pin, Telegram, WhatsApp } from './Icons';
 import { ADDRESS, BRAND, HOURS, MESSENGERS, NAV, PHONES } from '../config/site';
 
@@ -7,6 +9,7 @@ import { ADDRESS, BRAND, HOURS, MESSENGERS, NAV, PHONES } from '../config/site';
 const YEAR = new Date().getFullYear();
 
 export default function Footer() {
+	const reopenCookies = useCookieConsent((s) => s.reopen);
 	const openRequest = useRequestModal((s) => s.open);
 
 	return (
@@ -129,6 +132,18 @@ export default function Footer() {
 							<Link to="/privacy" className="underline-offset-2 transition-colors hover:text-fog-50 hover:underline">
 								Политика конфиденциальности
 							</Link>
+							{YM_ENABLED && (
+								<>
+									{' · '}
+									<button
+										type="button"
+										onClick={reopenCookies}
+										className="underline-offset-2 transition-colors hover:text-fog-50 hover:underline"
+									>
+										Настройки cookie
+									</button>
+								</>
+							)}
 						</p>
 					<p className="max-w-md sm:text-right">
 						Информация на сайте не является публичной офертой. Характеристики могут

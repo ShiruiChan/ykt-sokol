@@ -7,7 +7,7 @@ nginx :80/:443 ─┬─ статика сайта   → /srv/ykt-sokol/current 
                 ├─ /uploads/       → /srv/ykt-sokol/uploads  (фото и PDF из админки)
                 └─ /api/*          → node dist-server/index.js на 127.0.0.1:3000 (systemd: ykt-sokol)
                                         ├─ PostgreSQL на этом же сервере
-                                        ├─ заявки → Telegram, запасной канал — почта (SMTP)
+                                        ├─ заявки → почта (SMTP), в Telegram — сигнал без ПДн
                                         └─ «Опубликовать» → deploy/rebuild.sh
 ```
 
@@ -100,9 +100,9 @@ PUBLISH_COMMAND=/srv/ykt-sokol/app/deploy/rebuild.sh
 ADMIN_PASSWORD=длинный-пароль-владельца
 ADMIN_SESSION_SECRET=результат: openssl rand -base64 36
 
+SMTP_URL=smtps://sales%40DOMAIN.RU:пароль-для-внешнего-приложения@smtp.mail.ru:465
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
-SMTP_URL=smtps://sales%40DOMAIN.RU:пароль-приложения@smtp.yandex.ru:465
 MAIL_TO=sales@DOMAIN.RU
 
 VITE_SITE_URL=https://DOMAIN.RU
@@ -110,8 +110,10 @@ VITE_YM_ID=
 ```
 
 Значения пишутся без кавычек и пробелов: файл читают и systemd, и bash.
-Нужен хотя бы один канал заявок, Telegram или почта, лучше оба. Почта
-страхует на случай, если Telegram недоступен с сервера.
+Почта обязательна: без `SMTP_URL` и `MAIL_TO` форма отвечает «не настроено».
+Заявка с данными клиента уходит только письмом (почта с серверами в РФ).
+Telegram необязателен: туда приходит лишь сигнал «новая заявка» без имени и
+телефона, поэтому трансграничной передачи персональных данных нет.
 
 ## 6. Сервис и права на перезапуск
 
@@ -177,8 +179,10 @@ sudo -u ykt crontab -e
 - `/admin`: вход, правка, «Опубликовать». Через 1–2 минуты правка на сайте,
   в `logs/rebuild.log` строка «готово»;
 - загрузка фото в админке → фото открывается по `/uploads/images/…`;
-- тестовая заявка с сайта приходит в Telegram (и на почту, если временно
-  стереть `TELEGRAM_BOT_TOKEN` и перезапустить сервис);
+- без галочки согласия форма не отправляется; с галочкой тестовая заявка
+  приходит письмом, а в Telegram — сигнал без контактов;
+- при заданном `VITE_YM_ID` появляется cookie-баннер, Метрика грузится только
+  после «Разрешить»;
 - `https://DOMAIN.RU/sitemap.xml` содержит адреса с новым доменом.
 
 ## Обычная работа

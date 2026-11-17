@@ -55,8 +55,11 @@ const isPhone = (v: string) => {
 };
 const PHONE_EXAMPLE = '+7 900 123-45-67';
 /** Порядок полей для фокуса на первой ошибке */
-const FIELD_ORDER = ['name', 'contact', 'inn', 'qty', 'comments'] as const;
+const FIELD_ORDER = ['name', 'contact', 'inn', 'qty', 'comments', 'consent'] as const;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const DOC_LINK =
+	'text-fog-100 underline decoration-fog-500/50 underline-offset-2 transition-colors hover:text-fog-50';
 
 const EMPTY = { name: '', contact: '', inn: '', qty: '1', comments: '', website: '' };
 
@@ -78,6 +81,8 @@ export default function ContactForm({
 	const id = (field: string) => `${uid}-${field}`;
 
 	const [values, setValues] = useState(EMPTY);
+	// Согласие на обработку ПДн — отдельная галочка, по умолчанию снята (ч. 1 ст. 9 152-ФЗ)
+	const [consent, setConsent] = useState(false);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [status, setStatus] = useState<Status>('idle');
 	const navigate = useNavigate();
@@ -119,6 +124,7 @@ export default function ContactForm({
 		else if (!isPhone(contact) && !EMAIL_RE.test(contact))
 			next.contact = 'Похоже на опечатку — проверьте номер или адрес';
 		if (values.comments.length > 2000) next.comments = 'Комментарий длиннее 2000 символов';
+		if (!consent) next.consent = 'Без согласия мы не можем принять заявку — или позвоните нам';
 		setErrors(next);
 		// Фокус на первое поле с ошибкой: скринридер сразу прочитает её через aria-describedby
 		const first = FIELD_ORDER.find((f) => next[f]);
@@ -139,10 +145,12 @@ export default function ContactForm({
 				inn: values.inn.replace(/\s/g, '') || undefined,
 				subject: order ? undefined : subject,
 				...(order ?? {}),
+				consent: true,
 				website: values.website,
 			});
 			setStatus('sent');
 			setValues(EMPTY);
+			setConsent(false);
 			reachGoal('request_sent', { subject: order?.model ?? subject, channel });
 			onSent?.();
 		} catch (err) {
@@ -153,6 +161,7 @@ export default function ContactForm({
 				if (err.errors.contact) next.contact = 'Проверьте телефон или почту';
 				if (err.errors.comment) next.comments = 'Комментарий слишком длинный';
 				if (err.errors.inn) next.inn = 'Проверьте ИНН';
+				if (err.errors.consent) next.consent = 'Отметьте согласие на обработку данных';
 				setErrors(next);
 			}
 			setStatus('error');
@@ -396,6 +405,43 @@ export default function ContactForm({
 				/>
 			</div>
 
+			<div>
+				<label htmlFor={id('consent')} className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-fog-300">
+					<input
+						id={id('consent')}
+						name="consent"
+						type="checkbox"
+						checked={consent}
+						onChange={(e) => {
+							setConsent(e.target.checked);
+							if (e.target.checked)
+								setErrors((prev) => {
+									if (!prev.consent) return prev;
+									const next = { ...prev };
+									delete next.consent;
+									return next;
+								});
+						}}
+						className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded-[3px] accent-[var(--color-accent-500)]"
+						aria-required="true"
+						aria-invalid={Boolean(errors.consent)}
+						aria-describedby={errors.consent ? id('consent-err') : undefined}
+					/>
+					<span>
+						Даю{' '}
+						{/* В новой вкладке — чтобы не потерять заполненные поля */}
+						<Link to="/consent" target="_blank" rel="noopener" className={DOC_LINK}>
+							согласие на обработку персональных данных
+						</Link>{' '}
+						и подтверждаю ознакомление с{' '}
+						<Link to="/privacy" target="_blank" rel="noopener" className={DOC_LINK}>
+							политикой конфиденциальности
+						</Link>
+					</span>
+				</label>
+				{errorText('consent')}
+			</div>
+
 			{status === 'error' && (
 				<p
 					role="alert"
@@ -446,20 +492,6 @@ export default function ContactForm({
 					согласует комплектацию.
 				</p>
 			)}
-
-			<p className={`text-xs leading-relaxed text-fog-500 ${isPage ? '' : 'text-center'}`}>
-				{isKp ? 'Нажимая любую из кнопок' : 'Нажимая кнопку'}, вы соглашаетесь на обработку персональных данных на условиях{' '}
-				{/* В новой вкладке — чтобы не потерять заполненные поля */}
-				<Link
-					to="/privacy"
-					target="_blank"
-					rel="noopener"
-					className="underline decoration-fog-500/50 underline-offset-2 transition-colors hover:text-fog-200"
-				>
-					политики конфиденциальности
-				</Link>
-				.
-			</p>
 		</form>
 	);
 }

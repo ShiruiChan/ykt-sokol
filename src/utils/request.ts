@@ -1,12 +1,12 @@
 /**
  * Единая точка отправки заявок: свой endpoint /api/request.
- * Сервер доставляет заявку в Telegram, а если тот недоступен — письмом
- * по SMTP. Сторонних сервисов в браузере нет: данные клиента уходят
- * только на наш сервер в РФ (152-ФЗ).
+ * Сервер отправляет заявку письмом на рабочую почту (серверы в РФ),
+ * в Telegram уходит только сигнал без персональных данных. Сторонних
+ * сервисов в браузере нет: данные клиента уходят только на наш сервер (152-ФЗ).
  */
 
 const ENDPOINT = '/api/request';
-// Сервер ждёт Telegram до 8 с и почту до ~15 с — запас, чтобы не оборвать доставку
+// Сервер ждёт почту до ~15 с и сигнал в Telegram до 8 с — запас, чтобы не оборвать доставку
 const TIMEOUT_MS = 30_000;
 
 export interface RequestAccessory {
@@ -33,13 +33,15 @@ export interface RequestPayload {
 	kpNumber?: string;
 	/** Адрес страницы, с которой ушла заявка */
 	page?: string;
+	/** Отдельное согласие на обработку ПДн (галочка в форме). Без него сервер заявку не примет */
+	consent: true;
 	/** Honeypot: заполняют только боты */
 	website?: string;
 }
 
-export type SendChannel = 'telegram' | 'mail' | 'honeypot';
+export type SendChannel = 'mail' | 'honeypot';
 
-/** Заявка не доставлена: сеть, сервер или оба канала (Telegram и почта) недоступны */
+/** Заявка не доставлена: сеть, сервер или почта недоступны */
 export class RequestDeliveryError extends Error {
 	constructor(reason: string) {
 		super(reason);
@@ -96,8 +98,8 @@ async function sendViaApi(p: RequestPayload): Promise<SendChannel> {
 	// 403 — чужой сайт, 413 — слишком большая, 429 — лимит
 	if ((res.status === 403 || res.status === 413 || res.status === 429) && body)
 		throw new RequestRejectedError(body.reason ?? String(res.status));
-	if (res.ok && body?.ok) return body.channel ?? 'telegram';
-	// 503 — каналы не настроены, 502 — Telegram и почта недоступны, прочее — сбой сервера
+	if (res.ok && body?.ok) return body.channel ?? 'mail';
+	// 503 — почта не настроена, 502 — почта не ответила, прочее — сбой сервера
 	throw new RequestDeliveryError(body?.reason ?? String(res.status));
 }
 

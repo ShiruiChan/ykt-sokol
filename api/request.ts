@@ -1,8 +1,10 @@
 /**
  * Приём заявок с сайта.
- * Основной канал — Telegram через Bot API, резервный — письмо по SMTP
- * (api/_lib/mail.ts), если бот не настроен или Telegram не ответил.
- * Оба канала работают с сервера: токены и пароли в браузер не попадают.
+ * Заявка с персональными данными уходит только письмом (SMTP почты в РФ,
+ * api/_lib/mail.ts). В Telegram — лишь сигнал «пришла заявка» без имени,
+ * телефона и комментария: серверы Telegram за рубежом, а трансграничную
+ * передачу персональных данных мы не ведём (152-ФЗ, ст. 12).
+ * Всё работает с сервера: токены и пароли в браузер не попадают.
  */
 
 import { clientIp, sameOrigin } from './_lib/http.js';
@@ -52,6 +54,9 @@ interface CleanRequest {
 	page: string;
 }
 
+/** Версия текста согласия на /consent — попадает в письмо как след согласия */
+const CONSENT_VERSION = '2026-11-17';
+
 const json = (status: number, body: Record<string, unknown>) =>
 	new Response(JSON.stringify(body), {
 		status,
@@ -69,6 +74,9 @@ type Validation = { ok: true; data: CleanRequest } | { ok: false; errors: Record
 
 function validate(raw: Record<string, unknown>): Validation {
 	const errors: Record<string, string> = {};
+
+	// Отдельное согласие на обработку ПДн (ч. 1 ст. 9 152-ФЗ): без галочки заявку не принимаем
+	if (raw.consent !== true) errors.consent = 'required';
 
 	const name = text(raw.name);
 	const contact = text(raw.contact);
@@ -169,8 +177,20 @@ function formatMessage(r: CleanRequest) {
 	if (r.inn) lines.push(`<b>ИНН:</b> ${escapeHtml(r.inn)}`);
 	if (r.comment) lines.push(`<b>Комментарий:</b> ${escapeHtml(r.comment)}`);
 	if (r.page) lines.push('', `<b>${r.kpNumber ? 'Документ КП' : 'Страница'}:</b> ${escapeHtml(r.page)}`);
+	lines.push(
+		'',
+		`Согласие на обработку персональных данных дано на сайте ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Yakutsk' })} (Якутск), текст согласия в редакции ${CONSENT_VERSION}.`
+	);
 
 	return lines.join('\n');
+}
+
+/** Сигнал в Telegram: только что пришло, без персональных данных */
+function formatSignal(r: CleanRequest) {
+	const what = r.kpNumber
+		? `Сформировано ${escapeHtml(r.kpNumber)}${r.model ? ` — ${escapeHtml(r.model)}` : ''}`
+		: `Новая заявка с сайта${r.model ? ` — ${escapeHtml(r.model)}` : ''}`;
+	return `<b>${what}</b>\nКонтакты клиента — в письме на рабочей почте.`;
 }
 
 /** Не больше REQUEST_LIMIT заявок с одного IP за окно — защита рабочего чата от спама */
@@ -220,10 +240,7 @@ async function sendTelegram(token: string, chatId: string, text: string): Promis
 }
 
 export async function POST(request: Request): Promise<Response> {
-	const token = process.env.TELEGRAM_BOT_TOKEN;
-	const chatId = process.env.TELEGRAM_CHAT_ID;
-	const telegram = Boolean(token && chatId);
-	if (!telegram && !mailConfigured()) return json(503, { ok: false, reason: 'not_configured' });
+	if (!mailConfigured()) return json(503, { ok: false, reason: 'not_configured' });
 
 	// Заявки — только с нашего сайта и только JSON (text/plain с чужого сайта обходит CORS preflight)
 	if (!sameOrigin(request)) return json(403, { ok: false, reason: 'origin' });
@@ -253,16 +270,18 @@ export async function POST(request: Request): Promise<Response> {
 	if (await overLimit(ipFingerprint(clientIp(request))))
 		return json(429, { ok: false, reason: 'rate_limited' });
 
-	const message = formatMessage(result.data);
-	if (telegram && (await sendTelegram(token!, chatId!, message))) return json(200, { ok: true, channel: 'telegram' });
-	if (mailConfigured()) {
-		try {
-			const r = result.data;
-			await sendMail(r.kpNumber ? `Сформировано ${r.kpNumber}` : `Заявка с сайта: ${r.model || r.subject || r.name}`, message);
-			return json(200, { ok: true, channel: 'mail' });
-		} catch (err) {
-			console.error('mail_failed', err instanceof Error ? err.message : 'unknown');
-		}
+	const r = result.data;
+	try {
+		await sendMail(r.kpNumber ? `Сформировано ${r.kpNumber}` : `Заявка с сайта: ${r.model || r.subject || 'без темы'}`, formatMessage(r));
+	} catch (err) {
+		console.error('mail_failed', err instanceof Error ? err.message : 'unknown');
+		return json(502, { ok: false, reason: 'delivery_failed' });
 	}
-	return json(502, { ok: false, reason: 'delivery_failed' });
+
+	// Сигнал необязателен: заявка уже на почте, сбой Telegram её не теряет
+	const token = process.env.TELEGRAM_BOT_TOKEN;
+	const chatId = process.env.TELEGRAM_CHAT_ID;
+	if (token && chatId) await sendTelegram(token, chatId, formatSignal(r));
+
+	return json(200, { ok: true, channel: 'mail' });
 }

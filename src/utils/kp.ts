@@ -175,6 +175,8 @@ export function kpPayload(doc: KpDocument, buyer: KpBuyer, website = ''): Reques
 		total: doc.total,
 		// Ссылка на документ без персональных данных — менеджер откроет тот же расчёт
 		page: absoluteUrl(kpUrl(doc.product, doc.options.map((a) => a.id), doc.code, doc.qty)),
+		// КП формируется только из формы с отмеченной галочкой согласия
+		consent: true,
 		website,
 	};
 }
