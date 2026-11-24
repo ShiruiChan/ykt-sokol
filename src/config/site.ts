@@ -41,6 +41,12 @@ export const HOURS: SiteContent['hours'] = site.hours;
  */
 export const MESSENGERS: SiteContent['messengers'] = site.messengers;
 
+/** Модель в крупном кадре на главной, если в админке не выбрана другая */
+export const DEFAULT_HOME_MODEL = 'pickup-1-5';
+
+/** slug модели для главной — выбирается в админке, раздел «Контакты» → «Главная страница» */
+export const HOME_MODEL = site.homeModel || DEFAULT_HOME_MODEL;
+
 /** Основная навигация — общая для шапки, мобильного меню и подвала */
 export const NAV = [
 	{ to: '/', label: 'Главная' },

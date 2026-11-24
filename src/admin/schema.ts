@@ -328,6 +328,8 @@ function cleanSite(c: Ctx, raw: unknown): SiteContent {
 	const closes = c.str(h.closes, 'site.hours.closes', { required: true, max: 5 });
 	if (opens && !TIME_RE.test(opens)) c.err('site.hours.opens', 'Время в формате ЧЧ:ММ');
 	if (closes && !TIME_RE.test(closes)) c.err('site.hours.closes', 'Время в формате ЧЧ:ММ');
+	const homeModel = c.optStr(o.homeModel, 'site.homeModel', 100);
+	if (homeModel && !SLUG_RE.test(homeModel)) c.err('site.homeModel', 'Выберите модель из списка');
 	return {
 		phones: { main: phone('main'), extra: phone('extra') },
 		address: {
@@ -347,6 +349,7 @@ function cleanSite(c: Ctx, raw: unknown): SiteContent {
 			whatsapp: c.url(m.whatsapp, 'site.messengers.whatsapp'),
 			telegram: c.url(m.telegram, 'site.messengers.telegram'),
 		},
+		...(homeModel ? { homeModel } : {}),
 	};
 }
 

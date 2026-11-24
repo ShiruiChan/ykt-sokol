@@ -1,14 +1,60 @@
-/** Контакты: телефоны, адрес, часы работы, мессенджеры */
-import type { SiteContent } from '../../types';
+/** Контакты: телефоны, адрес, часы работы, мессенджеры; модель для главной */
+import { useEffect, useId, useState } from 'react';
+import type { Product, SiteContent } from '../../types';
 import { LoadError, SectionHeader, SnapshotNote, useSection } from '../section';
 import { Field, Panel } from '../ui';
 import { telHref } from '../schema';
+import { api } from '../api';
+import { DEFAULT_HOME_MODEL } from '../../config/site';
+import productsSnapshot from '../../../content/products.json';
+
+type ModelOption = Pick<Product, 'slug' | 'name'>;
+
+/** Модели для выбора — из БД (с несохранёнными в «Моделях» правками не синхронизируется), без БД — из снимка */
+function useModelOptions(): ModelOption[] {
+	const [list, setList] = useState<ModelOption[]>(productsSnapshot as ModelOption[]);
+	useEffect(() => {
+		let alive = true;
+		api
+			.get('products')
+			.then((r) => {
+				if (alive && r.data?.length) setList(r.data);
+			})
+			.catch(() => {});
+		return () => {
+			alive = false;
+		};
+	}, []);
+	return list;
+}
+
+function HomeModelSelect({ value, error, onChange }: { value: string; error?: string; onChange: (v: string) => void }) {
+	const id = useId();
+	const models = useModelOptions();
+	const known = models.some((m) => m.slug === value);
+	return (
+		<div>
+			<label htmlFor={id} className="adm-label">
+				Модель в крупном кадре (блок «Почему берут ЯКТСокол»)
+			</label>
+			<select id={id} className="adm-input" value={value} aria-invalid={error ? true : undefined} onChange={(e) => onChange(e.target.value)}>
+				{!known && <option value={value}>{value} — модели нет, покажется первая подходящая</option>}
+				{models.map((m) => (
+					<option key={m.slug} value={m.slug}>
+						{m.name}
+					</option>
+				))}
+			</select>
+			{error ? <p className="adm-error-text">{error}</p> : <p className="adm-hint">Показывается первое фото и название модели, кадр ведёт на её страницу.</p>}
+		</div>
+	);
+}
 
 export default function Site() {
 	const section = useSection('site');
 	const s = section.draft;
 	const err = (path: string) => section.errors[`site.${path}`];
-	const patch = <G extends keyof SiteContent>(group: G, value: Partial<SiteContent[G]>) =>
+	const patch = <G extends Exclude<keyof SiteContent, 'homeModel'>>(group: G, value: Partial<SiteContent[G]>) =>
 		section.setDraft((d) => ({ ...d, [group]: { ...d[group], ...value } }));
 
 	if (section.loading) return <p className="py-8 text-fog-500">Загрузка…</p>;
@@ -52,6 +98,14 @@ export default function Site() {
 						<Field label="Коротко (подписи, кнопки)" value={s.address.short} error={err('address.short')} onChange={(v) => patch('address', { short: v })} />
 						<Field label="Ссылка «Маршрут» (2ГИС, Яндекс)" value={s.address.routeUrl} error={err('address.routeUrl')} onChange={(v) => patch('address', { routeUrl: v })} />
 					</div>
+				</Panel>
+
+				<Panel title="Главная страница">
+					<HomeModelSelect
+						value={s.homeModel || DEFAULT_HOME_MODEL}
+						error={err('homeModel')}
+						onChange={(v) => section.setDraft((d) => ({ ...d, homeModel: v }))}
+					/>
 				</Panel>
 
 				<Panel title="Часы работы">

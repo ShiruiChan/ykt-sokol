@@ -108,4 +108,6 @@ export type SiteContent = {
 		closes: string;
 	};
 	messengers: { whatsapp: string; telegram: string };
+	/** slug модели в крупном кадре на главной; пусто — DEFAULT_HOME_MODEL */
+	homeModel?: string;
 };

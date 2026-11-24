@@ -2,9 +2,15 @@ import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 import { useRequestModal } from './RequestModal';
 import { ArrowUpRight, Certificate, Frame, Frost, Plant, Tire, Wrench } from './Icons';
-import { plural, products } from '../data/products';
+import ResponsiveImage from './ResponsiveImage';
+import { plural, productBySlug, productPath, products } from '../data/products';
+import { DEFAULT_HOME_MODEL, HOME_MODEL } from '../config/site';
 
 const COUNT = products.length;
+
+// Модель удалили или переименовали slug — не оставляем главную без кадра
+const HOME_PRODUCT =
+	productBySlug(HOME_MODEL) ?? productBySlug(DEFAULT_HOME_MODEL) ?? products.find((p) => p.images?.length);
 
 /**
  * Асимметричный бенто вместо трёх одинаковых колонок.
@@ -90,32 +96,37 @@ export default function Features() {
 
 					{/* Правая часть: крупный кадр + сетка доводов */}
 					<div className="lg:col-span-7">
-						<Reveal delay={0.08} className="bezel">
-							<figure className="relative overflow-hidden rounded-[calc(2rem-0.375rem)]">
-								<img
-									src="/images/lis/2.webp"
-									alt="Снегоболотоход ЯКТС Лис с закрытой кабиной на снегу"
-									className="aspect-[16/10] w-full object-cover"
-									loading="lazy"
-									decoding="async"
-									width={1000}
-									height={462}
-								/>
-								<div
-									aria-hidden
-									className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,10,0.92)_0%,transparent_55%)]"
-								/>
-								<figcaption className="absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4">
-									<span className="font-display text-lg tracking-wide text-fog-50">
-										ЯКТС Лис
-									</span>
-									<span className="flex items-center gap-2 text-xs text-fog-400">
-										<Tire className="h-4 w-4 text-accent-200" />
-										шины низкого давления
-									</span>
-								</figcaption>
-							</figure>
-						</Reveal>
+						{HOME_PRODUCT?.images?.[0] && (
+							<Reveal delay={0.08} className="bezel">
+								<Link
+									to={productPath(HOME_PRODUCT)}
+									className="group relative block overflow-hidden rounded-[calc(2rem-0.375rem)]"
+									aria-label={`Открыть страницу модели ${HOME_PRODUCT.name}`}
+								>
+									<figure>
+										<ResponsiveImage
+											src={HOME_PRODUCT.images[0]}
+											sizes="(min-width: 1024px) 46vw, 92vw"
+											alt={`Снегоболотоход ${HOME_PRODUCT.name}`}
+											className="aspect-[16/10] w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+										/>
+										<div
+											aria-hidden
+											className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,10,10,0.92)_0%,transparent_55%)]"
+										/>
+										<figcaption className="absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4">
+											<span className="font-display text-lg tracking-wide text-fog-50">
+												{HOME_PRODUCT.name}
+											</span>
+											<span className="flex items-center gap-2 text-xs text-fog-400">
+												<Tire className="h-4 w-4 text-accent-200" />
+												шины низкого давления
+											</span>
+										</figcaption>
+									</figure>
+								</Link>
+							</Reveal>
+						)}
 
 						<div className="mt-6 grid gap-4 sm:grid-cols-2">
 							{POINTS.map((p, i) => {
