@@ -54,7 +54,7 @@ export default function Features() {
 						</p>
 						<h2 className="mt-5 text-title text-fog-50">
 							Техника, собранная теми,
-							<br className="hidden sm:block" /> кто сам по ней ездит
+							<br className="hidden sm:block" /> кто сам на ней ездит
 						</h2>
 						<p className="mt-6 max-w-md text-fog-400">
 							Мы производим снегоболотоходы в Якутске и испытываем их здесь же — на реке, в
