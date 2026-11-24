@@ -87,9 +87,10 @@ export default function DynamicYandexMap() {
 							/>
 
 							{/* Метка: остриё в центре кадра */}
-							<div aria-hidden className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
-								<div className="mb-2 rounded-full border border-white/10 bg-ink-950/90 px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap text-fog-50 shadow-lg backdrop-blur-sm">
-									ЯКТСокол · цех
+							<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full">
+								<div className="mb-2 rounded-2xl border border-white/10 bg-ink-950/90 px-4 py-2 text-center whitespace-nowrap shadow-lg backdrop-blur-sm">
+									<span className="block text-sm font-semibold text-fog-50">ЯКТСокол · цех</span>
+									<span className="mt-0.5 block text-xs text-fog-400">{ADDRESS.short}</span>
 								</div>
 								<svg viewBox="0 0 28 38" className="mx-auto h-10 w-[30px] drop-shadow-[0_6px_10px_rgba(0,0,0,0.55)]">
 									<path
